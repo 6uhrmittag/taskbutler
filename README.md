@@ -17,7 +17,7 @@ Adds visual progressbars to tasks and lists with subtasks
 
 **Errors could lead to broken task-descriptions or manual rework**
 
-## Getting Started
+## usage Windows
 1. Add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
 2. Download .exe or python project
 3. add a config.ini to the same directory as the .exe
@@ -33,6 +33,17 @@ apikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES
 ![Demo output](readme_resources/cmd-sample-output.PNG)
 
 7. Done
+
+## usage Ubuntu
+### installing requirements
+- ´sudo apt-get install python3-pip´
+- ´sudo pip3 install -r requirements.txt´
+- ´git clone git@github.com:6uhrmittag/todoist-progress.git´
+- ´cd todoist-progress/todoist-progress/´
+- ´echo -e "[config]\napikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES" >> config.ini´
+- ´python3 todoist_progress.py´
+### usage
+
 
 ## Continuous progress-update
 This program updates existing tasks without creating new once. It used the official sync-api and shouldn't cause any trouble while syncing.

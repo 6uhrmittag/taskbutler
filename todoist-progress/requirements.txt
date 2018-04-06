@@ -1,17 +1,10 @@
 altgraph==0.15
 certifi==2018.1.18
 chardet==3.0.4
-cx-Freeze==5.1.1
 future==0.16.0
 idna==2.6
 macholib==1.9
 pefile==2017.11.5
 pip==9.0.1
-py2exe==0.9.2.2
-PyInstaller==3.3.1
-pypiwin32==223
-pywin32==223
-requests==2.18.4
-setuptools==39.0.1
 todoist-python==7.0.18
 urllib3==1.22
