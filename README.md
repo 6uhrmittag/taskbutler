@@ -42,6 +42,31 @@ run programm every 20Min via crontab
 3. `crontab -e`
 4. add: `*/20  *  * * * cd "INSERT-COPIED-PATH" && /usr/bin/python3 todoist_progress.py`
 
+### edit progressbar symboles
+The bar is implemented by adding [unicode charaters](http://jrgraphix.net/r/Unicode/2600-26FF) to the existing text.
+e.g.  ⬛⬛⬜⬜⬜ 33 %
+The characters are configurable in the `config.py` file
+```
+progress_bar_0='⬜⬜⬜⬜⬜ '
+progress_bar_20='⬛⬜⬜⬜⬜ '
+progress_bar_40='⬛⬛⬜⬜⬜ '
+progress_bar_60='⬛⬛⬛⬜⬜ '
+progress_bar_80='⬛⬛⬛⬛⬜ '
+progress_bar_100='⬛⬛⬛⬛⬛ '
+```
+To change the bar to e.g. empty/full bullets, just overwrite the characters with other charaters `⚫⚫⚫⚪⚪`.
+
+### edit progressbar seperator
+The bar added to every task. To seperate the task-text from the progressbar a rare unicode charater is used.
+To change the seperator just change the line `progress_seperator="‣"` in the `config.py` file. Just replace the existing charater with your choice. Remember to rename the seperator manually in todoist before running the programm again!
+
+### edit progressbar label
+The bar added to every task with the label `trackprogress`.
+The label-name can be changed in the `config.py` file in line 1:
+`label_progress = "trackprogress"`
+To change the label, just change the name inside the quotes.
+Remember to rename the label in todoist when renaming labels!
+
 ## usage Windows
 1. Add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
 2. Download .exe
