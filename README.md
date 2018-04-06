@@ -29,11 +29,11 @@ Adds visual progressbars to tasks and lists with subtasks
 - `cd todoist-progress/todoist-progress/`
 - `python3 todoist_progress.py`
 
-## Continuous progress-update
+### Continuous progress-update
 This program updates existing tasks without creating new once. It used the official sync-api and shouldn't cause any trouble while syncing.
 To continuously update your tasks run this programm periodical on a server/computer
 
-### Ubuntu
+#### Ubuntu
 run programm every 20Min via crontab
 (see [crontab.guru](https://crontab.guru/) for setting time)
 
@@ -42,24 +42,51 @@ run programm every 20Min via crontab
 3. `crontab -e`
 4. add: `*/20  *  * * * cd "INSERT-COPIED-PATH" && /usr/bin/python3 todoist_progress.py`
 
+#### edit progressbar symboles
+The bar is implemented by adding [unicode charaters](http://jrgraphix.net/r/Unicode/2600-26FF) to the existing text.
+e.g.  ⬛⬛⬜⬜⬜ 33 %
+The characters are configurable in the `config.py` file
+```
+progress_bar_0='⬜⬜⬜⬜⬜ '
+progress_bar_20='⬛⬜⬜⬜⬜ '
+progress_bar_40='⬛⬛⬜⬜⬜ '
+progress_bar_60='⬛⬛⬛⬜⬜ '
+progress_bar_80='⬛⬛⬛⬛⬜ '
+progress_bar_100='⬛⬛⬛⬛⬛ '
+```
+To change the bar to e.g. empty/full bullets, just overwrite the characters with other charaters `⚫⚫⚫⚪⚪`.
+
+#### edit progressbar seperator
+The bar added to every task. To seperate the task-text from the progressbar a rare unicode charater is used.
+To change the seperator just change the line `progress_seperator="‣"` in the `config.py` file. Just replace the existing charater with your choice. Remember to rename the seperator manually in todoist before running the programm again!
+
+#### edit progressbar label
+The bar added to every task with the label `trackprogress`.
+The label-name can be changed in the `config.py` file in line 1:
+`label_progress = "trackprogress"`
+To change the label, just change the name inside the quotes.
+Remember to rename the label in todoist when renaming labels!
+
 ## usage Windows
-1. Add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
-2. Download .exe
-3. add a config.ini to the same directory as the .exe
+**unfortunately the windows version is not as flexible as the "raw" python version and currently just tested under Win10, 64bit***
+
+1. add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
+2. download `todoist_progress.exe` from [releases page](https://github.com/6uhrmittag/todoist-progress/releases)
+3. add a config.ini to the same directory as the `todoist_progress.exe` (with notepad)
 4. add the following to the `config.ini`:
 ```
 [config]
 apikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES
 ```
-5. open a cmd (Win+R -> cmd) and `cd` into the directory
-6. run `todoist_progress.exe`
-7. Sample output:
+5. open a cmd (WIN+R -> cmd) and `cd` into the directory (e.g. `cd C:\Users\username\Downloads\todoist-progress`)
+6. type `todoist_progress.exe` <enter>
+7. like this:
 
-![Demo output](readme_resources/cmd-sample-output.PNG)
+![Demo output](readme_resources/cmd-sample-run.PNG)
 
-7. Done
+7. Done (check [https://todoist.com](todoist.com) )
 
-## python2exe
+## Development: python2exe
 - install PyInstaller
 - cmd in directory
 - run `pyinstaller --path "C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs\x64" --clean --onefile todoist_progress.py`
