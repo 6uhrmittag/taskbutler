@@ -259,3 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/todoist-progress/secrets.py
+/todoist-progress/build/todoist_progress
+/todoist-progress/config.ini

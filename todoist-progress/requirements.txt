@@ -1,0 +1,8 @@
+certifi==2018.1.18
+chardet==3.0.4
+idna==2.6
+pip==9.0.1
+requests==2.18.4
+setuptools==28.8.0
+todoist-python==7.0.18
+urllib3==1.22
