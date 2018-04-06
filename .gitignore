@@ -262,7 +262,8 @@ __pycache__/
 /todoist-progress/secrets.py
 /todoist-progress/build/todoist_progress
 /todoist-progress/config.ini
-/todoist-progress/dist/config.ini
+/todoist-progress/dist/
+/todoist-progress/build
 .build/
 .dist/
 todoist-progress.sln
