@@ -263,3 +263,7 @@ __pycache__/
 /todoist-progress/build/todoist_progress
 /todoist-progress/config.ini
 /todoist-progress/dist/config.ini
+.build/
+.dist/
+todoist-progress.sln
+
