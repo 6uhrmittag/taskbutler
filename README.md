@@ -19,15 +19,15 @@ Adds visual progressbars to tasks and lists with subtasks
 
 ## usage Ubuntu
 ### installing requirements
-- ´sudo apt-get install python3-pip´
-- ´sudo pip3 install -r requirements.txt´
-- ´git clone git@github.com:6uhrmittag/todoist-progress.git´
-- ´cd todoist-progress/todoist-progress/´
-- ´echo -e "[config]\napikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES" >> config.ini´
+- `sudo apt-get install python3-pip`
+- `sudo pip3 install -r requirements.txt`
+- `git clone git@github.com:6uhrmittag/todoist-progress.git`
+- `cd todoist-progress/todoist-progress/`
+- `echo -e "[config]\napikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES" >> config.ini`
 -  add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
 ### usage
-- ´cd todoist-progress/todoist-progress/´
-- ´python3 todoist_progress.py´
+- `cd todoist-progress/todoist-progress/`
+- `python3 todoist_progress.py`
 
 ## Continuous progress-update
 This program updates existing tasks without creating new once. It used the official sync-api and shouldn't cause any trouble while syncing.
@@ -37,10 +37,10 @@ To continuously update your tasks run this programm periodical on a server/compu
 run programm every 20Min via crontab
 (see [crontab.guru](https://crontab.guru/) for setting time)
 
-1. ´sudo find / -name todoist_progress.py´
-2. copy path without "todoist_progress.py" (e.g. ´/home/USERNAME/todoisttest/todoist-progress/todoist-progress/´)
-3. ´crontab -e´
-4. add: ´*/20  *  * * * cd "INSERT-COPIED-PATH" && /usr/bin/python3 todoist_progress.py´
+1. `sudo find / -name todoist_progress.py`
+2. copy path without "todoist_progress.py" (e.g. `/home/USERNAME/todoisttest/todoist-progress/todoist-progress/`)
+3. `crontab -e`
+4. add: `*/20  *  * * * cd "INSERT-COPIED-PATH" && /usr/bin/python3 todoist_progress.py`
 
 ## usage Windows
 1. Add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
@@ -52,12 +52,17 @@ run programm every 20Min via crontab
 apikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES
 ```
 5. open a cmd (Win+R -> cmd) and `cd` into the directory
-6. run ´todoist_progress.exe`
+6. run `todoist_progress.exe`
 7. Sample output:
 
 ![Demo output](readme_resources/cmd-sample-output.PNG)
 
 7. Done
+
+## python2exe
+- install PyInstaller
+- cmd in directory
+- run `pyinstaller --path "C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs\x64" --clean --onefile todoist_progress.py`
 
 ## Built With
 
@@ -66,7 +71,7 @@ apikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES
 
 ## Contributing
 
-Please leave a issue in the [issue tracker] (https://github.com/6uhrmittag/todoist-progress/issues)
+Please leave a issue in the [issue tracker](https://github.com/6uhrmittag/todoist-progress/issues)
 
 ## Versioning
 
