@@ -17,23 +17,6 @@ Adds visual progressbars to tasks and lists with subtasks
 
 **Errors could lead to broken task-descriptions or manual rework**
 
-## usage Windows
-1. Add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
-2. Download .exe or python project
-3. add a config.ini to the same directory as the .exe
-4. add the following to the `config.ini`:
-```
-[config]
-apikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES
-```
-5. open a cmd (Win+R -> cmd) and `cd` into the directory
-6. run either 'python todoist_progress.py' or ´todoist_progress.exe`
-7. Sample output:
-
-![Demo output](readme_resources/cmd-sample-output.PNG)
-
-7. Done
-
 ## usage Ubuntu
 ### installing requirements
 - ´sudo apt-get install python3-pip´
@@ -41,13 +24,40 @@ apikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES
 - ´git clone git@github.com:6uhrmittag/todoist-progress.git´
 - ´cd todoist-progress/todoist-progress/´
 - ´echo -e "[config]\napikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES" >> config.ini´
-- ´python3 todoist_progress.py´
+-  add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
 ### usage
-
+- ´cd todoist-progress/todoist-progress/´
+- ´python3 todoist_progress.py´
 
 ## Continuous progress-update
 This program updates existing tasks without creating new once. It used the official sync-api and shouldn't cause any trouble while syncing.
 To continuously update your tasks run this programm periodical on a server/computer
+
+### Ubuntu
+run programm every 20Min via crontab
+(see [crontab.guru](https://crontab.guru/) for setting time)
+
+1. ´sudo find / -name todoist_progress.py´
+2. copy path without "todoist_progress.py" (e.g. ´/home/USERNAME/todoisttest/todoist-progress/todoist-progress/´)
+3. ´crontab -e´
+4. add: ´*/20  *  * * * cd "INSERT-COPIED-PATH" && /usr/bin/python3 todoist_progress.py´
+
+## usage Windows
+1. Add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
+2. Download .exe
+3. add a config.ini to the same directory as the .exe
+4. add the following to the `config.ini`:
+```
+[config]
+apikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES
+```
+5. open a cmd (Win+R -> cmd) and `cd` into the directory
+6. run ´todoist_progress.exe`
+7. Sample output:
+
+![Demo output](readme_resources/cmd-sample-output.PNG)
+
+7. Done
 
 ## Built With
 
