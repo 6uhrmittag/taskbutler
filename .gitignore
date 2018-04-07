@@ -260,11 +260,11 @@ paket-files/
 __pycache__/
 *.pyc
 /todoist-progress/secrets.py
-/todoist-progress/build/todoist_progress
 /todoist-progress/config.ini
-/todoist-progress/dist/
-/todoist-progress/build
 .build/
 .dist/
 todoist-progress.sln
+/todoist-progress/dist/
+/todoist-progress/build
 
+/todoist-progress/todoist-progress.pyproj
