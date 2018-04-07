@@ -135,7 +135,7 @@ for task in api.state['items']:
                     item_content_new = item_content_old[0]
    
                 else:
-                    item_content_new = task['content']
+                    item_content_new = task['content'] + " "
 
                 
                 item_content = item_content_new + "" + config.progress_seperator + " " + item_progressbar + progress_done + ' %'
