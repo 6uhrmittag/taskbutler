@@ -67,7 +67,7 @@ for task in api.state['items']:
     if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['is_archived']: 
         for label in task['labels']:
             if label == label_progress_id:
-                print("Found task to track:", task['content'])
+                #print("Found task to track:", task['content'])
                 #print("content   = ", task['content']) 
                 #print("id        = ", task['id'])
                 #print("labels    = ", task['labels'])
