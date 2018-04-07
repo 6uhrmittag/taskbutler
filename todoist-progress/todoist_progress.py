@@ -58,6 +58,7 @@ for label in api.state['labels']:
 
 
 counter_progress = 0
+counter_changed_items = 0
 
 for task in api.state['items']:
 
@@ -66,9 +67,9 @@ for task in api.state['items']:
     if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['is_archived']: 
         for label in task['labels']:
             if label == label_progress_id:
-                print("Found task to track: ")
-                print("content   = ", task['content']) 
-                print("id        = ", task['id'])
+                print("Found task to track:", task['content'])
+                #print("content   = ", task['content']) 
+                #print("id        = ", task['id'])
                 #print("labels    = ", task['labels'])
                 #print("Order     = ", task['item_order'])
                 #print(task, "\n#####")
@@ -99,10 +100,10 @@ for task in api.state['items']:
                     
                 progress_done = round(subtasks_done * progress_per_task)
 
-                print("\nSubtasks total = ", subtasks_total)
-                print("Subtasks done = ", subtasks_done)
+                #print("Subtasks total = ", subtasks_total)
+                #print("Subtasks done = ", subtasks_done)
                 #print("\nPercent per task = ", progress_per_task)
-                print("Percent done = ", progress_done)
+                #print("Percent done = ", progress_done)
                 #print ("\n######\n")
                 #print("Order in List:", task['item_order'])
                 #print(type(task['item_order']))
@@ -127,6 +128,8 @@ for task in api.state['items']:
                     
                 progress_done = str(progress_done)
 
+                item_task_old = task['content']
+
                 if "‣" in task['content']:
                     item_content_old = task['content'].split(config.progress_seperator)
                     item_content_new = item_content_old[0]
@@ -134,21 +137,30 @@ for task in api.state['items']:
                 else:
                     item_content_new = task['content']
 
-                item_content = item_content_new + " " + config.progress_seperator + " " + item_progressbar + progress_done + ' %'
-                item = api.items.get_by_id(task['id'])
-                item.update(content=item_content)
+                
+                item_content = item_content_new + "" + config.progress_seperator + " " + item_progressbar + progress_done + ' %'
 
 
-                #print(item_content)
-                #api.items.add(content=item_content, project_id=testprojekt_id , item_order= item_order, indent=2)
+                if not item_task_old == item_content:
+                    item = api.items.get_by_id(task['id'])
+                    item.update(content=item_content)
 
-                print("Sync start")
-                api.commit()       
-                print("Sync done")
+
+                    #print(item_content)
+                    #api.items.add(content=item_content, project_id=testprojekt_id , item_order= item_order, indent=2)
+                    print("Changed task from:", item_task_old)
+                    print("Changed task to  :", item_content)
+
+                    #print("Sync start")
+                    api.commit()       
+                    print("Sync done")
+
+                    counter_changed_items = counter_changed_items + 1
                 print("\n#####\n")
 
 print("\n#########\n")
-print("Tracked tasks = ", counter_progress)
+print("Tracked tasks :", counter_progress)
+print("Changed tasks :", counter_changed_items)
 print("DONE")
 
 
