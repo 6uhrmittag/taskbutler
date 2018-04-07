@@ -156,7 +156,7 @@ for task in api.state['items']:
                     print("Sync done")
 
                     counter_changed_items = counter_changed_items + 1
-                print("\n#####\n")
+                    print("\n#####\n")
 
 print("\n#########\n")
 print("Tracked tasks :", counter_progress)
