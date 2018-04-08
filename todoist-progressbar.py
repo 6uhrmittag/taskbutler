@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import config as config
+import urllib
+import json
 import configparser
 
 from todoist.api import TodoistAPI
@@ -42,6 +44,7 @@ for label in api.state['labels']:
         #print("\n")
         label_progress_id = label['id']
         break
+
 
 #print ("\n######\n")
 
@@ -152,15 +155,30 @@ for task in api.state['items']:
                     print("Changed task to  :", item_content)
 
                     #print("Sync start")
-                    api.commit()       
+                    #api.commit()       
                     print("Sync done")
 
                     counter_changed_items = counter_changed_items + 1
                     print("\n#####\n")
 
+
+
+
 print("\n#########\n")
 print("Tracked tasks :", counter_progress)
 print("Changed tasks :", counter_changed_items)
-print("DONE")
+
+#Check for updates
+update_releaseinforaw = urllib.request.urlopen(config.update_url).read()
+json = json.loads(update_releaseinforaw)
+
+if not config.version == json[0]['tag_name']:
+    print("\n#########\n")
+    print("Your version is not up-to-date!")
+    print("Your version  :" , config.version)
+    print("Latest version: ", json[0]['tag_name'])
+    print("See latest version at: ", json[0]['html_url'])
+    print("\n#########")
+print("\nDONE")
 
 
