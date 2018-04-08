@@ -2,7 +2,7 @@
 
 Adds visual progressbars to tasks and lists with subtasks
 
-![Demo iOS](readme_resources/ios-demo-list.png)
+![Demo iOS](docs/images/ios-demo-list.PNG)
 
 ## Features
 - uses unicode symbols for cross-platform support
@@ -82,7 +82,7 @@ apikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES
 6. type `todoist_progress.exe` <enter>
 7. like this:
 
-![Demo output](readme_resources/cmd-sample-run.PNG)
+![Demo output](docs/images/cmd-sample-run.PNG)
 
 7. Done (check [https://todoist.com](todoist.com) )
 

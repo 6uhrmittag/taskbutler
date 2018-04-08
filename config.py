@@ -1,4 +1,4 @@
-label_progress = "trackprogress"
+label_progress = "progressbar"
 
 progress_seperator="‣"
 
