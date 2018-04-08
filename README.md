@@ -71,7 +71,7 @@ Remember to rename the label in todoist when renaming labels!
 **unfortunately the windows version is not as flexible as the "raw" python version and currently just tested under Win10, 64bit***
 
 1. add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
-2. download `todoist_progress.exe` from [releases page](https://github.com/6uhrmittag/todoist-progress/releases)
+2. download `todoist_progress.exe` from [releases page](https://github.com/6uhrmittag/todoist-progressbar/releases)
 3. add a config.ini to the same directory as the `todoist_progress.exe` (with notepad)
 4. add the following to the `config.ini`:
 ```
@@ -88,11 +88,11 @@ label_progress=trackprogress
 7. Done (check [https://todoist.com](todoist.com) )
 
 ## Updates
-The script checks for updates by checking the [releases page](https://github.com/6uhrmittag/todoist-progress/releases) and leaves a message in the console.
+The script checks for updates by checking the [releases page](https://github.com/6uhrmittag/todoist-progressbar/releases) and leaves a message in the console.
 
 To update: 
-- Download release from [releases page](https://github.com/6uhrmittag/todoist-progress/releases) and owerwrite files or "git pull origin" when you cloned this repository
-- check release notes for change in config-file
+- Download release from [releases page](https://github.com/6uhrmittag/todoist-progressbar/releases) and owerwrite files or "git pull origin" when you cloned this repository
+- check releasenotes for change in config-file
 - check that the script uses the correct label
 
 ## Development: python2exe
@@ -107,11 +107,11 @@ To update:
 
 ## Contributing
 
-Please leave a issue in the [issue tracker](https://github.com/6uhrmittag/todoist-progress/issues)
+Please leave a issue in the [issue tracker](https://github.com/6uhrmittag/todoist-progressbar/issues)
 
 ## Versioning
 
-I use [Github](https://github.com/6uhrmittag/todoist-progress/) for versioning. 
+I use [Github](https://github.com/6uhrmittag/todoist-progressbar/) for versioning. 
 
 ## Authors
 
