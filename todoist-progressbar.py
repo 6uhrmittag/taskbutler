@@ -34,14 +34,20 @@ api.sync()
 #print("######\n")
 
 
-#Find "progress" label id
-for label in api.state['labels']:
-    #print(api.state['labels'])
-    if label['name'] == label_progress:
-        #print("progress label id =", label['id'])
-        #print("\n")
-        label_progress_id = label['id']
-        break
+
+    #Find "progress" label id
+try: 
+    label_progress_id = None
+    for label in api.state['labels']:
+        #print(api.state['labels'])
+        if label['name'] == label_progress:
+            #print("progress label id =", label['id'])
+            label_progress_id = label['id']
+            break
+    if not label_progress_id:
+        raise ValueError('Label not found in Todoist')
+except ValueError as error:
+   print(error)
 
 
 #print ("\n######\n")
