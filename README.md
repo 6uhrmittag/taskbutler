@@ -87,6 +87,14 @@ label_progress=trackprogress
 
 7. Done (check [https://todoist.com](todoist.com) )
 
+## Updates
+The script checks for updates by checking the [releases page](https://github.com/6uhrmittag/todoist-progress/releases) and leaves a message in the console.
+
+To update: 
+- Download release from [releases page](https://github.com/6uhrmittag/todoist-progress/releases) and owerwrite files or "git pull origin" when you cloned this repository
+- check release notes for change in config-file
+- check that the script uses the correct label
+
 ## Development: python2exe
 - install PyInstaller
 - cmd in directory
