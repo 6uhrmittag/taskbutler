@@ -62,7 +62,7 @@ To change the seperator just change the line `progress_seperator="‣"` in the `
 
 #### edit progressbar label
 The bar added to every task with the label `trackprogress`.
-The label-name can be changed in the `config.ini` file1:
+The label-name can be changed in the `config.ini` file:
 `label_progress=trackprogress`
 To change the labelname after the "=".
 Remember to rename the label in todoist when renaming labels!
