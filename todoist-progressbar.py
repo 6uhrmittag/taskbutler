@@ -35,9 +35,10 @@ api.sync()
 
 
 
-    #Find "progress" label id
+#Find "progress" label id
 try: 
     label_progress_id = None
+    error_labelnotfound = False
     for label in api.state['labels']:
         #print(api.state['labels'])
         if label['name'] == label_progress:
@@ -45,7 +46,8 @@ try:
             label_progress_id = label['id']
             break
     if not label_progress_id:
-        raise ValueError('Label not found in Todoist')
+        error_labelnotfound = True
+        raise ValueError('Label not found in Todoist. Sync skipped!')
 except ValueError as error:
    print(error)
 
@@ -63,114 +65,116 @@ except ValueError as error:
 
 #print ("\n######\n")
 
+if not error_labelnotfound:
+    
+    counter_progress = 0
+    counter_changed_items = 0
 
-counter_progress = 0
-counter_changed_items = 0
+    for task in api.state['items']:
 
-for task in api.state['items']:
-
-  #if task['project_id'] == testprojekt_id:
+      #if task['project_id'] == testprojekt_id:
       
-    if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['is_archived']: 
-        for label in task['labels']:
-            if label == label_progress_id:
-                #print("Found task to track:", task['content'])
-                #print("content   = ", task['content']) 
-                #print("id        = ", task['id'])
-                #print("labels    = ", task['labels'])
-                #print("Order     = ", task['item_order'])
-                #print(task, "\n#####")
+        if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['is_archived']: 
+            for label in task['labels']:
+                if label == label_progress_id:
+                    #print("Found task to track:", task['content'])
+                    #print("content   = ", task['content']) 
+                    #print("id        = ", task['id'])
+                    #print("labels    = ", task['labels'])
+                    #print("Order     = ", task['item_order'])
+                    #print(task, "\n#####")
 
-                counter_progress = counter_progress + 1
-                subtasks_total = 0
-                subtasks_done = 0
-                item_order = 0
-                for subtask in api.state['items']:
-                    if not subtask['content'].startswith("*"):
-                        #print('Skip "text only Tasks"')
-                        #print("Check for Subtasks")
-                        #print("parent id = ", subtask['parent_id'])
-                        #print("id of tracked task = ", task['id'])
+                    counter_progress = counter_progress + 1
+                    subtasks_total = 0
+                    subtasks_done = 0
+                    item_order = 0
+                    for subtask in api.state['items']:
+                        if not subtask['content'].startswith("*"):
+                            #print('Skip "text only Tasks"')
+                            #print("Check for Subtasks")
+                            #print("parent id = ", subtask['parent_id'])
+                            #print("id of tracked task = ", task['id'])
 
-                        if not subtask['is_deleted'] and not subtask['in_history'] and not subtask['is_archived'] and subtask['parent_id'] == task['id']:
-                            #print ("### Subtask found")
+                            if not subtask['is_deleted'] and not subtask['in_history'] and not subtask['is_archived'] and subtask['parent_id'] == task['id']:
+                                #print ("### Subtask found")
 
-                            if subtask['checked']:
-                                #print("Task is marked as done")
-                                subtasks_done = subtasks_done + 1
-                            subtasks_total = subtasks_total + 1    
+                                if subtask['checked']:
+                                    #print("Task is marked as done")
+                                    subtasks_done = subtasks_done + 1
+                                subtasks_total = subtasks_total + 1    
                         
-                if subtasks_total > 0:
-                    progress_per_task = 100/subtasks_total
-                else:
-                    progress_per_task = 100
+                    if subtasks_total > 0:
+                        progress_per_task = 100/subtasks_total
+                    else:
+                        progress_per_task = 100
                     
-                progress_done = round(subtasks_done * progress_per_task)
+                    progress_done = round(subtasks_done * progress_per_task)
 
-                #print("Subtasks total = ", subtasks_total)
-                #print("Subtasks done = ", subtasks_done)
-                #print("\nPercent per task = ", progress_per_task)
-                #print("Percent done = ", progress_done)
-                #print ("\n######\n")
-                #print("Order in List:", task['item_order'])
-                #print(type(task['item_order']))
+                    #print("Subtasks total = ", subtasks_total)
+                    #print("Subtasks done = ", subtasks_done)
+                    #print("\nPercent per task = ", progress_per_task)
+                    #print("Percent done = ", progress_done)
+                    #print ("\n######\n")
+                    #print("Order in List:", task['item_order'])
+                    #print(type(task['item_order']))
                     
-                item_order = task['item_order'] + 1
+                    item_order = task['item_order'] + 1
 
                     
-                item_progressbar = ""
+                    item_progressbar = ""
 
-                if progress_done == 0:
-                    item_progressbar = config.progress_bar_0
-                if progress_done > 0 and progress_done <= 20:
-                    item_progressbar = config.progress_bar_20
-                if progress_done > 20 and progress_done <= 40:
-                    item_progressbar =  config.progress_bar_40
-                if progress_done > 40 and progress_done <= 60:
-                    item_progressbar = config.progress_bar_60
-                if progress_done > 60 and progress_done <= 80:
-                    item_progressbar = config.progress_bar_80
-                if progress_done > 80 and progress_done <= 100:
-                    item_progressbar = config.progress_bar_100
+                    if progress_done == 0:
+                        item_progressbar = config.progress_bar_0
+                    if progress_done > 0 and progress_done <= 20:
+                        item_progressbar = config.progress_bar_20
+                    if progress_done > 20 and progress_done <= 40:
+                        item_progressbar =  config.progress_bar_40
+                    if progress_done > 40 and progress_done <= 60:
+                        item_progressbar = config.progress_bar_60
+                    if progress_done > 60 and progress_done <= 80:
+                        item_progressbar = config.progress_bar_80
+                    if progress_done > 80 and progress_done <= 100:
+                        item_progressbar = config.progress_bar_100
                     
-                progress_done = str(progress_done)
+                    progress_done = str(progress_done)
 
-                item_task_old = task['content']
+                    item_task_old = task['content']
 
-                if "‣" in task['content']:
-                    item_content_old = task['content'].split(config.progress_seperator)
-                    item_content_new = item_content_old[0]
+                    if "‣" in task['content']:
+                        item_content_old = task['content'].split(config.progress_seperator)
+                        item_content_new = item_content_old[0]
    
-                else:
-                    item_content_new = task['content'] + " "
+                    else:
+                        item_content_new = task['content'] + " "
 
                 
-                item_content = item_content_new + "" + config.progress_seperator + " " + item_progressbar + progress_done + ' %'
+                    item_content = item_content_new + "" + config.progress_seperator + " " + item_progressbar + progress_done + ' %'
 
 
-                if not item_task_old == item_content:
-                    item = api.items.get_by_id(task['id'])
-                    item.update(content=item_content)
+                    if not item_task_old == item_content:
+                        item = api.items.get_by_id(task['id'])
+                        item.update(content=item_content)
 
 
-                    #print(item_content)
-                    #api.items.add(content=item_content, project_id=testprojekt_id , item_order= item_order, indent=2)
-                    print("Changed task from:", item_task_old)
-                    print("Changed task to  :", item_content)
+                        #print(item_content)
+                        #api.items.add(content=item_content, project_id=testprojekt_id , item_order= item_order, indent=2)
+                        print("Changed task from:", item_task_old)
+                        print("Changed task to  :", item_content)
 
-                    #print("Sync start")
-                    api.commit()       
-                    print("Sync done")
+                        #print("Sync start")
+                        api.commit()       
+                        print("Sync done")
 
-                    counter_changed_items = counter_changed_items + 1
-                    print("\n#####\n")
-
-
+                        counter_changed_items = counter_changed_items + 1
+                        print("\n#####\n")
 
 
-print("\n#########\n")
-print("Tracked tasks :", counter_progress)
-print("Changed tasks :", counter_changed_items)
+
+
+    print("\n#########\n")
+    print("Tracked tasks :", counter_progress)
+    print("Changed tasks :", counter_changed_items)
+
 
 #Check for updates
 request = urllib.request.Request(config.update_url)
@@ -193,6 +197,6 @@ except urllib.error.URLError as e:
 except urllib.error.HTTPError as e:
    print("Error while checking for updates: ", e.code)
 
-print("\nDONE")
+print("\nEnd")
 
 
