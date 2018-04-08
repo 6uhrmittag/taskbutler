@@ -1,4 +1,4 @@
-# Todoist-progress
+# todoist-progressbar
 
 Adds visual progressbars to tasks and lists with subtasks
 
