@@ -9,16 +9,14 @@ import configparser
 from todoist.api import TodoistAPI
 from configparser import ConfigParser
 
-# instantiate
+# parse config file
 secrets = ConfigParser()
-
-# parse existing file
 secrets.read('config.ini')
 
 # read apikey form config.ini
 apikey = secrets.get('config', 'apikey')
-#print(apikey)
-
+# read label_progress form config.ini
+label_progress = secrets.get('config', 'label_progress')
 
 api = TodoistAPI(apikey)
 api.sync()
@@ -39,7 +37,7 @@ api.sync()
 #Find "progress" label id
 for label in api.state['labels']:
     #print(api.state['labels'])
-    if label['name'] == config.label_progress:
+    if label['name'] == label_progress:
         #print("progress label id =", label['id'])
         #print("\n")
         label_progress_id = label['id']
@@ -155,7 +153,7 @@ for task in api.state['items']:
                     print("Changed task to  :", item_content)
 
                     #print("Sync start")
-                    #api.commit()       
+                    api.commit()       
                     print("Sync done")
 
                     counter_changed_items = counter_changed_items + 1
@@ -169,16 +167,26 @@ print("Tracked tasks :", counter_progress)
 print("Changed tasks :", counter_changed_items)
 
 #Check for updates
-update_releaseinforaw = urllib.request.urlopen(config.update_url).read()
-json = json.loads(update_releaseinforaw)
+request = urllib.request.Request(config.update_url)
+try: 
+    urllib.request.urlopen(request)
+    
+    update_releaseinforaw = urllib.request.urlopen(config.update_url).read()
+    json = json.loads(update_releaseinforaw)
+    
+    if not config.version == json[0]['tag_name']:
+        print("\n#########\n")
+        print("Your version is not up-to-date!")
+        print("Your version  :" , config.version)
+        print("Latest version: ", json[0]['tag_name'])
+        print("See latest version at: ", json[0]['html_url'])
+        print("\n#########")
 
-if not config.version == json[0]['tag_name']:
-    print("\n#########\n")
-    print("Your version is not up-to-date!")
-    print("Your version  :" , config.version)
-    print("Latest version: ", json[0]['tag_name'])
-    print("See latest version at: ", json[0]['html_url'])
-    print("\n#########")
+except urllib.error.URLError as e:
+   print("Error while checking for updates: ", e.reason)
+except urllib.error.HTTPError as e:
+   print("Error while checking for updates: ", e.code)
+
 print("\nDONE")
 
 

@@ -23,7 +23,7 @@ Adds visual progressbars to tasks and lists with subtasks
 - `sudo pip3 install -r requirements.txt`
 - `git clone git@github.com:6uhrmittag/todoist-progress.git`
 - `cd todoist-progress/todoist-progress/`
-- `echo -e "[config]\napikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES" >> config.ini`
+- `echo -e "[config]\napikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES\nlabel_progress=trackprogress" >> config.ini`
 -  add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
 ### usage
 - `cd todoist-progress/todoist-progress/`
@@ -62,9 +62,9 @@ To change the seperator just change the line `progress_seperator="‣"` in the `
 
 #### edit progressbar label
 The bar added to every task with the label `trackprogress`.
-The label-name can be changed in the `config.py` file in line 1:
-`label_progress = "trackprogress"`
-To change the label, just change the name inside the quotes.
+The label-name can be changed in the `config.ini` file1:
+`label_progress=trackprogress`
+To change the labelname after the "=".
 Remember to rename the label in todoist when renaming labels!
 
 ## usage Windows
@@ -77,6 +77,7 @@ Remember to rename the label in todoist when renaming labels!
 ```
 [config]
 apikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES
+label_progress=trackprogress
 ```
 5. open a cmd (WIN+R -> cmd) and `cd` into the directory (e.g. `cd C:\Users\username\Downloads\todoist-progress`)
 6. type `todoist_progress.exe` <enter>
