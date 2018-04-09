@@ -20,13 +20,13 @@ Adds visual progressbars to tasks and lists with subtasks
 ## usage Ubuntu
 ### installing requirements
 - `sudo apt-get install python3-pip`
-- `sudo pip3 install -r requirements.txt`
 - `git clone git@github.com:6uhrmittag/todoist-progress.git`
-- `cd todoist-progress/todoist-progress/`
+- `cd todoist-progress`
+- `sudo pip3 install -r requirements.txt`
 - `echo -e "[config]\napikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES\nlabel_progress=trackprogress" >> config.ini`
 -  add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
 ### usage
-- `cd todoist-progress/todoist-progress/`
+- `cd todoist-progress/`
 - `python3 todoist_progress.py`
 
 ### Continuous progress-update
