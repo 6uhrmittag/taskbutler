@@ -11,7 +11,7 @@ Adds visual progressbars to tasks and lists with subtasks
 ## Prerequisites and notes
 1. You'll need a [Todoist](https://todoist.com) premium account
 2. You'll probably need a basic understanding of Python as this is my first Python project which is probably not bug-free
-3. As of today is tested on Windows 10, 64Bit only
+3. As of today the script is tested on Ubuntu(use only) and Windows 10, 64Bit(development and use)
 4. For optimal use this programm should run periodical on a server/computer to continuously update your tasks
 5. This programm updates the "top" task of your task-lists and adds a progress bar to the existing text
 
