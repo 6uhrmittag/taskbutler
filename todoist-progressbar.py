@@ -182,7 +182,7 @@ try:
     urllib.request.urlopen(request)
     
     update_releaseinforaw = urllib.request.urlopen(config.update_url).read()
-    json = json.loads(update_releaseinforaw)
+    json = json.loads(update_releaseinforaw.decode('utf-8'))
     
     if not config.version == json[0]['tag_name']:
         print("\n#########\n")
