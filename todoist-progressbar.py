@@ -3,7 +3,6 @@
 
 import config as config
 import json
-import configparser
 
 from todoist.api import TodoistAPI
 from configparser import ConfigParser
@@ -12,6 +11,7 @@ import requests
 
 # parse config file
 secrets = ConfigParser()
+secrets.read_file(open('config.ini'))
 secrets.read('config.ini')
 
 # read apikey form config.ini
