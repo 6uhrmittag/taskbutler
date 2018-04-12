@@ -85,7 +85,7 @@ label_progress=trackprogress
 
 ![Demo output](docs/images/cmd-sample-run.PNG)
 
-7. Done (check [https://todoist.com](todoist.com) )
+7. Done (check [todoist.com](https://todoist.com) )
 
 ## Updates
 The script checks for updates by checking the [releases page](https://github.com/6uhrmittag/todoist-progressbar/releases) and leaves a message in the console.
