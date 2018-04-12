@@ -1,4 +1,5 @@
 requests
+configparser
 altgraph==0.15
 certifi==2018.1.18
 chardet==3.0.4
