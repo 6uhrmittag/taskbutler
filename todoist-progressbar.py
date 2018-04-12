@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import config as config
-import json
 
 from todoist.api import TodoistAPI
 from configparser import ConfigParser
