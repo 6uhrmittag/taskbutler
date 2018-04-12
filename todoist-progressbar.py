@@ -15,11 +15,11 @@ secrets = ConfigParser()
 secrets.read('config.ini')
 
 # read apikey form config.ini
-apikey = secrets.get('config', 'apikey')
+apiKey = secrets.get('config', 'apikey')
 # read label_progress form config.ini
 label_progress = secrets.get('config', 'label_progress')
 
-api = TodoistAPI(apikey)
+api = TodoistAPI(apiKey)
 api.sync()
 
 # print( api.state['items'])
@@ -37,7 +37,7 @@ api.sync()
 
 # Find "progress" label id
 label_progress_id = None
-error_labelnotfound = False
+error_labelNotFound = False
 try:
     for label in api.state['labels']:
         # print(api.state['labels'])
@@ -46,7 +46,7 @@ try:
             label_progress_id = label['id']
             break
     if not label_progress_id:
-        error_labelnotfound = True
+        error_labelNotFound = True
         raise ValueError('Label not found in Todoist. Sync skipped!')
 except ValueError as error:
     print(error)
@@ -64,7 +64,7 @@ except ValueError as error:
 
 # print ("\n######\n")
 
-if not error_labelnotfound:
+if not error_labelNotFound:
 
     counter_progress = 0
     counter_changed_items = 0
@@ -84,33 +84,33 @@ if not error_labelnotfound:
                     # print(task, "\n#####")
 
                     counter_progress = counter_progress + 1
-                    subtasks_total = 0
-                    subtasks_done = 0
+                    subTasks_total = 0
+                    subTasks_done = 0
                     item_order = 0
-                    for subtask in api.state['items']:
-                        if not subtask['content'].startswith("*"):
+                    for subTask in api.state['items']:
+                        if not subTask['content'].startswith("*"):
                             # print('Skip "text only Tasks"')
-                            # print("Check for Subtasks")
-                            # print("parent id = ", subtask['parent_id'])
+                            # print("Check for subTasks")
+                            # print("parent id = ", subTask['parent_id'])
                             # print("id of tracked task = ", task['id'])
 
-                            if not subtask['is_deleted'] and not subtask['in_history'] and not subtask['is_archived'] and subtask['parent_id'] == task['id']:
-                                # print ("### Subtask found")
+                            if not subTask['is_deleted'] and not subTask['in_history'] and not subTask['is_archived'] and subTask['parent_id'] == task['id']:
+                                # print ("### subTask found")
 
-                                if subtask['checked']:
+                                if subTask['checked']:
                                     # print("Task is marked as done")
-                                    subtasks_done = subtasks_done + 1
-                                subtasks_total = subtasks_total + 1
+                                    subTasks_done = subTasks_done + 1
+                                subTasks_total = subTasks_total + 1
 
-                    if subtasks_total > 0:
-                        progress_per_task = 100 / subtasks_total
+                    if subTasks_total > 0:
+                        progress_per_task = 100 / subTasks_total
                     else:
                         progress_per_task = 100
 
-                    progress_done = round(subtasks_done * progress_per_task)
+                    progress_done = round(subTasks_done * progress_per_task)
 
-                    # print("Subtasks total = ", subtasks_total)
-                    # print("Subtasks done = ", subtasks_done)
+                    # print("subTasks total = ", subTasks_total)
+                    # print("subTasks done = ", subTasks_done)
                     # print("\nPercent per task = ", progress_per_task)
                     # print("Percent done = ", progress_done)
                     # print ("\n######\n")
@@ -185,7 +185,7 @@ except requests.exceptions.ConnectionError as e:
     print("Error while checking for updates (Connection error): ", e)
 except requests.exceptions.HTTPError as e:
     print("Error while checking for updates (HTTP error): ", e)
-except requests.exceptions.RequestException  as e:
+except requests.exceptions.RequestException as e:
     print("Error while checking for updates: ", e)
 
 print("\nEnd")
