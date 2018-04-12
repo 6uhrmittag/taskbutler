@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import config as config
-import urllib
 import json
 import configparser
 
 from todoist.api import TodoistAPI
 from configparser import ConfigParser
+
+import requests
 
 # parse config file
 secrets = ConfigParser()
@@ -156,7 +157,7 @@ if not error_labelnotfound:
                         print("Changed task to  :", item_content)
 
                         # print("Sync start")
-                        api.commit()
+                        #api.commit()
                         print("Sync done")
 
                         counter_changed_items = counter_changed_items + 1
@@ -167,24 +168,24 @@ if not error_labelnotfound:
     print("Changed tasks :", counter_changed_items)
 
 # Check for updates
-request = urllib.request.Request(config.update_url)
 try:
-    urllib.request.urlopen(request)
+    r = requests.get(config.update_url)
+    r.raise_for_status()
+    release_info_json = r.json()
 
-    update_releaseinforaw = urllib.request.urlopen(config.update_url).read()
-    json = json.loads(update_releaseinforaw.decode('utf-8'))
-
-    if not config.version == json[0]['tag_name']:
+    if not config.version == release_info_json[0]['tag_name']:
         print("\n#########\n")
         print("Your version is not up-to-date!")
         print("Your version  :", config.version)
-        print("Latest version: ", json[0]['tag_name'])
-        print("See latest version at: ", json[0]['html_url'])
+        print("Latest version: ", release_info_json[0]['tag_name'])
+        print("See latest version at: ", release_info_json[0]['html_url'])
         print("\n#########")
 
-except urllib.error.URLError as e:
-    print("Error while checking for updates: ", e.reason)
-except urllib.error.HTTPError as e:
-    print("Error while checking for updates: ", e.code)
+except requests.exceptions.ConnectionError as e:
+    print("Error while checking for updates (Connection error): ", e)
+except requests.exceptions.HTTPError as e:
+    print("Error while checking for updates (HTTP error): ", e)
+except requests.exceptions.RequestException  as e:
+    print("Error while checking for updates: ", e)
 
 print("\nEnd")
