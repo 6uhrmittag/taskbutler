@@ -1,3 +1,4 @@
+requests
 altgraph==0.15
 certifi==2018.1.18
 chardet==3.0.4
@@ -7,4 +8,3 @@ macholib==1.9
 pefile==2017.11.5
 pip==9.0.1
 todoist-python==7.0.18
-urllib3==1.22
