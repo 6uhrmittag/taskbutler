@@ -157,7 +157,7 @@ if not error_labelnotfound:
                         print("Changed task to  :", item_content)
 
                         # print("Sync start")
-                        #api.commit()
+                        api.commit()
                         print("Sync done")
 
                         counter_changed_items = counter_changed_items + 1
