@@ -13,9 +13,7 @@ import dropbox
 import time
 
 
-
-
-def getTodoistUrl(title, dbx, todoistfolderid, todoistpaperurl):
+def gettodoisturl(title, dbx, todoistfolderid, todoistpaperurl):
     """
     Creates new dropbox paper document in given folder with given title and returns full URL.
 
@@ -31,11 +29,11 @@ def getTodoistUrl(title, dbx, todoistfolderid, todoistpaperurl):
     todoist_paper_url = None
     try:
         r = dbx.paper_docs_create(content_b, ImportFormat('markdown'), parent_folder_id=todoistfolderid)
-        #print(r)
+        # print(r)
 
         todoist_paper_id = r.doc_id
         todoist_paper_url = todoistpaperurl + todoist_paper_id
-        #print(todoist_paper_url)
+        # print(todoist_paper_url)
     except PaperDocCreateError as e:
         print("PaperDocCreateError ERROR %s", e)
     except ApiError as e:
@@ -43,7 +41,8 @@ def getTodoistUrl(title, dbx, todoistfolderid, todoistpaperurl):
 
     return todoist_paper_url
 
-def getTodoistFolderid(dbx):
+
+def gettodoistfolderid(dbx):
     """
     Dropbox - Get Folder ID of folder "todoist" from user account
 
@@ -70,9 +69,9 @@ def getTodoistFolderid(dbx):
             # print("in Folder: " + folder_meta.folders[0].name + " id: " + folder_meta.folders[0].id)
 
             if folder_meta.folders[0].name == "todoist":
-                #print("id: " + folder_meta.folders[0].id)
+                # print("id: " + folder_meta.folders[0].id)
                 todoist_folder_id = folder_meta.folders[0].id
-                #print("Found and configured folder!")
+                # print("Found and configured folder!")
 
                 break
             # print(folder_meta.folders[0].id)
@@ -94,7 +93,7 @@ def getlabelid(labelname: str, api: object) -> str:
     """
     # print(labelname)
     label_progress_id = None
-    error_labelNotFound = False
+    error_label_notfound = False
     try:
         for label in api.state['labels']:
             # print(api.state['labels'])
@@ -103,15 +102,14 @@ def getlabelid(labelname: str, api: object) -> str:
                 label_progress_id = label['id']
                 break
         if not label_progress_id:
-            error_labelNotFound = True
+            error_label_notfound = True
             raise ValueError('Label not found in Todoist. Sync skipped!')
     except ValueError as error:
         print(error)
     return label_progress_id
 
+
 def main():
-
-
     # Read config.ini
     try:
         secrets = ConfigParser()
@@ -129,37 +127,33 @@ def main():
         print("Config file not found! Create config.ini first. ", error)
         raise SystemExit(1)
 
-
-
     # init dropbox session
     dbx = dropbox.Dropbox(dropbox_api_key)
 
     # Check Folde ID
     if not todoist_folder_id:
-        todoist_folder_id = getTodoistFolderid(dbx)
+        todoist_folder_id = gettodoistfolderid(dbx)
 
     # Create new dropbox paper
-   # print(getTodoistUrl("Toller Titel", dbx, todoist_folder_id, todoist_paper_urlprepart))
+    # print(getTodoistUrl("Toller Titel", dbx, todoist_folder_id, todoist_paper_urlprepart))
 
+    # raise SystemExit(1)
 
-    #raise SystemExit(1)
+    # print(todoist_folder_id)
+    # folder_meta = dbx.paper_docs_get_folder_info(todoist_folder_id)
+    #
+    #    print(folder_meta)
+    #    if folder_meta.folders[0].name == "todoist":
+    #        print("Found preconfigured folder!")
+    #        todoist_folder_id = folder_meta.folders[0].id
+    #    else:
+    #        print("todoist Folder id outdated!")
+    #        todoist_folder_id = None
+    #
 
+    # raise SystemExit(1)
 
-    #print(todoist_folder_id)
-    #folder_meta = dbx.paper_docs_get_folder_info(todoist_folder_id)
-#
-#    print(folder_meta)
-#    if folder_meta.folders[0].name == "todoist":
-#        print("Found preconfigured folder!")
-#        todoist_folder_id = folder_meta.folders[0].id
-#    else:
-#        print("todoist Folder id outdated!")
-#        todoist_folder_id = None
-#
-
-    #raise SystemExit(1)
-
-#    iso_time = time.strftime("%Y - %m-%dT - %H:%M:%S", time.gmtime())
+    #    iso_time = time.strftime("%Y - %m-%dT - %H:%M:%S", time.gmtime())
 
     api = TodoistAPI(todoist_api_key)
 
@@ -170,10 +164,7 @@ def main():
     except ValueError as error:
         print(error)
 
-    #raise SystemExit(1)
-
-
-
+    # raise SystemExit(1)
 
     # print( api.state['items'])
     # print( api.state['projects'])
@@ -181,20 +172,16 @@ def main():
     # item.delete()
     # api.commit()
 
-
     # List projects
     # for project in api.state['projects']:
     #    print (project['name'].encode('unicode_escape'))
     # print("######\n")
 
-
     # Find "progress" label id
-    #print(api.state['labels'])
+    # print(api.state['labels'])
     label_progress_id = getlabelid(label_progress, api)
 
-
     # print ("\n######\n")
-
 
     # for task in api.state['items']:
     #    print(sys.getsizeof(task['id']))
@@ -206,7 +193,6 @@ def main():
 
     # print ("\n######\n")
 
-
     counter_progress = 0
     counter_changed_items = 0
 
@@ -214,7 +200,8 @@ def main():
 
         # if task['project_id'] == testprojekt_id:
 
-        if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['is_archived']:
+        if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
+            'in_history'] and not task['is_archived']:
             for label in task['labels']:
                 if label == label_progress_id:
                     # print("Found task to track:", task['content'])
@@ -225,8 +212,8 @@ def main():
                     # print(task, "\n#####")
 
                     counter_progress = counter_progress + 1
-                    subTasks_total = 0
-                    subTasks_done = 0
+                    subtasks_total = 0
+                    subasks_done = 0
                     # item_order = 0
                     for subTask in api.state['items']:
                         if not subTask['content'].startswith("*"):
@@ -235,23 +222,24 @@ def main():
                             # print("parent id = ", subTask['parent_id'])
                             # print("id of tracked task = ", task['id'])
 
-                            if not subTask['is_deleted'] and not subTask['in_history'] and not subTask['is_archived'] and subTask['parent_id'] == task['id']:
+                            if not subTask['is_deleted'] and not subTask['in_history'] and not subTask[
+                                'is_archived'] and subTask['parent_id'] == task['id']:
                                 # print ("### subTask found")
 
                                 if subTask['checked']:
                                     # print("Task is marked as done")
-                                    subTasks_done = subTasks_done + 1
-                                subTasks_total = subTasks_total + 1
+                                    subasks_done = subasks_done + 1
+                                subtasks_total = subtasks_total + 1
 
-                    if subTasks_total > 0:
-                        progress_per_task = 100 / subTasks_total
+                    if subtasks_total > 0:
+                        progress_per_task = 100 / subtasks_total
                     else:
                         progress_per_task = 100
 
-                    progress_done = round(subTasks_done * progress_per_task)
+                    progress_done = round(subasks_done * progress_per_task)
 
-                    # print("subTasks total = ", subTasks_total)
-                    # print("subTasks done = ", subTasks_done)
+                    # print("subTasks total = ", subtasks_total)
+                    # print("subTasks done = ", subasks_done)
                     # print("\nPercent per task = ", progress_per_task)
                     # print("Percent done = ", progress_done)
                     # print ("\n######\n")
@@ -299,7 +287,7 @@ def main():
 
                         counter_changed_items = counter_changed_items + 1
     # Sync
-    #api.commit()
+    # api.commit()
     print("\n#########\n")
     print("Tracked tasks :", counter_progress)
     print("Changed tasks :", counter_changed_items)
