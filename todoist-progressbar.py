@@ -16,9 +16,19 @@ import time
 
 
 def getTodoistUrl(title, dbx, todoistfolderid, todoistpaperurl):
+    """
+    Creates new dropbox paper document in given folder with given title and returns full URL.
+
+    :param title: (str) Title of the newly created document (markdown)
+    :param dbx: dropbox api object
+    :param todoistfolderid: (str) Folder ID of folder to save paper to
+    :param todoistpaperurl: (str) Dropbox paper URL pre-part to build full Link from. "this-part.com\"paperid
+    :return: Full URL to created paper
+    """
 
     content = title
     content_b = content.encode('UTF-8')
+    todoist_paper_url = None
     try:
         r = dbx.paper_docs_create(content_b, ImportFormat('markdown'), parent_folder_id=todoistfolderid)
         #print(r)
@@ -34,8 +44,16 @@ def getTodoistUrl(title, dbx, todoistfolderid, todoistpaperurl):
     return todoist_paper_url
 
 def getTodoistFolderid(dbx):
+    """
+    Dropbox - Get Folder ID of folder "todoist" from user account
+
+    :param dbx: dropbox object
+    :return: str
+    ID of "todoist" folder
+    """
     # print(dbx.users_get_current_account())
     paper = dbx.paper_docs_list()
+    todoist_folder_id = None
     while paper.has_more:
         paper += dbx.paper_docs_list_continue(paper)
 
@@ -62,7 +80,18 @@ def getTodoistFolderid(dbx):
 
     return todoist_folder_id
 
-def getprogresslabelid(labelname, api):
+
+def getlabelid(labelname: str, api: object) -> str:
+    """
+    Todoist - Returns ID of given labelname
+
+    :param labelname: str
+    Name of label to search for
+
+    :param api: Todoist api object
+
+    :return: ID of labelname
+    """
     # print(labelname)
     label_progress_id = None
     error_labelNotFound = False
@@ -81,6 +110,7 @@ def getprogresslabelid(labelname, api):
     return label_progress_id
 
 def main():
+
 
     # Read config.ini
     try:
@@ -160,7 +190,7 @@ def main():
 
     # Find "progress" label id
     #print(api.state['labels'])
-    label_progress_id = getprogresslabelid(label_progress, api)
+    label_progress_id = getlabelid(label_progress, api)
 
 
     # print ("\n######\n")
@@ -175,7 +205,6 @@ def main():
     #    counter = counter + 1
 
     # print ("\n######\n")
-
 
 
     counter_progress = 0
