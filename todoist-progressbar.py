@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from configparser import ConfigParser
+
+import dropbox
+import requests
+from dropbox.exceptions import ApiError
+from dropbox.paper import ImportFormat, PaperDocCreateError
+from todoist.api import TodoistAPI
+
 import config as config
 
-from todoist.api import TodoistAPI
-from configparser import ConfigParser
-from dropbox.exceptions import ApiError
-from dropbox.paper import ImportFormat, PaperDocCreateError, ExportFormat
 
-import requests
-import dropbox
-import time
-
-
-def gettodoisturl(title, dbx, todoistfolderid, todoistpaperurl):
+def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl) -> str:
     """
     Creates new dropbox paper document in given folder with given title and returns full URL.
 
@@ -80,6 +79,62 @@ def gettodoistfolderid(dbx):
     return todoist_folder_id
 
 
+def getprogresssymbols(progress_done):
+    """
+    Returns unicode bar based on given percentage.
+
+    :param progress_done: (int, float) percentage of progress
+    :return: (str) unicode bar
+    """
+    item_progressbar = ""
+
+    if progress_done == 0:
+        item_progressbar = config.progress_bar_0
+    if progress_done > 0 and progress_done <= 20:
+        item_progressbar = config.progress_bar_20
+    if progress_done > 20 and progress_done <= 40:
+        item_progressbar = config.progress_bar_40
+    if progress_done > 40 and progress_done <= 60:
+        item_progressbar = config.progress_bar_60
+    if progress_done > 60 and progress_done <= 80:
+        item_progressbar = config.progress_bar_80
+    if progress_done > 80 and progress_done <= 100:
+        item_progressbar = config.progress_bar_100
+
+    return str(item_progressbar)
+
+def checkforupdate(currentversion, updateurl):
+    """
+    Check for new version at github
+
+    :param currentversion: (str) version of current release
+    :param updateurl: (str) github "releases" json url
+    :return: None
+    """
+    # Check for updates
+    try:
+        r = requests.get(updateurl)
+        r.raise_for_status()
+        release_info_json = r.json()
+
+        if not currentversion == release_info_json[0]['tag_name']:
+            print("\n#########\n")
+            print("Your version is not up-to-date!")
+            print("Your version  :", currentversion)
+            print("Latest version: ", release_info_json[0]['tag_name'])
+            print("See latest version at: ", release_info_json[0]['html_url'])
+            print("\n#########")
+
+    except requests.exceptions.ConnectionError as e:
+        print("Error while checking for updates (Connection error): ", e)
+    except requests.exceptions.HTTPError as e:
+        print("Error while checking for updates (HTTP error): ", e)
+    except requests.exceptions.RequestException as e:
+        print("Error while checking for updates: ", e)
+
+
+
+
 def getlabelid(labelname: str, api: object) -> str:
     """
     Todoist - Returns ID of given labelname
@@ -135,7 +190,7 @@ def main():
         todoist_folder_id = gettodoistfolderid(dbx)
 
     # Create new dropbox paper
-    # print(getTodoistUrl("Toller Titel", dbx, todoist_folder_id, todoist_paper_urlprepart))
+    print(createpaperdocument("Toller Titel", dbx, todoist_folder_id, todoist_paper_urlprepart))
 
     # raise SystemExit(1)
 
@@ -248,23 +303,6 @@ def main():
 
                     # item_order = task['item_order'] + 1
 
-                    item_progressbar = ""
-
-                    if progress_done == 0:
-                        item_progressbar = config.progress_bar_0
-                    if progress_done > 0 and progress_done <= 20:
-                        item_progressbar = config.progress_bar_20
-                    if progress_done > 20 and progress_done <= 40:
-                        item_progressbar = config.progress_bar_40
-                    if progress_done > 40 and progress_done <= 60:
-                        item_progressbar = config.progress_bar_60
-                    if progress_done > 60 and progress_done <= 80:
-                        item_progressbar = config.progress_bar_80
-                    if progress_done > 80 and progress_done <= 100:
-                        item_progressbar = config.progress_bar_100
-
-                    progress_done = str(progress_done)
-
                     item_task_old = task['content']
 
                     if "‣" in task['content']:
@@ -274,7 +312,7 @@ def main():
                     else:
                         item_content_new = task['content'] + " "
 
-                    item_content = item_content_new + "" + config.progress_seperator + " " + item_progressbar + progress_done + ' %'
+                    item_content = item_content_new + "" + config.progress_seperator + " " + getprogresssymbols(progress_done) + str(progress_done) + ' %'
 
                     if not item_task_old == item_content:
                         item = api.items.get_by_id(task['id'])
@@ -292,26 +330,7 @@ def main():
     print("Tracked tasks :", counter_progress)
     print("Changed tasks :", counter_changed_items)
 
-    # Check for updates
-    try:
-        r = requests.get(config.update_url)
-        r.raise_for_status()
-        release_info_json = r.json()
-
-        if not config.version == release_info_json[0]['tag_name']:
-            print("\n#########\n")
-            print("Your version is not up-to-date!")
-            print("Your version  :", config.version)
-            print("Latest version: ", release_info_json[0]['tag_name'])
-            print("See latest version at: ", release_info_json[0]['html_url'])
-            print("\n#########")
-
-    except requests.exceptions.ConnectionError as e:
-        print("Error while checking for updates (Connection error): ", e)
-    except requests.exceptions.HTTPError as e:
-        print("Error while checking for updates (HTTP error): ", e)
-    except requests.exceptions.RequestException as e:
-        print("Error while checking for updates: ", e)
+    checkforupdate(config.version, config.update_url)
 
     print("\nEnd")
 
