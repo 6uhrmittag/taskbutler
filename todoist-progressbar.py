@@ -103,6 +103,7 @@ def getprogresssymbols(progress_done):
 
     return str(item_progressbar)
 
+
 def checkforupdate(currentversion, updateurl):
     """
     Check for new version at github
@@ -131,8 +132,6 @@ def checkforupdate(currentversion, updateurl):
         print("Error while checking for updates (HTTP error): ", e)
     except requests.exceptions.RequestException as e:
         print("Error while checking for updates: ", e)
-
-
 
 
 def getlabelid(labelname: str, api: object) -> str:
@@ -312,7 +311,8 @@ def main():
                     else:
                         item_content_new = task['content'] + " "
 
-                    item_content = item_content_new + "" + config.progress_seperator + " " + getprogresssymbols(progress_done) + str(progress_done) + ' %'
+                    item_content = item_content_new + "" + config.progress_seperator + " " + getprogresssymbols(
+                        progress_done) + str(progress_done) + ' %'
 
                     if not item_task_old == item_content:
                         item = api.items.get_by_id(task['id'])
