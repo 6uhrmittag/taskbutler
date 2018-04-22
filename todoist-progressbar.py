@@ -6,16 +6,17 @@ from configparser import ConfigParser
 import dropbox
 import requests
 from dropbox.exceptions import ApiError
-from dropbox.paper import ImportFormat, PaperDocCreateError
+from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicyType, SharingPolicy
 from todoist.api import TodoistAPI
 
 import config as config
 
 
-def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl) -> str:
+def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -> str:
     """
     Creates new dropbox paper document in given folder with given title and returns full URL.
 
+    :type sharing: (str or bool) Wether to make paper public or not
     :param title: (str) Title of the newly created document (markdown)
     :param dbx: dropbox api object
     :param todoistfolderid: (str) Folder ID of folder to save paper to
@@ -28,8 +29,10 @@ def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl) -> str:
     todoist_paper_url = None
     try:
         r = dbx.paper_docs_create(content_b, ImportFormat('markdown'), parent_folder_id=todoistfolderid)
-        # print(r)
-
+        # print(dbx.paper_docs_sharing_policy_get(r.doc_id))
+        # Set sharing policy to invite only. Papers are public per default!
+        if sharing == "false" or not sharing:
+            dbx.paper_docs_sharing_policy_set(r.doc_id, SharingPolicy(public_sharing_policy=SharingPublicPolicyType('invite_only', None)))
         todoist_paper_id = r.doc_id
         todoist_paper_url = todoistpaperurl + todoist_paper_id
         # print(todoist_paper_url)
@@ -227,6 +230,7 @@ def main():
         todoist_folder_name = secrets.get('dropbox', 'foldername')
         todoist_paper_urlprepart = secrets.get('dropbox', 'url')
         todoist_paper_label = secrets.get('dropbox', 'label')
+        todoist_paper_sharing = secrets.get('dropbox', 'sharing')
 
         # read label_progress form config.ini
         label_progress = secrets.get('config', 'label_progress')
@@ -237,7 +241,7 @@ def main():
     # init dropbox session
     dbx = dropbox.Dropbox(dropbox_api_key)
 
-    # Check Folde ID
+    # Check Folder ID
     if not todoist_folder_id:
         todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
         secrets.set('dropbox', 'todoistFolderId', todoist_folder_id)
@@ -407,8 +411,7 @@ def main():
         # print(item)
         # print(item['item']['content'])
         if not todoist_paper_urlprepart in item['content']:
-            newurl = createpaperdocument(gettasktitle(item['content']), dbx, secrets.get('dropbox', 'todoistFolderId'),
-                                         secrets.get('dropbox', 'url'))
+            newurl = createpaperdocument(gettasktitle(item['content']), dbx, secrets.get('dropbox', 'todoistFolderId'), secrets.get('dropbox', 'url'), todoist_paper_sharing)
             item.update(content=addpaperurltotask(item['content'], newurl))
     # api.commit()
 
