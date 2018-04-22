@@ -42,12 +42,11 @@ def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl) -> str:
     return todoist_paper_url
 
 
-def gettodoistfolderid(foldername: str, dbx: object):
+def gettodoistfolderid(foldername: str, dbx):
     """
 
-    TODO : error: insuficient permissions.?!
-
     Dropbox - Get Folder ID of folder "todoist" from user account
+    Note : only finds folder once a paper is created in. create test paper first.
 
     :param foldername: foldername to look for
     :param dbx: dropbox object
@@ -58,11 +57,9 @@ def gettodoistfolderid(foldername: str, dbx: object):
 
     # print(dbx.users_get_current_account())
     paper = dbx.paper_docs_list()
-    todoist_folder_id = None
+    todoist_folder_id = ""
     while paper.has_more:
         paper += dbx.paper_docs_list_continue(paper)
-
-    #    raise SystemExit(1)
     for entry in paper.doc_ids:
         # print(entry)
         # document_meta, document_response = dbx.paper_docs_download(entry, ExportFormat.markdown)
@@ -70,7 +67,7 @@ def gettodoistfolderid(foldername: str, dbx: object):
         # print(entry)
         folder_meta = dbx.paper_docs_get_folder_info(entry)
 
-        #print(folder_meta)
+        # print(folder_meta)
         if folder_meta.folders:
             # print(document_meta.title + "in Folder: " + folder_meta.folders[0].name + "id: " + folder_meta.folders[0].id)
             # print("in Folder: " + folder_meta.folders[0].name + " id: " + folder_meta.folders[0].id)
@@ -416,7 +413,7 @@ def main():
         if not todoist_paper_urlprepart in item['content']:
             newurl = createpaperdocument(gettasktitle(item['content']), dbx, secrets.get('dropbox', 'todoistFolderId'), secrets.get('dropbox', 'url'))
             item.update(content=addpaperurltotask(item['content'], newurl))
-    api.commit()
+    #api.commit()
 
 if __name__ == '__main__':
     main()
