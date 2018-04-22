@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from configparser import ConfigParser
-from typing import Any, Union
 
 import dropbox
 import requests
@@ -64,7 +63,6 @@ def gettodoistfolderid(foldername: str, dbx):
         # print(entry)
         # document_meta, document_response = dbx.paper_docs_download(entry, ExportFormat.markdown)
         # print(document_meta)
-        # print(entry)
         folder_meta = dbx.paper_docs_get_folder_info(entry)
 
         # print(folder_meta)
@@ -152,7 +150,6 @@ def getlabelid(labelname: str, api: object) -> str:
     """
     # print(labelname)
     label_progress_id = None
-    error_label_notfound = False
     try:
         for label in api.state['labels']:
             # print(api.state['labels'])
@@ -161,14 +158,13 @@ def getlabelid(labelname: str, api: object) -> str:
                 label_progress_id = label['id']
                 break
         if not label_progress_id:
-            error_label_notfound = True
             raise ValueError('Label not found in Todoist. Sync skipped!')
     except ValueError as error:
         print(error)
     return label_progress_id
 
-def addpaperurltotask(title_old, paper_url):
 
+def addpaperurltotask(title_old, paper_url):
     title_old_meta = ""
     if "‣" in title_old:
         title_old_headline, title_old_meta = title_old.split(config.progress_seperator)
@@ -178,20 +174,20 @@ def addpaperurltotask(title_old, paper_url):
 
     return title_new
 
+
 def gettasktitle(title):
     """
     Get task title withouth meta
     :param title: Task title with seperator
     :return:
     """
-    title_headline = ""
-    title_old_meta = ""
     if "‣" in title:
         title_headline, title_old_meta = title.split(config.progress_seperator)
     else:
         title_headline = title
 
     return title_headline
+
 
 def gettaskwithlabelid(labelid, api):
     """
@@ -203,8 +199,7 @@ def gettaskwithlabelid(labelid, api):
     """
     found = []
     for task in api.state['items']:
-        if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not \
-        task['is_archived']:
+        if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['is_archived']:
             for label in task['labels']:
                 if label == labelid:
                     # print("Found task to track:", task['content'])
@@ -216,12 +211,15 @@ def gettaskwithlabelid(labelid, api):
                     found.append(task['id'])
     return found
 
+
 def main():
+    config_filename = "config.ini"
+
     # Read config.ini
     try:
         secrets = ConfigParser()
-        secrets.read_file(open('config.ini'))
-        secrets.read('config.ini')
+        secrets.read_file(open(config_filename))
+        secrets.read(config_filename)
         todoist_api_key = secrets.get('config', 'apikey')
         dropbox_api_key = secrets.get('dropbox', 'apikey')
 
@@ -242,9 +240,11 @@ def main():
     # Check Folde ID
     if not todoist_folder_id:
         todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
-
+        secrets.set('dropbox', 'todoistFolderId', todoist_folder_id)
+        open(config_filename, 'w')
+        secrets.write(config_filename)
     # Create new dropbox paper
-    #print(createpaperdocument("Toller Titel", dbx, todoist_folder_id, todoist_paper_urlprepart))
+    # print(createpaperdocument("Toller Titel", dbx, todoist_folder_id, todoist_paper_urlprepart))
 
     # raise SystemExit(1)
 
@@ -368,19 +368,17 @@ def main():
                     item_content = item_content_new + "" + config.progress_seperator + " " + getprogresssymbols(
                         progress_done) + str(progress_done) + ' %'
 
-                    #print("################################")
-                    #print(item_content)
-                    #print(addpaperurltotask(item_content, "https://paper.dropbox.com/doc/Beispiel-To-Do-Liste-LtsvPeLZxVqTCdXLPtx4b"))
-                    #print("################################")
+                    # print("################################")
+                    # print(item_content)
+                    # print(addpaperurltotask(item_content, "https://paper.dropbox.com/doc/Beispiel-To-Do-Liste-LtsvPeLZxVqTCdXLPtx4b"))
+                    # print("################################")
 
-                    #if not "paper.dropbox" in item_task_old:
-                        #item_content = addpaperurltotask(item_content, "https://paper.dropbox.com/doc/Beispiel-To-Do-Liste-LtsvPeLZxVqTCdXLPtx4b")
+                    # if not "paper.dropbox" in item_task_old:
+                    # item_content = addpaperurltotask(item_content, "https://paper.dropbox.com/doc/Beispiel-To-Do-Liste-LtsvPeLZxVqTCdXLPtx4b")
 
                     if not item_task_old == item_content:
                         item = api.items.get_by_id(task['id'])
                         item.update(content=item_content)
-
-
 
                         # print(item_content)
                         # api.items.add(content='https://docs.python.org/2/library/unittest.html (25.3. unittest — U nit testing framework — Python 2.7.15rc1 documentation)', project_id="2183464785")
@@ -389,7 +387,7 @@ def main():
 
                         counter_changed_items = counter_changed_items + 1
     # Sync
-    #api.commit()
+    # api.commit()
     print("\n#########\n")
     print("Tracked tasks :", counter_progress)
     print("Changed tasks :", counter_changed_items)
@@ -397,8 +395,6 @@ def main():
     checkforupdate(config.version, config.update_url)
 
     print("\nEnd")
-
-
 
     print("+++++++")
 
@@ -408,12 +404,14 @@ def main():
     print(taskid)
     for task in taskid:
         item = api.items.get_by_id(task)
-        #print(item)
-        #print(item['item']['content'])
+        # print(item)
+        # print(item['item']['content'])
         if not todoist_paper_urlprepart in item['content']:
-            newurl = createpaperdocument(gettasktitle(item['content']), dbx, secrets.get('dropbox', 'todoistFolderId'), secrets.get('dropbox', 'url'))
+            newurl = createpaperdocument(gettasktitle(item['content']), dbx, secrets.get('dropbox', 'todoistFolderId'),
+                                         secrets.get('dropbox', 'url'))
             item.update(content=addpaperurltotask(item['content'], newurl))
-    #api.commit()
+    # api.commit()
+
 
 if __name__ == '__main__':
     main()
