@@ -12,8 +12,6 @@ from dropbox.exceptions import ApiError
 from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicyType, SharingPolicy
 from todoist.api import TodoistAPI
 
-import config as config
-
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 
