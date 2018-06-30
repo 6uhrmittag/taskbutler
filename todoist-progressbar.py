@@ -5,11 +5,17 @@ from configparser import ConfigParser
 
 import dropbox
 import requests
+import logging
+import logging.handlers
+
 from dropbox.exceptions import ApiError
 from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicyType, SharingPolicy
 from todoist.api import TodoistAPI
 
 import config as config
+
+logger = logging.getLogger('todoist')
+loggerdb = logging.getLogger('dropbox')
 
 
 def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -> str:
@@ -29,18 +35,19 @@ def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -
     todoist_paper_url = None
     try:
         r = dbx.paper_docs_create(content_b, ImportFormat('markdown'), parent_folder_id=todoistfolderid)
+        loggerdb.debug("Created paper for task: {}".format(content))
         # print(dbx.paper_docs_sharing_policy_get(r.doc_id))
         # Set sharing policy to invite only. Papers are public per default!
         if sharing == "false" or not sharing:
             dbx.paper_docs_sharing_policy_set(r.doc_id, SharingPolicy(public_sharing_policy=SharingPublicPolicyType('invite_only', None)))
+            loggerdb.debug("Paper marked as invite only")
         todoist_paper_id = r.doc_id
         todoist_paper_url = todoistpaperurl + todoist_paper_id
-        # print(todoist_paper_url)
+        loggerdb.debug("Created paper at URL: {}".format(todoist_paper_url))
     except PaperDocCreateError as e:
-        print("PaperDocCreateError ERROR %s", e)
+        loggerdb.error("PaperDocCreateError\nOriginal Error: {}".format(e))
     except ApiError as e:
-        print("API ERROR %s", e)
-
+        loggerdb.error("API ERROR\nOriginal Error: {}".format(e))
     return todoist_paper_url
 
 
@@ -55,7 +62,7 @@ def gettodoistfolderid(foldername: str, dbx):
     :return: folder ID for given name
     """
 
-    print(foldername)
+    loggerdb.debug("Lookup ID for paper folder: {}".format(foldername))
 
     # print(dbx.users_get_current_account())
     paper = dbx.paper_docs_list()
@@ -76,8 +83,7 @@ def gettodoistfolderid(foldername: str, dbx):
             if folder_meta.folders[0].name == foldername:
                 # print("id: " + folder_meta.folders[0].id)
                 todoist_folder_id = folder_meta.folders[0].id
-                # print("Found and configured folder!")
-
+                loggerdb.debug("Paper folder set as todoist folder: {}".format(todoist_folder_id))
                 break
             # print(folder_meta.folders[0].id)
         # print(document_response)
@@ -125,20 +131,19 @@ def checkforupdate(currentversion, updateurl):
         release_info_json = r.json()
 
         if not currentversion == release_info_json[0]['tag_name']:
-            print("\n#########\n")
-            print("Your version is not up-to-date!")
-            print("Your version  :", currentversion)
-            print("Latest version: ", release_info_json[0]['tag_name'])
-            print("See latest version at: ", release_info_json[0]['html_url'])
-            print("\n#########")
-
+            logger.info("Your version is not up-to-date! \nYour version: {}\nLatest version: {}\nSee latest version at:".format(currentversion, release_info_json[0]['tag_name'], release_info_json[0]['html_url']))
+            #print("\n#########\n")
+            #print("Your version is not up-to-date!")
+            #print("Your version  :", currentversion)
+            #print("Latest version: ", release_info_json[0]['tag_name'])
+            #print("See latest version at: ", release_info_json[0]['html_url'])
+            #print("\n#########")
     except requests.exceptions.ConnectionError as e:
-        print("Error while checking for updates (Connection error): ", e)
+        logger.error("Error while checking for updates (Connection error): {}".format(e))
     except requests.exceptions.HTTPError as e:
-        print("Error while checking for updates (HTTP error): ", e)
+        logger.error("Error while checking for updates (HTTP error): {}".format(e))
     except requests.exceptions.RequestException as e:
-        print("Error while checking for updates: ", e)
-
+        logger.error("Error while checking for updates: {}".format(e))
 
 def getlabelid(labelname: str, api: object) -> str:
     """
@@ -151,7 +156,7 @@ def getlabelid(labelname: str, api: object) -> str:
 
     :return: ID of labelname
     """
-    # print(labelname)
+    logger.debug("Searching for ID of label: {}".format(labelname))
     label_progress_id = None
     try:
         for label in api.state['labels']:
@@ -159,11 +164,12 @@ def getlabelid(labelname: str, api: object) -> str:
             if label['name'] == labelname:
                 # print("progress label id =", label['id'])
                 label_progress_id = label['id']
+                logger.debug("Progress label found! ID: {}".format(label_progress_id))
                 break
         if not label_progress_id:
             raise ValueError('Label not found in Todoist. Sync skipped!')
     except ValueError as error:
-        print(error)
+        logger.error("{}".format(error))
     return label_progress_id
 
 
@@ -210,7 +216,7 @@ def gettaskwithlabelid(labelid, api):
                     # print("id        = ", task['id'])
                     # print("labels    = ", task['labels'])
                     # print("Order     = ", task['item_order'])
-                    print(task, "\n#####")
+                    # print(task, "\n#####")
                     found.append(task['id'])
     return found
 
@@ -220,38 +226,77 @@ def main():
 
     # Read config.ini
     try:
+        logging.info("Read config from: {}".format(config_filename))
+
         secrets = ConfigParser()
         secrets.read_file(open(config_filename))
         secrets.read(config_filename)
-        todoist_api_key = secrets.get('config', 'apikey')
-        dropbox_api_key = secrets.get('dropbox', 'apikey')
 
+        # Setup logging
+        # Set logging format
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # Make sure to output everthing as long no loglevel is set
+        logger.setLevel(logging.DEBUG)
+
+        # If no logfile given, log to console
+        if "log" in secrets.sections() and "logfile" in secrets["log"]:
+            handler = logging.handlers.TimedRotatingFileHandler(secrets["log"]["logfile"], when="d", interval=7, backupCount=2)
+            logger.info("Set logging file: {}".format(handler.baseFilename))
+            logger.propagate = False
+            loggerdb.propagate = False
+        else:
+            handler = logging.StreamHandler()
+            logger.info("Set log output to console")
+            logger.propagate = False
+            loggerdb.propagate = False
+
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        loggerdb.addHandler(handler)
+
+        # Set loglevel. Default is DEBUG
+        if "log" in secrets.sections() and "loglevel" in secrets["log"]:
+            logger.setLevel(logging.getLevelName(secrets["log"]["loglevel"]))
+            loggerdb.setLevel(logging.getLevelName(secrets["log"]["loglevel"]))
+        else:
+            logger.setLevel(logging.DEBUG)
+            loggerdb.setLevel(logging.DEBUG)
+
+        logger.info("Set logging level: {}".format(logging.getLevelName(logger.level)))
+
+        # Setup devmode. If true -> no todoist commit and github update check(60 requests per hour)
+        try:
+            devmode = secrets.get('config', 'devmode')
+            logger.info("Entering DEVMODE - no todoist data will get changed")
+        except:
+            devmode = False
+            logger.info("Entering Production mode - All changed will get synced")
+
+        # Read config
+        todoist_api_key = secrets.get('todoist', 'apikey')
+        label_progress = secrets.get('todoist', 'label_progress')
+
+        dropbox_api_key = secrets.get('dropbox', 'apikey')
         todoist_folder_id = secrets.get('dropbox', 'todoistFolderId')
         todoist_folder_name = secrets.get('dropbox', 'foldername')
         todoist_paper_urlprepart = secrets.get('dropbox', 'url')
         todoist_paper_label = secrets.get('dropbox', 'label')
         todoist_paper_sharing = secrets.get('dropbox', 'sharing')
 
-        # read label_progress form config.ini
-        label_progress = secrets.get('config', 'label_progress')
     except FileNotFoundError as error:
-        print("Config file not found! Create config.ini first. ", error)
+        logger.error("Config file not found! Create config.ini first. \nOriginal Error: {}".format(error))
         raise SystemExit(1)
 
     # init dropbox session
     dbx = dropbox.Dropbox(dropbox_api_key)
+    loggerdb.debug("Dropbox account set to: {}".format(dbx.users_get_current_account()))
 
-    # Check Folder ID
+    # Check paper folder ID, get if not set
     if not todoist_folder_id:
         todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
         secrets.set('dropbox', 'todoistFolderId', todoist_folder_id)
         open(config_filename, 'w')
         secrets.write(config_filename)
-    # Create new dropbox paper
-    # print(createpaperdocument("Toller Titel", dbx, todoist_folder_id, todoist_paper_urlprepart))
-
-    # raise SystemExit(1)
-
     # print(todoist_folder_id)
     # folder_meta = dbx.paper_docs_get_folder_info(todoist_folder_id)
     #
@@ -264,21 +309,16 @@ def main():
     #        todoist_folder_id = None
     #
 
-    # raise SystemExit(1)
-
-    #    iso_time = time.strftime("%Y - %m-%dT - %H:%M:%S", time.gmtime())
 
     api = TodoistAPI(todoist_api_key)
-
     try:
         api.sync()
         if not api.state['items']:
             raise ValueError('Sync error. State empty.')
     except ValueError as error:
-        print(error)
+        logger.error("Sync Error. \nOriginal Error: {}".format(error))
 
-    # raise SystemExit(1)
-
+    # Delete todoist tasks
     # print( api.state['items'])
     # print( api.state['projects'])
     # item = api.items.get_by_id("ID_TO_DELETE")
@@ -290,32 +330,16 @@ def main():
     #    print (project['name'].encode('unicode_escape'))
     # print("######\n")
 
-    # Find "progress" label id
-    # print(api.state['labels'])
     label_progress_id = getlabelid(label_progress, api)
-
-    # print ("\n######\n")
-
-    # for task in api.state['items']:
-    #    print(sys.getsizeof(task['id']))
-    #    print(task['id'])
-    #    print(type(task['id']))
-    #    if isinstance(task['id'], str):
-    #        print("string")
-    #    counter = counter + 1
-
-    # print ("\n######\n")
-
     counter_progress = 0
     counter_changed_items = 0
 
     for task in api.state['items']:
-
-        # if task['project_id'] == testprojekt_id:
-
         if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['is_archived']:
             for label in task['labels']:
                 if label == label_progress_id:
+                    # logger.debug("Found task to track: {}".format(task['content']))
+
                     # print("Found task to track:", task['content'])
                     # print("content   = ", task['content'])
                     # print("id        = ", task['id'])
@@ -337,10 +361,11 @@ def main():
 
                             if not subTask['is_deleted'] and not subTask['in_history'] and not subTask['is_archived'] and subTask['parent_id'] == task['id']:
                                 # print ("### subTask found")
+                                logger.debug("Found subtask! ID of parent: {}".format(subTask['parent_id']))
 
                                 if subTask['checked']:
-                                    # print("Task is marked as done")
-                                    subasks_done = subasks_done + 1
+                                    logger.debug("Subtask marked as DONE")
+                                subasks_done = subasks_done + 1
                                 subtasks_total = subtasks_total + 1
 
                     if subtasks_total > 0:
@@ -381,40 +406,41 @@ def main():
                     # item_content = addpaperurltotask(item_content, "https://paper.dropbox.com/doc/Beispiel-To-Do-Liste-LtsvPeLZxVqTCdXLPtx4b")
 
                     if not item_task_old == item_content:
+                        logger.debug("Task progress updated!\nOld title :{}\nNew title :{}".format(item_task_old, item_content))
+
                         item = api.items.get_by_id(task['id'])
                         item.update(content=item_content)
 
                         # print(item_content)
                         # api.items.add(content='https://docs.python.org/2/library/unittest.html (25.3. unittest — U nit testing framework — Python 2.7.15rc1 documentation)', project_id="2183464785")
-                        print("Changed task from:", item_task_old)
-                        print("Changed task to  :", item_content)
 
                         counter_changed_items = counter_changed_items + 1
     # Sync
-    # api.commit()
-    print("\n#########\n")
-    print("Tracked tasks :", counter_progress)
-    print("Changed tasks :", counter_changed_items)
+    if not devmode:
+        logger.debug("Sync start")
+        api.commit()
+        logger.debug("Sync done")
 
-    checkforupdate(config.version, config.update_url)
+    logger.info("Tracked tasks : {}".format(counter_progress))
+    logger.info("Changed tasks: {}".format(counter_changed_items))
+    if not devmode:
+        checkforupdate(config.version, config.update_url)
 
-    print("\nEnd")
-
-    print("+++++++")
-
+    loggerdb.debug("Dropbox start")
     labelidid = getlabelid(todoist_paper_label, api)
-
     taskid = gettaskwithlabelid(labelidid, api)
-    print(taskid)
+
     for task in taskid:
         item = api.items.get_by_id(task)
-        # print(item)
-        # print(item['item']['content'])
         if not todoist_paper_urlprepart in item['content']:
             newurl = createpaperdocument(gettasktitle(item['content']), dbx, secrets.get('dropbox', 'todoistFolderId'), secrets.get('dropbox', 'url'), todoist_paper_sharing)
             item.update(content=addpaperurltotask(item['content'], newurl))
-    # api.commit()
+    if not devmode:
+        loggerdb.info("Sync task title with added url for task: {}".format(item['content']))
+        api.commit()
+        loggerdb.debug("Sync done")
 
+logger.info("Programm end")
 
 if __name__ == '__main__':
     main()
