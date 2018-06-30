@@ -91,28 +91,28 @@ def gettodoistfolderid(foldername: str, dbx):
     return todoist_folder_id
 
 
-def getprogresssymbols(progress_done):
+def getprogresssymbols(progress_done, secrets):
     """
     Returns unicode bar based on given percentage.
 
+    :param secrets:
     :param progress_done: (int, float) percentage of progress
     :return: (str) unicode bar
     """
     item_progressbar = ""
-
     if progress_done == 0:
-        item_progressbar = config.progress_bar_0
+        item_progressbar = secrets["todoist"]["progress_bar_0"]
     if progress_done > 0 and progress_done <= 20:
-        item_progressbar = config.progress_bar_20
+        item_progressbar = secrets["todoist"]["progress_bar_20"]
     if progress_done > 20 and progress_done <= 40:
-        item_progressbar = config.progress_bar_40
+        item_progressbar = secrets["todoist"]["progress_bar_40"]
     if progress_done > 40 and progress_done <= 60:
-        item_progressbar = config.progress_bar_60
+        item_progressbar = secrets["todoist"]["progress_bar_60"]
     if progress_done > 60 and progress_done <= 80:
-        item_progressbar = config.progress_bar_80
+        item_progressbar = secrets["todoist"]["progress_bar_80"]
     if progress_done > 80 and progress_done <= 100:
-        item_progressbar = config.progress_bar_100
-
+        item_progressbar = secrets["todoist"]["progress_bar_100"]
+    print(item_progressbar)
     return str(item_progressbar)
 
 
@@ -173,25 +173,25 @@ def getlabelid(labelname: str, api: object) -> str:
     return label_progress_id
 
 
-def addpaperurltotask(title_old, paper_url):
+def addpaperurltotask(title_old, paper_url, secrets):
     title_old_meta = ""
     if "‣" in title_old:
-        title_old_headline, title_old_meta = title_old.split(config.progress_seperator)
+        title_old_headline, title_old_meta = title_old.split(secrets["todoist"]["progress_seperator"])
     else:
         title_old_headline = title_old
-    title_new = paper_url + " (" + title_old_headline.rstrip() + ") " + "" + config.progress_seperator + title_old_meta
+    title_new = paper_url + " (" + title_old_headline.rstrip() + ") " + "" + secrets["todoist"]["progress_seperator"] + title_old_meta
 
     return title_new
 
 
-def gettasktitle(title):
+def gettasktitle(title, secrets):
     """
     Get task title withouth meta
     :param title: Task title with seperator
     :return:
     """
     if "‣" in title:
-        title_headline, title_old_meta = title.split(config.progress_seperator)
+        title_headline, title_old_meta = title.split(secrets["todoist"]["progress_seperator"])
     else:
         title_headline = title
 
@@ -229,8 +229,8 @@ def main():
         logging.info("Read config from: {}".format(config_filename))
 
         secrets = ConfigParser()
-        secrets.read_file(open(config_filename))
-        secrets.read(config_filename)
+        secrets.read_file(open(config_filename, 'r', encoding='utf-8'))
+        #secrets.read(config_filename)
 
         # Setup logging
         # Set logging format
@@ -388,15 +388,13 @@ def main():
                     item_task_old = task['content']
 
                     if "‣" in task['content']:
-                        item_content_old = task['content'].split(config.progress_seperator)
+                        item_content_old = task['content'].split(secrets["todoist"]["progress_seperator"])
                         item_content_new = item_content_old[0]
 
                     else:
                         item_content_new = task['content'] + " "
 
-                    item_content = item_content_new + "" + config.progress_seperator + " " + getprogresssymbols(
-                        progress_done) + str(progress_done) + ' %'
-
+                    item_content = item_content_new + "" + secrets["todoist"]["progress_seperator"] + " " + getprogresssymbols(progress_done, secrets) + " " + str(progress_done) + ' %'
                     # print("################################")
                     # print(item_content)
                     # print(addpaperurltotask(item_content, "https://paper.dropbox.com/doc/Beispiel-To-Do-Liste-LtsvPeLZxVqTCdXLPtx4b"))
@@ -424,7 +422,7 @@ def main():
     logger.info("Tracked tasks : {}".format(counter_progress))
     logger.info("Changed tasks: {}".format(counter_changed_items))
     if not devmode:
-        checkforupdate(config.version, config.update_url)
+        checkforupdate(secrets["config"]["version"], secrets["config"]["update_url"])
 
     loggerdb.debug("Dropbox start")
     labelidid = getlabelid(todoist_paper_label, api)
@@ -433,8 +431,8 @@ def main():
     for task in taskid:
         item = api.items.get_by_id(task)
         if not todoist_paper_urlprepart in item['content']:
-            newurl = createpaperdocument(gettasktitle(item['content']), dbx, secrets.get('dropbox', 'todoistFolderId'), secrets.get('dropbox', 'url'), todoist_paper_sharing)
-            item.update(content=addpaperurltotask(item['content'], newurl))
+            newurl = createpaperdocument(gettasktitle(item['content'], secrets), dbx, secrets.get('dropbox', 'todoistFolderId'), secrets.get('dropbox', 'url'), todoist_paper_sharing)
+            item.update(content=addpaperurltotask(item['content'], newurl, secrets))
     if not devmode:
         loggerdb.info("Sync task title with added url for task: {}".format(item['content']))
         api.commit()
