@@ -8,12 +8,45 @@ import requests
 import logging
 import logging.handlers
 
+from dropbox import Dropbox
 from dropbox.exceptions import ApiError
 from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicyType, SharingPolicy
 from todoist.api import TodoistAPI
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
+
+
+def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files) -> str:
+    """
+    Creates new dropbox file with given name. Returns a office online URL
+    Requires a authorized dropbox -> office365 connection
+
+    :type dropbox_prepart_files: object URL pre-part to create dropbox/office365 url
+    :param title: (str) Title of the newly created file (special characters will get stripped)
+    :param templatefile: (str) Path to template file
+    :param dbx: dropbox api object
+    :return: office online URL
+    """
+
+    filename = title
+    # Strip special characters
+    # #https://stackoverflow.com/questions/5843518/remove-all-special-characters-punctuation-and-spaces-from-string
+    filename = ''.join(e for e in filename if e.isalnum())
+    loggerdb.debug("Filename for new Dropbox file: {}".format(filename))
+
+    # Upload file to dropbox and create link
+    filetype = templatefile.rsplit(".", 1)[1]
+    loggerdb.debug("Filetype: {}".format(filetype))
+
+    with open('./' + templatefile, 'rb') as f:
+        debugnote = dbx.files_upload(f.read(), '/' + filename + '.' + filetype, autorename=True)
+        loggerdb.debug("{}".format(debugnote))
+
+        # **TODO** autorename doesn't work. If duplicate filname no file is created.
+        todoist_dropboxfile_url = dropbox_prepart_files + filename + '.' + filetype + '?force_role=personal'
+        loggerdb.debug("URL for new Dropbox file: {}".format(todoist_dropboxfile_url))
+    return todoist_dropboxfile_url
 
 
 def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -> str:
@@ -172,12 +205,21 @@ def getlabelid(labelname: str, api: object) -> str:
 
 
 def addpaperurltotask(title_old, paper_url, secrets):
+    # **TODO** paper+progress together doesn't work. this function always strips progress_seperator from tite and corrupts title.
     title_old_meta = ""
-    if "‣" in title_old:
+    # if "‣" in title_old:
+    #     title_old_headline, title_old_meta = title_old.split(secrets["todoist"]["progress_seperator"])
+    # else:
+    #     title_old_headline = title_old
+    # title_new = paper_url + " (" + title_old_headline.rstrip() + ") " + "" + secrets["todoist"]["progress_seperator"] + title_old_meta
+
+    if secrets["todoist"]["progress_seperator"] in title_old:
         title_old_headline, title_old_meta = title_old.split(secrets["todoist"]["progress_seperator"])
+        title_new = paper_url + " (" + title_old_headline.rstrip() + ") " + "" + secrets["todoist"][
+            "progress_seperator"] + title_old_meta
     else:
         title_old_headline = title_old
-    title_new = paper_url + " (" + title_old_headline.rstrip() + ") " + "" + secrets["todoist"]["progress_seperator"] + title_old_meta
+    title_new = paper_url + " (" + title_old_headline.rstrip() + ") " + "" + title_old_meta
 
     return title_new
 
@@ -185,6 +227,7 @@ def addpaperurltotask(title_old, paper_url, secrets):
 def gettasktitle(title, secrets):
     """
     Get task title withouth meta
+    :type secrets: object config.ini
     :param title: Task title with seperator
     :return:
     """
@@ -280,21 +323,27 @@ def main():
         todoist_paper_urlprepart = secrets.get('dropbox', 'url')
         todoist_paper_label = secrets.get('dropbox', 'label')
         todoist_paper_sharing = secrets.get('dropbox', 'sharing')
+        todoist_dropbox_templatefile = secrets.get('dropbox', 'templatefile')
+        todoist_dropbox_dblabel = secrets.get('dropbox', 'dblabel')
+        todoist_dropbox_prepart_files = secrets.get('dropbox', 'dropbox_prepart_files')
 
     except FileNotFoundError as error:
         logger.error("Config file not found! Create config.ini first. \nOriginal Error: {}".format(error))
         raise SystemExit(1)
 
     # init dropbox session
-    dbx = dropbox.Dropbox(dropbox_api_key)
+    dbx: Dropbox = dropbox.Dropbox(dropbox_api_key)
     loggerdb.debug("Dropbox account set to: {}".format(dbx.users_get_current_account()))
 
     # Check paper folder ID, get if not set
-    if not todoist_folder_id:
-        todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
-        secrets.set('dropbox', 'todoistFolderId', todoist_folder_id)
-        open(config_filename, 'w')
-        secrets.write(config_filename)
+    # **TODO** CORRUPTS CONFIG FILE while writing unicode
+    #if not todoist_folder_id:
+    #    todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
+    #    secrets.set('dropbox', 'todoistfolderid', todoist_folder_id)
+    #    configfile = open(config_filename, 'w')
+    #    secrets.write(configfile)
+    #    configfile.close()
+
     # print(todoist_folder_id)
     # folder_meta = dbx.paper_docs_get_folder_info(todoist_folder_id)
     #
@@ -306,7 +355,6 @@ def main():
     #        print("todoist Folder id outdated!")
     #        todoist_folder_id = None
     #
-
 
     api = TodoistAPI(todoist_api_key)
     try:
@@ -422,7 +470,7 @@ def main():
     if not devmode:
         checkforupdate(secrets["config"]["version"], secrets["config"]["update_url"])
 
-    loggerdb.debug("Dropbox start")
+    loggerdb.debug("Dropbox paper start")
     labelidid = getlabelid(todoist_paper_label, api)
     taskid = gettaskwithlabelid(labelidid, api)
 
@@ -435,6 +483,22 @@ def main():
         loggerdb.info("Sync task title with added url for task: {}".format(item['content']))
         api.commit()
         loggerdb.debug("Sync done")
+
+
+    loggerdb.debug("Dropbox file start")
+    labelidid = getlabelid(todoist_dropbox_dblabel, api)
+    taskid = gettaskwithlabelid(labelidid, api)
+
+    for task in taskid:
+        item = api.items.get_by_id(task)
+        if not todoist_dropbox_prepart_files in item['content']:
+            newurl = createdropboxfile(item["content"], dbx, todoist_dropbox_templatefile, todoist_dropbox_prepart_files)
+            item.update(content=addpaperurltotask(item['content'], newurl, secrets))
+    if not devmode:
+        loggerdb.info("Sync task title with added url for task: {}".format(item['content']))
+        api.commit()
+        loggerdb.debug("Sync done")
+
 
 logger.info("Programm end")
 
