@@ -16,8 +16,7 @@ Adds visual progressbars to tasks and lists with subtasks
 2. The script is tested on Ubuntu
 3. For optimal use this programm should run periodical on a server/computer to continuously update your tasks
 
-*Even though I never experienced any data loss, it's nice to know that [Todoist provides a daily backup of your data.]
-(https://support.todoist.com/hc/en-us/articles/115001799989)*
+*Even though I never experienced any data loss, it's nice to know that [Todoist provides a daily backup of your data.](https://support.todoist.com/hc/en-us/articles/115001799989)*
 
 # Setup
 
