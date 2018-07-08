@@ -6,39 +6,43 @@ Adds visual progressbars to tasks and lists with subtasks
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/63b8c36a47b407aa99aa/maintainability)](https://codeclimate.com/github/6uhrmittag/todoist-progressbar/maintainability)
 [![CodeFactor](https://www.codefactor.io/repository/github/6uhrmittag/todoist-progressbar/badge/feature-dropboxpaper)](https://www.codefactor.io/repository/github/6uhrmittag/todoist-progressbar/overview/feature-dropboxpaper)
+
 ## Features
 
 - uses unicode symbols for cross-platform support
 - adds progressbars lists, sub-lists and individual tasks
 
 ## Prerequisites and notes
+
 1. You'll need a [Todoist](https://todoist.com) premium account
 2. The script is tested on Ubuntu
 3. For optimal use this programm should run periodical on a server/computer to continuously update your tasks
 
 *Even though I never experienced any data loss, it's nice to know that [Todoist provides a daily backup of your data.](https://support.todoist.com/hc/en-us/articles/115001799989)*
 
-# Setup
+## Setup
 
-## installing requirements
+### installing requirements
 
 - `sudo apt-get install python3-pip`
 - `git clone git@github.com:6uhrmittag/todoist-progress.git`
 - `cd todoist-progress`
 - `sudo pip3 install -r requirements.txt`
 - `echo -e "[config]\napikey=YOURAPIKEY-WITHOUTH-ANY-QUOTES\nlabel_progress=trackprogress" >> config.ini`
--  add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
-# usage
+- add a label named `trackprogress` to each list/task you want to track (only to the "top" task in the list)
+
+## usage
+
 - `cd todoist-progress/`
 - `python3 todoist_progress.py`
 
-# Continuous progress-update
+## Continuous progress-update
 
-This program updates existing tasks without creating new once. It used the official sync-api and shouldn't cause any 
+This program updates existing tasks without creating new once. It used the official sync-api and shouldn't cause any
 trouble while syncing.
 To continuously update your tasks run this program periodical on a server/computer
 
-## Ubuntu
+### Ubuntu
 
 run programm every 20Min via crontab
 (see [crontab.guru](https://crontab.guru/) for setting time)
@@ -48,17 +52,18 @@ run programm every 20Min via crontab
 3. `crontab -e`
 4. add: `*/20  *  * * * cd "INSERT-COPIED-PATH" && /usr/bin/python3 todoist_progress.py`
 
-# Customisation
+## Customisation
 
 Most if the settings are customizable. Remember to **stop the program before changing any setting!**
 Before starting the program again, change your todoist tasks manually!
-Otherwise your task info will get mixed and messy. 
+Otherwise your task info will get mixed and messy.
 
-## Edit progressbar symbols
+### Edit progressbar symbols
 
 The bar is implemented by adding [unicode charaters](http://jrgraphix.net/r/Unicode/2600-26FF) to the existing text.
 e.g.  ⬛⬛⬜⬜⬜ 33 %
 The characters are configurable in the `config.ini` file
+
 ```
 [todoist]
 progress_bar_0=⬜⬜⬜⬜⬜
@@ -68,6 +73,7 @@ progress_bar_60=⬛⬛⬛⬜⬜
 progress_bar_80=⬛⬛⬛⬛⬜
 progress_bar_100=⬛⬛⬛⬛⬛
 ```
+
 To change the bar to e.g. empty/full bullets, just overwrite the characters with other charaters `⚫⚫⚫⚪⚪`.
 
 ### Edit progressbar seperator
@@ -89,7 +95,8 @@ Remember to rename the label in todoist when renaming labels!
 The script checks for updates by checking the [releases page](https://github.com/6uhrmittag/todoist-progressbar/releases)
 and leaves a message in the console.
 
-To update: 
+To update:
+
 - See releasenotes at [releases page](https://github.com/6uhrmittag/todoist-progressbar/releases)
 and check for compatibility.
 - Backup your current configuration/setup-folder
@@ -99,11 +106,14 @@ and overwrite files or "git pull origin" when you cloned this repository
 and create a task with the test label)
 
 ## Development
+
 To activate dev-mode add to ini file:
+
 ````ini
 [config]
 devmode = true
 ````
+
 Devmode doesn't submit changes to Todoist. **It will change dropbox files** (since messing up Todoist data is way more annoying)!
 
 ## Built With
@@ -117,7 +127,7 @@ Please leave a issue in the [Github issue tracker](https://github.com/6uhrmittag
 
 ## Versioning
 
-See [github.com/6uhrmittag/todoist-progressbar/](https://github.com/6uhrmittag/todoist-progressbar/) for source files. 
+See [github.com/6uhrmittag/todoist-progressbar/](https://github.com/6uhrmittag/todoist-progressbar/) for source files.
 
 ## Authors
 
