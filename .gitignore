@@ -270,3 +270,5 @@ build/
 todoist-progress.pyproj
 todoist_progress.spec
 __pycache__/
+
+templates/
