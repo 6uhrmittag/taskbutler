@@ -1,10 +1,11 @@
 [config]
-version=v.1.0.1-beta
-update_url=https://api.github.com/repos/6uhrmittag/todoist-progressbar/releases
+version = v.1.0.1-beta
+update_url = https://api.github.com/repos/6uhrmittag/todoist-progressbar/releases
+devmode = false
 
 [todoist]
 apikey =
-label_progress = tododev
+label_progress = progressbar
 progress_seperator=‣
 progress_bar_0=⬜⬜⬜⬜⬜
 progress_bar_20=⬛⬜⬜⬜⬜
@@ -15,14 +16,19 @@ progress_bar_100=⬛⬛⬛⬛⬛
 
 [dropbox]
 apikey =
+
+[dropboxpaper]
 todoistfolderid =
 url = https://paper.dropbox.com/doc/
-label = paper
+labelname = paper
 foldername = todoist
 sharing = false
-dblabel = brief
-templatefile = ./templates/briefvorlage_standardbriefe.docx
+
+[dropboxoffice]
+labelname = letter
+templatefile = ./templates/
+folder=todoist
 dropbox_prepart_files = https://www.dropbox.com/ow/msft/edit/home/
 
 [log]
-loglevel=DEBUG
+loglevel=INFO
