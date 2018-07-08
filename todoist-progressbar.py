@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from configparser import ConfigParser
@@ -8,45 +7,75 @@ import requests
 import logging
 import logging.handlers
 
-from dropbox import Dropbox
-from dropbox.exceptions import ApiError
+from dropbox.files import WriteMode
+
+from dropbox.exceptions import ApiError, AuthError
 from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicyType, SharingPolicy
 from todoist.api import TodoistAPI
+import codecs
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 
 
-def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files) -> str:
+def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -> str:
     """
     Creates new dropbox file with given name. Returns a office online URL
     Requires a authorized dropbox -> office365 connection
 
+    :param folder: folder in dropbox. Relativ from /
     :type dropbox_prepart_files: object URL pre-part to create dropbox/office365 url
     :param title: (str) Title of the newly created file (special characters will get stripped)
     :param templatefile: (str) Path to template file
     :param dbx: dropbox api object
     :return: office online URL
     """
+    # https://github.com/dropbox/dropbox-sdk-python/blob/master/example/back-up-and-restore/backup-and-restore-example.py
+    # https://github.com/dropbox/dropbox-sdk-python/blob/master/example/updown.py
 
     filename = title
+
     # Strip special characters
     # #https://stackoverflow.com/questions/5843518/remove-all-special-characters-punctuation-and-spaces-from-string
     filename = ''.join(e for e in filename if e.isalnum())
     loggerdb.debug("Filename for new Dropbox file: {}".format(filename))
 
-    # Upload file to dropbox and create link
+    # Check for duplicate filenames and rename new file
+    # Renaming breaks connection between task <-> file!
+    # Task doesn't know about renaming. Deleting file when task is completet is impossible.
+    try:
+        searchresult = dbx.files_search('/' + folder, filename, start=0, max_results=1,
+                                        mode=dropbox.files.SearchMode('filename', None))
+        if not searchresult.matches:
+            loggerdb.debug("No duplicate filename found")
+        else:
+            filename = filename + "1"
+            loggerdb.debug("Duplicate filename found. Renaming {} to {}".format(title, filename))
+    except ApiError as err:
+        loggerdb.error(
+            "Probably folder is not existent. Create folder:{} manually. Original: {}".format(folder, err.error))
+        raise SystemExit(1)
+
+    # Seperate filename - filetype
     filetype = templatefile.rsplit(".", 1)[1]
     loggerdb.debug("Filetype: {}".format(filetype))
 
+    # Upload file to dropbox and create link
     with open('./' + templatefile, 'rb') as f:
-        debugnote = dbx.files_upload(f.read(), '/' + filename + '.' + filetype, autorename=True)
-        loggerdb.debug("{}".format(debugnote))
+        try:
+            # Dropbox Api doesn't rename if Content is the same
+            # https://www.dropboxforum.com/t5/API-Support-Feedback/Cannot-auto-rename-file/td-p/234640
+            debugnote = dbx.files_upload(f.read(), '/' + folder + '/' + filename + '.' + filetype,
+                                         mode=dropbox.files.WriteMode.add, autorename=False)
+            loggerdb.debug("{}".format(debugnote))
 
-        # **TODO** autorename doesn't work. If duplicate filname no file is created.
-        todoist_dropboxfile_url = dropbox_prepart_files + filename + '.' + filetype + '?force_role=personal'
-        loggerdb.debug("URL for new Dropbox file: {}".format(todoist_dropboxfile_url))
-    return todoist_dropboxfile_url
+            todoist_dropboxfile_url = dropbox_prepart_files + folder + '/' + filename + '.' + filetype + '?force_role=personal'
+            loggerdb.debug("URL for new Dropbox file: {}".format(todoist_dropboxfile_url))
+            return todoist_dropboxfile_url
+
+        except Exception as err:
+            loggerdb.error("Something went wrong: {}".format(err))
+            raise SystemExit(1)
 
 
 def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -> str:
@@ -70,15 +99,18 @@ def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -
         # print(dbx.paper_docs_sharing_policy_get(r.doc_id))
         # Set sharing policy to invite only. Papers are public per default!
         if sharing == "false" or not sharing:
-            dbx.paper_docs_sharing_policy_set(r.doc_id, SharingPolicy(public_sharing_policy=SharingPublicPolicyType('invite_only', None)))
+            dbx.paper_docs_sharing_policy_set(r.doc_id, SharingPolicy(
+                public_sharing_policy=SharingPublicPolicyType('invite_only', None)))
             loggerdb.debug("Paper marked as invite only")
         todoist_paper_id = r.doc_id
         todoist_paper_url = todoistpaperurl + todoist_paper_id
         loggerdb.debug("Created paper at URL: {}".format(todoist_paper_url))
     except PaperDocCreateError as e:
         loggerdb.error("PaperDocCreateError\nOriginal Error: {}".format(e))
+        raise SystemExit(1)
     except ApiError as e:
         loggerdb.error("API ERROR\nOriginal Error: {}".format(e))
+        raise SystemExit(1)
     return todoist_paper_url
 
 
@@ -95,22 +127,17 @@ def gettodoistfolderid(foldername: str, dbx):
 
     loggerdb.debug("Lookup ID for paper folder: {}".format(foldername))
 
-    # print(dbx.users_get_current_account())
+
     paper = dbx.paper_docs_list()
     todoist_folder_id = ""
     while paper.has_more:
         paper += dbx.paper_docs_list_continue(paper)
     for entry in paper.doc_ids:
-        # print(entry)
-        # document_meta, document_response = dbx.paper_docs_download(entry, ExportFormat.markdown)
-        # print(document_meta)
         folder_meta = dbx.paper_docs_get_folder_info(entry)
 
-        # print(folder_meta)
         if folder_meta.folders:
             # print(document_meta.title + "in Folder: " + folder_meta.folders[0].name + "id: " + folder_meta.folders[0].id)
             # print("in Folder: " + folder_meta.folders[0].name + " id: " + folder_meta.folders[0].id)
-            print(folder_meta.folders[0])
             if folder_meta.folders[0].name == foldername:
                 # print("id: " + folder_meta.folders[0].id)
                 todoist_folder_id = folder_meta.folders[0].id
@@ -130,6 +157,8 @@ def getprogresssymbols(progress_done, secrets):
     :param progress_done: (int, float) percentage of progress
     :return: (str) unicode bar
     """
+
+    # TODO change to switch-case
     item_progressbar = ""
     if progress_done == 0:
         item_progressbar = secrets["todoist"]["progress_bar_0"]
@@ -143,7 +172,6 @@ def getprogresssymbols(progress_done, secrets):
         item_progressbar = secrets["todoist"]["progress_bar_80"]
     if progress_done > 80 and progress_done <= 100:
         item_progressbar = secrets["todoist"]["progress_bar_100"]
-    print(item_progressbar)
     return str(item_progressbar)
 
 
@@ -162,19 +190,16 @@ def checkforupdate(currentversion, updateurl):
         release_info_json = r.json()
 
         if not currentversion == release_info_json[0]['tag_name']:
-            logger.info("Your version is not up-to-date! \nYour version: {}\nLatest version: {}\nSee latest version at:".format(currentversion, release_info_json[0]['tag_name'], release_info_json[0]['html_url']))
-            #print("\n#########\n")
-            #print("Your version is not up-to-date!")
-            #print("Your version  :", currentversion)
-            #print("Latest version: ", release_info_json[0]['tag_name'])
-            #print("See latest version at: ", release_info_json[0]['html_url'])
-            #print("\n#########")
+            logger.info(
+                "Your version is not up-to-date! \nYour version: {}\nLatest version: {}\nSee latest version at:".format(
+                    currentversion, release_info_json[0]['tag_name'], release_info_json[0]['html_url']))
     except requests.exceptions.ConnectionError as e:
         logger.error("Error while checking for updates (Connection error): {}".format(e))
     except requests.exceptions.HTTPError as e:
         logger.error("Error while checking for updates (HTTP error): {}".format(e))
     except requests.exceptions.RequestException as e:
         logger.error("Error while checking for updates: {}".format(e))
+
 
 def getlabelid(labelname: str, api: object) -> str:
     """
@@ -191,35 +216,27 @@ def getlabelid(labelname: str, api: object) -> str:
     label_progress_id = None
     try:
         for label in api.state['labels']:
-            # print(api.state['labels'])
             if label['name'] == labelname:
-                # print("progress label id =", label['id'])
                 label_progress_id = label['id']
-                logger.debug("Progress label found! ID: {}".format(label_progress_id))
+                logger.debug("ID for label: {} found! ID: {}".format(labelname, label_progress_id))
                 break
         if not label_progress_id:
-            raise ValueError('Label not found in Todoist. Sync skipped!')
+            raise ValueError('Label not found in Todoist. Skipped!')
     except ValueError as error:
         logger.error("{}".format(error))
     return label_progress_id
 
 
-def addpaperurltotask(title_old, paper_url, secrets):
-    # **TODO** paper+progress together doesn't work. this function always strips progress_seperator from tite and corrupts title.
+def addurltotask(title_old, url, secrets):
     title_old_meta = ""
-    # if "‣" in title_old:
-    #     title_old_headline, title_old_meta = title_old.split(secrets["todoist"]["progress_seperator"])
-    # else:
-    #     title_old_headline = title_old
-    # title_new = paper_url + " (" + title_old_headline.rstrip() + ") " + "" + secrets["todoist"]["progress_seperator"] + title_old_meta
 
     if secrets["todoist"]["progress_seperator"] in title_old:
         title_old_headline, title_old_meta = title_old.split(secrets["todoist"]["progress_seperator"])
-        title_new = paper_url + " (" + title_old_headline.rstrip() + ") " + "" + secrets["todoist"][
+        title_new = url + " (" + title_old_headline.rstrip() + ") " + "" + secrets["todoist"][
             "progress_seperator"] + title_old_meta
     else:
         title_old_headline = title_old
-    title_new = paper_url + " (" + title_old_headline.rstrip() + ") " + "" + title_old_meta
+        title_new = url + " (" + title_old_headline.rstrip() + ") " + "" + title_old_meta
 
     return title_new
 
@@ -249,15 +266,10 @@ def gettaskwithlabelid(labelid, api):
     """
     found = []
     for task in api.state['items']:
-        if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['is_archived']:
+        if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
+            'in_history'] and not task['is_archived']:
             for label in task['labels']:
                 if label == labelid:
-                    # print("Found task to track:", task['content'])
-                    # print("content   = ", task['content'])
-                    # print("id        = ", task['id'])
-                    # print("labels    = ", task['labels'])
-                    # print("Order     = ", task['item_order'])
-                    # print(task, "\n#####")
                     found.append(task['id'])
     return found
 
@@ -266,12 +278,13 @@ def main():
     config_filename = "config.ini"
 
     # Read config.ini
+    # TODO refactor read/write config -> https://docs.python.org/3/library/configparser.html
+    # check for every non-optional parameter
     try:
         logging.info("Read config from: {}".format(config_filename))
 
         secrets = ConfigParser()
         secrets.read_file(open(config_filename, 'r', encoding='utf-8'))
-        #secrets.read(config_filename)
 
         # Setup logging
         # Set logging format
@@ -281,7 +294,8 @@ def main():
 
         # If no logfile given, log to console
         if "log" in secrets.sections() and "logfile" in secrets["log"]:
-            handler = logging.handlers.TimedRotatingFileHandler(secrets["log"]["logfile"], when="d", interval=7, backupCount=2)
+            handler = logging.handlers.TimedRotatingFileHandler(secrets["log"]["logfile"], when="d", interval=7,
+                                                                backupCount=2)
             logger.info("Set logging file: {}".format(handler.baseFilename))
             logger.propagate = False
             loggerdb.propagate = False
@@ -306,10 +320,10 @@ def main():
         logger.info("Set logging level: {}".format(logging.getLevelName(logger.level)))
 
         # Setup devmode. If true -> no todoist commit and github update check(60 requests per hour)
-        try:
-            devmode = secrets.get('config', 'devmode')
+        if secrets.get('config', 'devmode') == "True" or secrets.get('config', 'devmode') == "true":
+            devmode = True
             logger.info("Entering DEVMODE - no todoist data will get changed")
-        except:
+        else:
             devmode = False
             logger.info("Entering Production mode - All changed will get synced")
 
@@ -318,52 +332,67 @@ def main():
         label_progress = secrets.get('todoist', 'label_progress')
 
         dropbox_api_key = secrets.get('dropbox', 'apikey')
-        todoist_folder_id = secrets.get('dropbox', 'todoistFolderId')
-        todoist_folder_name = secrets.get('dropbox', 'foldername')
-        todoist_paper_urlprepart = secrets.get('dropbox', 'url')
-        todoist_paper_label = secrets.get('dropbox', 'label')
-        todoist_paper_sharing = secrets.get('dropbox', 'sharing')
-        todoist_dropbox_templatefile = secrets.get('dropbox', 'templatefile')
-        todoist_dropbox_dblabel = secrets.get('dropbox', 'dblabel')
-        todoist_dropbox_prepart_files = secrets.get('dropbox', 'dropbox_prepart_files')
 
+        todoist_folder_id = str(secrets.get('dropboxpaper', 'todoistfolderid'))
+        todoist_folder_name = secrets.get('dropboxpaper', 'foldername')
+        label_todoist_dropboxpaper = secrets.get('dropboxpaper', 'labelname')
+        todoist_paper_sharing = secrets.get('dropboxpaper', 'sharing')
+
+        todoist_dropbox_templatefile = secrets.get('dropboxoffice', 'templatefile')
+        label_todoist_dropboxoffice = secrets.get('dropboxoffice', 'labelname')
+        todoist_dropbox_prepart_files = secrets.get('dropboxoffice', 'dropbox_prepart_files')
+        dropbox_todoist_folder = secrets.get('dropboxoffice', 'folder')
     except FileNotFoundError as error:
         logger.error("Config file not found! Create config.ini first. \nOriginal Error: {}".format(error))
         raise SystemExit(1)
 
     # init dropbox session
-    dbx: Dropbox = dropbox.Dropbox(dropbox_api_key)
-    loggerdb.debug("Dropbox account set to: {}".format(dbx.users_get_current_account()))
+    if dropbox_api_key and (label_todoist_dropboxpaper or label_todoist_dropboxoffice):
+        dbx = dropbox.Dropbox(dropbox_api_key)
+        try:
+            dbx.users_get_current_account()
+            loggerdb.debug("Dropbox account set to: {}".format(dbx.users_get_current_account()))
+        except AuthError as err:
+            loggerdb.error("Invalid access token: {}".format(err))
+            raise SystemExit(1)
 
-    # Check paper folder ID, get if not set
-    # **TODO** CORRUPTS CONFIG FILE while writing unicode
-    #if not todoist_folder_id:
-    #    todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
-    #    secrets.set('dropbox', 'todoistfolderid', todoist_folder_id)
-    #    configfile = open(config_filename, 'w')
-    #    secrets.write(configfile)
-    #    configfile.close()
+        if label_todoist_dropboxpaper:
+            # Check paper folder ID, get if not set
+            # Check that folder it still matches folder name
 
-    # print(todoist_folder_id)
-    # folder_meta = dbx.paper_docs_get_folder_info(todoist_folder_id)
-    #
-    #    print(folder_meta)
-    #    if folder_meta.folders[0].name == "todoist":
-    #        print("Found preconfigured folder!")
-    #        todoist_folder_id = folder_meta.folders[0].id
-    #    else:
-    #        print("todoist Folder id outdated!")
-    #        todoist_folder_id = None
-    #
+            if todoist_folder_id:
+                loggerdb.debug("Dropbox paper - folder-ID set to: {}".format(todoist_folder_id))
+                # TODO Verify ID of foldername. Doesn't work properly. Not really important
+                # dbx.paper_docs_get_folder_info()
+                # folder_meta = dbx.paper_docs_get_folder_info(todoist_folder_id)
+                # print(folder_meta)
+                # raise SystemExit(1)
+                #
+                # if folder_meta.folders[0].name == "todoist":
+                #     loggerdb.debug("Dropbox paper - folder-ID is up-to-date: {}".format(todoist_folder_id))
+                #     todoist_folder_id = folder_meta.folders[0].id
+                # else:
+                #     loggerdb.debug("Dropbox paper - folder-ID is outdated. Resetting.")
+                #     todoist_folder_id = None
+            else:
+                todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
+                secrets.set('dropboxpaper', 'todoistfolderid', todoist_folder_id)
+                with open(config_filename, 'w') as configfile:
+                    secrets.write(codecs.open(config_filename, 'wb+', 'utf-8'))
+    else:
+        loggerdb.debug("Dropbox feature disabled. No API key found.")
 
-    api = TodoistAPI(todoist_api_key)
+    # init todoist session
     try:
+        api = TodoistAPI(todoist_api_key)
         api.sync()
         if not api.state['items']:
             raise ValueError('Sync error. State empty.')
     except ValueError as error:
         logger.error("Sync Error. \nOriginal Error: {}".format(error))
+        raise SystemExit(1)
 
+    # Usefull for development:
     # Delete todoist tasks
     # print( api.state['items'])
     # print( api.state['projects'])
@@ -376,131 +405,135 @@ def main():
     #    print (project['name'].encode('unicode_escape'))
     # print("######\n")
 
-    label_progress_id = getlabelid(label_progress, api)
-    counter_progress = 0
-    counter_changed_items = 0
+    if label_progress:
 
-    for task in api.state['items']:
-        if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['is_archived']:
-            for label in task['labels']:
-                if label == label_progress_id:
-                    # logger.debug("Found task to track: {}".format(task['content']))
+        label_progress_id = getlabelid(label_progress, api)
+        counter_progress = 0
+        counter_changed_items = 0
 
-                    # print("Found task to track:", task['content'])
-                    # print("content   = ", task['content'])
-                    # print("id        = ", task['id'])
-                    # print("labels    = ", task['labels'])
-                    # print("Order     = ", task['item_order'])
-                    # print(task, "\n#####")
+        for task in api.state['items']:
+            if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
+                'in_history'] and not task['is_archived']:
+                for label in task['labels']:
+                    if label == label_progress_id:
+                        logger.debug("Found task to track: {}".format(task['content']))
 
-                    counter_progress = counter_progress + 1
-                    subtasks_total = 0
-                    subasks_done = 0
-                    # item_order = 0
-                    for subTask in api.state['items']:
-                        if not subTask['content'].startswith("*"):
-                            # print('Skip "text only Tasks"')
-                            # print("Check for subTasks")
-                            # print("parent id = ", subTask['parent_id'])
-                            # print("id of tracked task = ", task['id'])
-                            # print(subTask, "\n#####")
+                        counter_progress = counter_progress + 1
+                        subtasks_total = 0
+                        subtasks_done = 0
+                        for subTask in api.state['items']:
+                            if not subTask['content'].startswith("*"):
+                                # * -> Skip "text only Tasks"
 
-                            if not subTask['is_deleted'] and not subTask['in_history'] and not subTask['is_archived'] and subTask['parent_id'] == task['id']:
-                                # print ("### subTask found")
-                                logger.debug("Found subtask! ID of parent: {}".format(subTask['parent_id']))
+                                if not subTask['is_deleted'] and not subTask['in_history'] and not subTask[
+                                    'is_archived'] and subTask['parent_id'] == task['id']:
+                                    logger.debug(
+                                        "Found connected Subtask: {}".format(subTask['content'], subTask['id']))
+                                    if subTask['checked']:
+                                        subtasks_done = subtasks_done + 1
+                                        logger.debug("Subtask {} is marked as DONE".format(subTask['content']))
+                                    else:
+                                        logger.debug("Subtask {} is marked as UNDONE".format(subTask['content']))
+                                    subtasks_total = subtasks_total + 1
 
-                                if subTask['checked']:
-                                    logger.debug("Subtask marked as DONE")
-                                subasks_done = subasks_done + 1
-                                subtasks_total = subtasks_total + 1
+                        if subtasks_total > 0:
+                            progress_per_task = 100 / subtasks_total
+                        else:
+                            progress_per_task = 100
 
-                    if subtasks_total > 0:
-                        progress_per_task = 100 / subtasks_total
-                    else:
-                        progress_per_task = 100
+                        progress_done = round(subtasks_done * progress_per_task)
+                        logger.debug(
+                            "Task: {} done: {} total: {}".format(task['content'], subtasks_done, subtasks_total))
 
-                    progress_done = round(subasks_done * progress_per_task)
+                        item_task_old = task['content']
 
-                    # print("subTasks total = ", subtasks_total)
-                    # print("subTasks done = ", subasks_done)
-                    # print("\nPercent per task = ", progress_per_task)
-                    # print("Percent done = ", progress_done)
-                    # print ("\n######\n")
-                    # print("Order in List:", task['item_order'])
-                    # print(type(task['item_order']))
+                        if "‣" in task['content']:
+                            item_content_old = task['content'].split(secrets["todoist"]["progress_seperator"])
+                            item_content_new = item_content_old[0]
 
-                    # item_order = task['item_order'] + 1
+                        else:
+                            item_content_new = task['content'] + " "
 
-                    item_task_old = task['content']
+                        item_content = item_content_new + "" + secrets["todoist"][
+                            "progress_seperator"] + " " + getprogresssymbols(progress_done, secrets) + " " + str(
+                            progress_done) + ' %'
 
-                    if "‣" in task['content']:
-                        item_content_old = task['content'].split(secrets["todoist"]["progress_seperator"])
-                        item_content_new = item_content_old[0]
+                        if not item_task_old == item_content:
+                            logger.debug(
+                                "Task progress updated!\nOld title :{}\nNew title :{}".format(item_task_old,
+                                                                                              item_content))
 
-                    else:
-                        item_content_new = task['content'] + " "
+                            item = api.items.get_by_id(task['id'])
+                            item.update(content=item_content)
 
-                    item_content = item_content_new + "" + secrets["todoist"]["progress_seperator"] + " " + getprogresssymbols(progress_done, secrets) + " " + str(progress_done) + ' %'
-                    # print("################################")
-                    # print(item_content)
-                    # print(addpaperurltotask(item_content, "https://paper.dropbox.com/doc/Beispiel-To-Do-Liste-LtsvPeLZxVqTCdXLPtx4b"))
-                    # print("################################")
+                            counter_changed_items = counter_changed_items + 1
+        # Sync
+        if not devmode:
+            # TODO api.commit + api.sync could be a dubplicate. api.sync is added to prevent issues after changing titles
+            logger.debug("Sync start")
+            api.commit()
+            api.sync()
+            logger.debug("Sync done")
 
-                    # if not "paper.dropbox" in item_task_old:
-                    # item_content = addpaperurltotask(item_content, "https://paper.dropbox.com/doc/Beispiel-To-Do-Liste-LtsvPeLZxVqTCdXLPtx4b")
+        logger.info("Tracked tasks : {}".format(counter_progress))
+        logger.info("Changed tasks: {}".format(counter_changed_items))
+    else:
+        logger.debug("Progressbar feature disabled. No labelname found.")
 
-                    if not item_task_old == item_content:
-                        logger.debug("Task progress updated!\nOld title :{}\nNew title :{}".format(item_task_old, item_content))
-
-                        item = api.items.get_by_id(task['id'])
-                        item.update(content=item_content)
-
-                        # print(item_content)
-                        # api.items.add(content='https://docs.python.org/2/library/unittest.html (25.3. unittest — U nit testing framework — Python 2.7.15rc1 documentation)', project_id="2183464785")
-
-                        counter_changed_items = counter_changed_items + 1
-    # Sync
-    if not devmode:
-        logger.debug("Sync start")
-        api.commit()
-        logger.debug("Sync done")
-
-    logger.info("Tracked tasks : {}".format(counter_progress))
-    logger.info("Changed tasks: {}".format(counter_changed_items))
-    if not devmode:
+    # Check for Update
+    if not devmode and secrets["config"]["update_url"]:
         checkforupdate(secrets["config"]["version"], secrets["config"]["update_url"])
 
-    loggerdb.debug("Dropbox paper start")
-    labelidid = getlabelid(todoist_paper_label, api)
-    taskid = gettaskwithlabelid(labelidid, api)
-
-    for task in taskid:
-        item = api.items.get_by_id(task)
-        if not todoist_paper_urlprepart in item['content']:
-            newurl = createpaperdocument(gettasktitle(item['content'], secrets), dbx, secrets.get('dropbox', 'todoistFolderId'), secrets.get('dropbox', 'url'), todoist_paper_sharing)
-            item.update(content=addpaperurltotask(item['content'], newurl, secrets))
+    # Dropbox paper feature
+    # Drpopbox paper is disabled in devmode -> will create files every time since url is not written in task title.
+    # Dropbox paper is annoying to cleanup
     if not devmode:
-        loggerdb.info("Sync task title with added url for task: {}".format(item['content']))
-        api.commit()
-        loggerdb.debug("Sync done")
+        if label_todoist_dropboxpaper:
+            # Dropbox Paper
+            loggerdb.debug("Dropbox paper start")
+            labelidid = getlabelid(label_todoist_dropboxpaper, api)
+            taskid = gettaskwithlabelid(labelidid, api)
 
+            for task in taskid:
+                item = api.items.get_by_id(task)
+                if "https://" not in item['content']:
+                    newurl = createpaperdocument(gettasktitle(item['content'], secrets), dbx,
+                                                 secrets.get('dropboxpaper', 'todoistfolderid'),
+                                                 secrets.get('dropboxpaper', 'url'),
+                                                 todoist_paper_sharing)
+                    item.update(content=addurltotask(item['content'], newurl, secrets))
+                    loggerdb.info("Added paper to task: {}".format(item['content']))
+            if not devmode:
+                api.commit()
+                loggerdb.debug("Sync done")
+        else:
+            logger.info("Dropbox paper feature disabled. No labelname found.")
+    else:
+        logger.info("Dropbox paper feature in devmode disabled.")
 
-    loggerdb.debug("Dropbox file start")
-    labelidid = getlabelid(todoist_dropbox_dblabel, api)
-    taskid = gettaskwithlabelid(labelidid, api)
+    # Dropbox -> Microsoft office feature
+    if label_todoist_dropboxoffice:
+        loggerdb.debug("Dropbox file start")
+        labelidid = getlabelid(label_todoist_dropboxoffice, api)
+        taskid = gettaskwithlabelid(labelidid, api)
 
-    for task in taskid:
-        item = api.items.get_by_id(task)
-        if not todoist_dropbox_prepart_files in item['content']:
-            newurl = createdropboxfile(item["content"], dbx, todoist_dropbox_templatefile, todoist_dropbox_prepart_files)
-            item.update(content=addpaperurltotask(item['content'], newurl, secrets))
-    if not devmode:
-        loggerdb.info("Sync task title with added url for task: {}".format(item['content']))
-        api.commit()
-        loggerdb.debug("Sync done")
+        for task in taskid:
+            item = api.items.get_by_id(task)
+            if "https://" not in item['content']:
+                newurl = createdropboxfile(item["content"], dbx, todoist_dropbox_templatefile,
+                                           todoist_dropbox_prepart_files, dropbox_todoist_folder)
+                item.update(content=addurltotask(item['content'], newurl, secrets))
+                loggerdb.info("Added File to Task: {}".format(item['content']))
+        if not devmode:
+            api.commit()
+            loggerdb.debug("Sync done")
+    else:
+        logger.info("Dropbox to Office feature disabled. No labelname found.")
 
+    logger.info("Programm end")
 
-logger.info("Programm end")
 
 if __name__ == '__main__':
     main()
+
+# Note: https://pytodoist.readthedocs.io/en/latest/modules.html
