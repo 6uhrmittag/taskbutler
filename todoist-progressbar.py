@@ -191,7 +191,7 @@ def checkforupdate(currentversion, updateurl):
 
         if not currentversion == release_info_json[0]['tag_name']:
             logger.info(
-                "Your version is not up-to-date! \nYour version: {}\nLatest version: {}\nSee latest version at:".format(
+                "Your version is not up-to-date! \nYour version: {}\nLatest version: {}\nSee latest version at: {}".format(
                     currentversion, release_info_json[0]['tag_name'], release_info_json[0]['html_url']))
     except requests.exceptions.ConnectionError as e:
         logger.error("Error while checking for updates (Connection error): {}".format(e))
