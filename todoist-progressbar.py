@@ -496,7 +496,8 @@ def main():
 
             for task in taskid:
                 item = api.items.get_by_id(task)
-                if "https://" not in item['content']:
+                if "https://" not in item['content'] and not item['is_deleted'] and not item[
+                'in_history'] and not item['is_archived']:
                     newurl = createpaperdocument(gettasktitle(item['content'], secrets), dbx,
                                                  secrets.get('dropboxpaper', 'todoistfolderid'),
                                                  secrets.get('dropboxpaper', 'url'),
@@ -519,7 +520,8 @@ def main():
 
         for task in taskid:
             item = api.items.get_by_id(task)
-            if "https://" not in item['content']:
+            if "https://" not in item['content'] and not item['is_deleted'] and not item[
+                'in_history'] and not item['is_archived']:
                 newurl = createdropboxfile(item["content"], dbx, todoist_dropbox_templatefile,
                                            todoist_dropbox_prepart_files, dropbox_todoist_folder)
                 item.update(content=addurltotask(item['content'], newurl, secrets))
