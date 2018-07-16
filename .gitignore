@@ -272,3 +272,4 @@ todoist_progress.spec
 __pycache__/
 
 templates/
+venv/
