@@ -10,3 +10,5 @@ pefile
 pip
 todoist-python
 dropbox
+pygithub
+datetime
