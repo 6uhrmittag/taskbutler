@@ -319,7 +319,7 @@ def main():
         logger.setLevel(logging.DEBUG)
 
         # If no logfile given, log to console
-        if "log" in secrets.sections() and "logfile" in secrets["log"]:
+        if "logfile" in secrets["log"] and secrets["log"]["logfile"]:
             handler = logging.handlers.TimedRotatingFileHandler(secrets["log"]["logfile"], when="d", interval=7,
                                                                 backupCount=2, encoding='utf-8',)
             logger.info("Set logging file: {}".format(handler.baseFilename))
