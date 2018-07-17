@@ -1,0 +1,35 @@
+[config]
+version = v.2.0-beta
+update_url = https://api.github.com/repos/6uhrmittag/taskbutler/releases
+devmode = false
+
+[todoist]
+apikey =
+label_progress = progressbar
+progress_seperator=‣
+progress_bar_0=⬜⬜⬜⬜⬜
+progress_bar_20=⬛⬜⬜⬜⬜
+progress_bar_40=⬛⬛⬜⬜⬜
+progress_bar_60=⬛⬛⬛⬜⬜
+progress_bar_80=⬛⬛⬛⬛⬜
+progress_bar_100=⬛⬛⬛⬛⬛
+
+[dropbox]
+apikey =
+
+[dropboxpaper]
+todoistfolderid =
+url = https://paper.dropbox.com/doc/
+labelname = paper
+foldername = todoist
+sharing = false
+
+[dropboxoffice]
+labelname = letter
+templatefile = ./templates/
+folder=todoist
+dropbox_prepart_files = https://www.dropbox.com/ow/msft/edit/home/
+
+[log]
+loglevel=INFO
+logfile = ./todoist.log
