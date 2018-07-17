@@ -427,146 +427,128 @@ def main():
     # GITHUB FEATURE
     # TODO move into function
 
-    # TODO move outside main?!
-    class githubissue(object):
-        def __init__(self, title, id_todoist, t_parentid, gid, url, body: str, done: bool = False, synced: bool = False):
-            """
-            :param title: Task Todoist-Titel = Github Title
-            :param id_todoist: Task Todoist-ID
-            :param t_parentid: ID of Parent Todoist-Task = Github Milestone
-            :param gid: Github Issue ID
-            :param url: Github Issue API-URL(gets convertet do direct URL since github.sdk only returns API-url)
-            :param body: Todoist Comments(all) = Issue description
-            :param done: checked/unchecked = closed/open (Todoist format gets converted to Github format)
-            :param synced: if https://github.com in Todoist-Task-Title
-            """
-            self.name = title
-            self.tid = id_todoist
-            self.gid = gid
-            self.t_parentid = t_parentid  # parent = milestone
-            self.url = url
-            self.body = body
-            self.synced = synced
-            self.assignee = NamedUser.NamedUser.name
-            if done is True:
-                done = "closed"
-            else:
-                done = "open"
-            self.state = done
+    if github_synclabel_name:
 
-        def seturl(self, url):
-            if "api.github.com" in url:
-                url = url.replace('api.', '')
-                url = url.replace('/repos', '')
-            self.url = url
-            pass
+        # TODO move outside main?!
+        class githubissue(object):
+            def __init__(self, title, id_todoist, t_parentid, gid, url, body: str, done: bool = False, synced: bool = False):
+                """
+                :param title: Task Todoist-Titel = Github Title
+                :param id_todoist: Task Todoist-ID
+                :param t_parentid: ID of Parent Todoist-Task = Github Milestone
+                :param gid: Github Issue ID
+                :param url: Github Issue API-URL(gets convertet do direct URL since github.sdk only returns API-url)
+                :param body: Todoist Comments(all) = Issue description
+                :param done: checked/unchecked = closed/open (Todoist format gets converted to Github format)
+                :param synced: if https://github.com in Todoist-Task-Title
+                """
+                self.name = title
+                self.tid = id_todoist
+                self.gid = gid
+                self.t_parentid = t_parentid  # parent = milestone
+                self.url = url
+                self.body = body
+                self.synced = synced
+                self.assignee = NamedUser.NamedUser.name
+                if done is True:
+                    done = "closed"
+                else:
+                    done = "open"
+                self.state = done
 
-        def setdone(self, done):
-            if done is True:
-                done = "closed"
-            else:
-                done = "open"
-            pass
+            def seturl(self, url):
+                if "api.github.com" in url:
+                    url = url.replace('api.', '')
+                    url = url.replace('/repos', '')
+                self.url = url
+                pass
 
-    class milestone(object):
-        def __init__(self, title: str, id_github: int, id_todoist: int, url: str, body: str, due: datetime, done: bool = False, synced: bool = False):
-            """
-            :param title: Task Todoist-Titel = Github Title
-            :param id_github: Github Issue ID
-            :param id_todoist: Task Todoist-ID
-            :param url: Github Milestone API-URL(gets convertet do direct URL since github.sdk only returns API-url)
-            :param body: Todoist Comments(all) = Milestone description
-            :param due: Todoist due date (gets converted to Github Format)
-            :param done: checked/unchecked = closed/open (Todoist format gets converted to Github format)
-            :param synced: if https://github.com in Todoist-Task-Title
-            """
-            self.title = title
-            self.gid = id_github
-            self.tid = id_todoist
-            self.url = url
-            self.synced = synced
-            self.body = body
+            def setdone(self, done):
+                if done is True:
+                    done = "closed"
+                else:
+                    done = "open"
+                pass
 
-            # convert todoist time to github time
-            if due is not None and re.search(r'[a-zA-Z]', str(due)):
-                due = datetime.strptime(task["due_date_utc"], '%a %m %b %Y %H:%M:%S %z')
-                self.due = due.isoformat()
-            if due is None:
-                due = GithubObject.NotSet
+        class milestone(object):
+            def __init__(self, title: str, id_github: int, id_todoist: int, url: str, body: str, due: datetime, done: bool = False, synced: bool = False):
+                """
+                :param title: Task Todoist-Titel = Github Title
+                :param id_github: Github Issue ID
+                :param id_todoist: Task Todoist-ID
+                :param url: Github Milestone API-URL(gets convertet do direct URL since github.sdk only returns API-url)
+                :param body: Todoist Comments(all) = Milestone description
+                :param due: Todoist due date (gets converted to Github Format)
+                :param done: checked/unchecked = closed/open (Todoist format gets converted to Github format)
+                :param synced: if https://github.com in Todoist-Task-Title
+                """
+                self.title = title
+                self.gid = id_github
+                self.tid = id_todoist
+                self.url = url
+                self.synced = synced
+                self.body = body
 
-            if done is True:
-                done = "closed"
-            if done is False:
-                done = "open"
-            self.due = due
-            self.state = done
+                # convert todoist time to github time
+                if due is not None and re.search(r'[a-zA-Z]', str(due)):
+                    due = datetime.strptime(task["due_date_utc"], '%a %m %b %Y %H:%M:%S %z')
+                    self.due = due.isoformat()
+                if due is None:
+                    due = GithubObject.NotSet
 
-        def setdone(self, done):
-            if done is True:
-                done = "closed"
-            else:
-                done = "open"
-            pass
+                if done is True:
+                    done = "closed"
+                if done is False:
+                    done = "open"
+                self.due = due
+                self.state = done
 
-        def setdue(self, due):
-            # convert todoist time to github time
-            if due is not None and re.search(r'[a-zA-Z]', str(due)):
-                due = datetime.strptime(task["due_date_utc"], '%a %m %b %Y %H:%M:%S %z')
-                self.due = due.isoformat()
-            if due is None:
-                due = GithubObject.NotSet
-            pass
+            def setdone(self, done):
+                if done is True:
+                    done = "closed"
+                else:
+                    done = "open"
+                pass
 
-        def seturl(self, url):
-            if "api.github.com" in url:
-                url = url.replace('api.', '')
-                url = url.replace('/repos', '')
-                url = url.replace('/milestones', '/milestone')
-            self.url = url
-            pass
+            def setdue(self, due):
+                # convert todoist time to github time
+                if due is not None and re.search(r'[a-zA-Z]', str(due)):
+                    due = datetime.strptime(task["due_date_utc"], '%a %m %b %Y %H:%M:%S %z')
+                    self.due = due.isoformat()
+                if due is None:
+                    due = GithubObject.NotSet
+                pass
 
-    ######
+            def seturl(self, url):
+                if "api.github.com" in url:
+                    url = url.replace('api.', '')
+                    url = url.replace('/repos', '')
+                    url = url.replace('/milestones', '/milestone')
+                self.url = url
+                pass
 
-    # TODO try exception
-    g = Github(github_apikey)
+        ######
 
-    # Init lists of issues and milestones in Todoist
-    tissues = []
-    tmilestones = []
+        # TODO try exception
+        g = Github(github_apikey)
 
-    loggerdg.debug("Todoist Project to sync to Github: {}".format(github_sync_project_name))
-    github_synclabel_id = getlabelid(github_synclabel_name, api)
+        # Init lists of issues and milestones in Todoist
+        tissues = []
+        tmilestones = []
 
-    # Collect Milestones and Issues from defined Todoist Project
-    for project in api.state['projects']:
-        if project['name'] == github_sync_project_name:
-            github_sync_project_id = project['id']
-            loggerdg.debug("Found Github project to sync: {}".format(str(github_sync_project_id)))
-            # Collect Milestones
-            # This must be done first to associate a task with it's parent task
-            # Not a nice solution but nessesary
-            for task in api.state['items']:
-                if task['project_id'] == github_sync_project_id:
-                    if github_url_identifier in task["content"]:
-                        synced = True
-                    else:
-                        synced = False
+        loggerdg.debug("Todoist Project to sync to Github: {}".format(github_sync_project_name))
+        github_synclabel_id = getlabelid(github_synclabel_name, api)
 
-                    # Add Comments as Description
-                    comment = ""
-                    for note in api.state["notes"]:
-                        if note["item_id"] == task["id"]:
-                            comment += str(note["content"])
-
-                    if not task['parent_id'] and github_synclabel_id in task["labels"]:
-                        # task is milestone
-                        tmilestones.append(milestone(task["content"], "", task["id"], "", comment, task["due_date_utc"], bool(task["checked"]), synced))
-                        loggerdg.debug("Milestone found: {} {} {} {}".format(task["content"], task["parent_id"], task["project_id"], task["checked"]))
-
-            # Collect Issues
-            for task in api.state['items']:
-                if task['project_id'] == github_sync_project_id:
-                    for milestone in tmilestones:
+        # Collect Milestones and Issues from defined Todoist Project
+        for project in api.state['projects']:
+            if project['name'] == github_sync_project_name:
+                github_sync_project_id = project['id']
+                loggerdg.debug("Found Github project to sync: {}".format(str(github_sync_project_id)))
+                # Collect Milestones
+                # This must be done first to associate a task with it's parent task
+                # Not a nice solution but nessesary
+                for task in api.state['items']:
+                    if task['project_id'] == github_sync_project_id:
                         if github_url_identifier in task["content"]:
                             synced = True
                         else:
@@ -578,105 +560,129 @@ def main():
                             if note["item_id"] == task["id"]:
                                 comment += str(note["content"])
 
-                        if task["parent_id"] and task["parent_id"] == milestone.tid:
-                            loggerdg.debug("Issue found: {} {} {} {}".format(task["content"], task["parent_id"], task["project_id"], task["checked"]))
-                            # task is issue
-                            # exclude tasks withouth parent! -> these issues are not in a task-list with sync label
-                            tissues.append(githubissue(task['content'], task['id'], task['parent_id'], None, None, comment, bool(task["checked"]), synced))
+                        if not task['parent_id'] and github_synclabel_id in task["labels"]:
+                            # task is milestone
+                            tmilestones.append(milestone(task["content"], "", task["id"], "", comment, task["due_date_utc"], bool(task["checked"]), synced))
+                            loggerdg.debug("Milestone found: {} {} {} {}".format(task["content"], task["parent_id"], task["project_id"], task["checked"]))
 
-    # DEBUG: Print all collected info
-    # for stone in tmilestones:
-    #    print(stone.__dict__)
-    #
-    # for issue in tissues:
-    #    print(issue.__dict__)
-    # raise SystemExit(1)
+                # Collect Issues
+                for task in api.state['items']:
+                    if task['project_id'] == github_sync_project_id:
+                        for milestone in tmilestones:
+                            if github_url_identifier in task["content"]:
+                                synced = True
+                            else:
+                                synced = False
 
-    loggerdg.info("Set to Github Repo to sync: {}".format(github_sync_repo_name))
+                            # Add Comments as Description
+                            comment = ""
+                            for note in api.state["notes"]:
+                                if note["item_id"] == task["id"]:
+                                    comment += str(note["content"])
 
-    # TODO Add try except
-    repo = g.get_user().get_repo(github_sync_repo_name)
+                            if task["parent_id"] and task["parent_id"] == milestone.tid:
+                                loggerdg.debug("Issue found: {} {} {} {}".format(task["content"], task["parent_id"], task["project_id"], task["checked"]))
+                                # task is issue
+                                # exclude tasks withouth parent! -> these issues are not in a task-list with sync label
+                                tissues.append(githubissue(task['content'], task['id'], task['parent_id'], None, None, comment, bool(task["checked"]), synced))
 
-    # Get current github milestone ids
-    loggerdg.debug("Get all Milestone numbers from Github")
-    gmilestones = repo.get_milestones()
-    for tmilestone in tmilestones:
-        for gmilestone in gmilestones:
-            # TODO comparison not accurate, should be optimizied
-            if gmilestone.title in tmilestone.title:
-                tmilestone.gid = gmilestone.number
-                loggerdg.debug("Found already synced Github Milestone: {} {} {}".format(gmilestone.title, str(gmilestone.number), str(gmilestone.id)))
+        # DEBUG: Print all collected info
+        # for stone in tmilestones:
+        #    print(stone.__dict__)
+        #
+        # for issue in tissues:
+        #    print(issue.__dict__)
+        # raise SystemExit(1)
 
-    loggerdg.debug("Create unsynced Milestones in Todoist - NOT WORKING YET!")
-    for gmilestone in gmilestones:
+        loggerdg.info("Set to Github Repo to sync: {}".format(github_sync_repo_name))
+
+        # TODO Add try except
+        repo = g.get_user().get_repo(github_sync_repo_name)
+
+        # Get current github milestone ids
+        loggerdg.debug("Get all Milestone numbers from Github")
+        gmilestones = repo.get_milestones()
         for tmilestone in tmilestones:
-            if gmilestone.title not in tmilestone.title:
-                loggerdg.info("Found unsynced Github Milestone: {} {}".format(gmilestone.title, str(gmilestone.number)))
-                break
+            for gmilestone in gmilestones:
+                # TODO comparison not accurate, should be optimizied
+                if gmilestone.title in tmilestone.title:
+                    tmilestone.gid = gmilestone.number
+                    loggerdg.debug("Found already synced Github Milestone: {} {} {}".format(gmilestone.title, str(gmilestone.number), str(gmilestone.id)))
 
-    loggerdg.debug("Create unsynced Milestones in Github")
-    for stone in tmilestones:
-        if not stone.synced:
-            if not devmode:
-                # add milestone
-                # TODO add try except: github.GithubException.GithubException. if title already exists
-                milestone_new = repo.create_milestone(title=stone.title, state=stone.state, description=stone.body, due_on=stone.due)
-                stone.synced = True
-                stone.seturl(milestone_new.url)
-                stone.gid = int(milestone_new.number)
-
-                loggerdg.info("Sync Milestone to Github: ".format(stone.title, stone.tid, stone.gid, stone.url))
-
-                stone.title = addurltotask(stone.title, stone.url, secrets)
-                item = api.items.get_by_id(stone.tid)
-
-                # Sync to Todoist
-                item.update(content=stone.title)
-                # TODO add try except
-                api.commit()
-            else:
-                loggerdg.debug("devmode dryrun - Sync Milestone to Github: ".format(stone.title, stone.tid))
-
-    loggerdg.debug("Refresh: Get all Numbers for all Github Milestones")
-    for tmilestone in tmilestones:
+        #loggerdg.debug("Create unsynced Milestones in Todoist - NOT WORKING YET!")
         for gmilestone in gmilestones:
-            if gmilestone.title in tmilestone.title:
-                tmilestone.gid = gmilestone.number
-                loggerdg.debug("Found synced Github Milestone: {} {} {}".format(gmilestone.title, str(gmilestone.number), str(gmilestone.id)))
+            for tmilestone in tmilestones:
+                if gmilestone.title not in tmilestone.title:
+                    # TODO this logic dosn't work.
+                    #loggerdg.info("Found unsynced Github Milestone: {} {}".format(gmilestone.title, str(gmilestone.number)))
+                    break
 
-    loggerdg.debug("Create unsynced Issues in Github")
-    existing_issues = repo.get_issues()
-    for issue in tissues:
-        for milestone in tmilestones:
-            if not issue.synced and milestone.tid == issue.t_parentid:
+        loggerdg.debug("Create unsynced Milestones in Github")
+        for stone in tmilestones:
+            if not stone.synced:
                 if not devmode:
-                    issue_new = repo.create_issue(issue.name, body=issue.body, assignee=github_username, milestone=repo.get_milestone(number=milestone.gid),
-                                                  labels=GithubObject.NotSet)
-                    issue.synced = True
-                    issue.seturl(issue_new.url)
-                    loggerdg.info("Sync Issue to Github: {} {} {}".format(issue.name, milestone.title, issue.url))
-                    issue.name = addurltotask(issue.name, issue.url, secrets)
-                    item = api.items.get_by_id(issue.tid)
+                    # add milestone
+                    # TODO add try except: github.GithubException.GithubException. if title already exists
+                    milestone_new = repo.create_milestone(title=stone.title, state=stone.state, description=stone.body, due_on=stone.due)
+                    stone.synced = True
+                    stone.seturl(milestone_new.url)
+                    stone.gid = int(milestone_new.number)
+
+                    loggerdg.info("Sync Milestone to Github: {} {} {} {} ".format(stone.title, stone.tid, stone.gid, stone.url))
+
+                    stone.title = addurltotask(stone.title, stone.url, secrets)
+                    item = api.items.get_by_id(stone.tid)
 
                     # Sync to Todoist
-                    item.update(content=issue.name)
+                    item.update(content=stone.title)
                     # TODO add try except
                     api.commit()
                 else:
-                    loggerdg.debug("devmode dryrun - Sync Issue to Github: ".format(issue.name, milestone.title))
-            if issue.synced and milestone.tid == issue.t_parentid:
-                # Update state of synced Issues
-                # Sync Todoist state to Github
-                for existing_issue in existing_issues:
-                    if existing_issue.title in issue.name:
-                        if str(issue.state) != str(existing_issue.state):
-                            loggerdg.info(
-                                "Issue state changed: {} {} from {} to {}".format(existing_issue.title, existing_issue.number, str(existing_issue.state), str(issue.state)))
-                            existing_issue.edit(state=str(issue.state))
+                    loggerdg.debug("devmode dryrun - Sync Milestone to Github: ".format(stone.title, stone.tid))
 
-    loggerdg.info("Github Sync done")
-    # All existing todoist milestones and issues should be in Github now.
-    # TODO: Get issues and milestones from github
+        loggerdg.debug("Refresh: Get all Numbers for all Github Milestones")
+        for tmilestone in tmilestones:
+            for gmilestone in gmilestones:
+                if gmilestone.title in tmilestone.title:
+                    tmilestone.gid = gmilestone.number
+                    loggerdg.debug("Found synced Github Milestone: {} {} {}".format(gmilestone.title, str(gmilestone.number), str(gmilestone.id)))
+
+        loggerdg.debug("Create unsynced Issues in Github")
+        existing_issues = repo.get_issues()
+        for issue in tissues:
+            for milestone in tmilestones:
+                if not issue.synced and milestone.tid == issue.t_parentid:
+                    if not devmode:
+                        issue_new = repo.create_issue(issue.name, body=issue.body, assignee=github_username, milestone=repo.get_milestone(number=milestone.gid),
+                                                      labels=GithubObject.NotSet)
+                        issue.synced = True
+                        issue.seturl(issue_new.url)
+                        loggerdg.info("Sync Issue to Github: {} {} {}".format(issue.name, milestone.title, issue.url))
+                        issue.name = addurltotask(issue.name, issue.url, secrets)
+                        item = api.items.get_by_id(issue.tid)
+
+                        # Sync to Todoist
+                        item.update(content=issue.name)
+                        # TODO add try except
+                        api.commit()
+                    else:
+                        loggerdg.debug("devmode dryrun - Sync Issue to Github: ".format(issue.name, milestone.title))
+                if issue.synced and milestone.tid == issue.t_parentid:
+                    # Update state of synced Issues
+                    # Sync Todoist state to Github
+                    for existing_issue in existing_issues:
+                        if existing_issue.title in issue.name:
+                            if str(issue.state) != str(existing_issue.state):
+                                loggerdg.info(
+                                    "Issue state changed: {} {} from {} to {}".format(existing_issue.title, existing_issue.number, str(existing_issue.state), str(issue.state)))
+                                existing_issue.edit(state=str(issue.state))
+
+        loggerdg.info("Github Sync done")
+        # All existing todoist milestones and issues should be in Github now.
+        # TODO: Get issues and milestones from github
+    else:
+        logger.info("Github Feature disabled. No labelname found.")
+
 
     if label_progress:
 
