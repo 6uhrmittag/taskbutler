@@ -29,12 +29,16 @@ Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files 
 ## Setup
 
 ### install
-
-- `sudo apt-get install python3-pip`
-- `git clone git@github.com:6uhrmittag/taskbutler.git`
-- `cd taskbutler`
-- `pip3 install -r requirements.txt`
-- `cp config.ini.sample config.ini`
+````bash
+sudo apt-get install python3-pip
+sudo pip3 install --user pipenv
+git clone https://github.com/6uhrmittag/taskbutler.git
+cd taskbutler
+python3 -m venv taskbutler
+source taskbutler/bin/activate
+pip3 install --user -r requirements.txt
+cp config.ini.sample config.ini
+````
 
 ## configuration
 Each feature can be disabled by leaving the corresponding labelname in the config.ini emtpy.
