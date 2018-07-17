@@ -17,4 +17,4 @@
 ## Github
 - [Github API](https://developer.github.com/v3/)
 - [PyGithub python sdk](https://github.com/PyGithub/PyGithub)
-- [PyGihub docu](https://pygithub.readthedocs.io/en/latest/apis.html)
+- [PyGihub doc](https://pygithub.readthedocs.io/en/latest/apis.html)
