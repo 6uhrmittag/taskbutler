@@ -7,8 +7,10 @@ import requests
 import logging
 import logging.handlers
 
-from dropbox.files import WriteMode
+import time
 
+from dropbox.files import WriteMode
+from dropbox import DropboxOAuth2FlowNoRedirect
 from dropbox.exceptions import ApiError, AuthError
 from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicyType, SharingPolicy
 from todoist.api import TodoistAPI
@@ -78,6 +80,31 @@ def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -
             raise SystemExit(1)
 
 
+def getDropboxKey(consumer_key: str, consumer_secret: str):
+    """
+    Used for devmode only. Requires dropbox app + client id, app secret
+
+    :param consumer_key:
+    :param consumer_secret:
+    :return:
+    """
+    auth_flow = DropboxOAuth2FlowNoRedirect(consumer_key, consumer_secret)
+
+    authorize_url = auth_flow.start()
+    print("1. Go to: " + authorize_url)
+    print("2. Click \"Allow\" (you might have to log in first).")
+    print("3. Copy the authorization code.")
+    auth_code = input("Enter the authorization code here: ").strip()
+
+    try:
+        oauth_result = auth_flow.finish(auth_code)
+    except Exception as e:
+        loggerdb.debug("Error : {}".format(e))
+        return
+
+    return oauth_result.access_token
+
+
 def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -> str:
     """
     Creates new dropbox paper document in given folder with given title and returns full URL.
@@ -126,7 +153,6 @@ def gettodoistfolderid(foldername: str, dbx):
     """
 
     loggerdb.debug("Lookup ID for paper folder: {}".format(foldername))
-
 
     paper = dbx.paper_docs_list()
     todoist_folder_id = ""
@@ -346,12 +372,36 @@ def main():
         logger.error("Config file not found! Create config.ini first. \nOriginal Error: {}".format(error))
         raise SystemExit(1)
 
+    if devmode:
+        # oauth is currently devonly since it requires to publish app_secret which is unsafe!
+        # set id and secret in config.ini. When no API key is found instructions will get shown in console
+        if not dropbox_api_key:
+            loggerdb.error("No Dropbox API key found. Start authflow.")
+            dropbox_api_clientid = secrets.get('dropbox', 'clientid')
+            dropbox_api_clientsecret = secrets.get('dropbox', 'clientsecret')
+
+            # sleep to wait for logger
+            time.sleep(2)
+
+            dropbox_api_key = getDropboxKey(dropbox_api_clientid, dropbox_api_clientsecret)
+
+            dbx = dropbox.Dropbox(dropbox_api_key)
+            print("Dropbox account set to: " + str(dbx.users_get_current_account().name))
+
+            # Write API key
+            secrets.set('dropbox', 'apikey', dropbox_api_key)
+            with open(config_filename, 'w'):
+                secrets.write(codecs.open(config_filename, 'wb+', 'utf-8'))
+                print("API key written to config.ini. Please restart Taskbutler.")
+                raise SystemExit(0)
+
     # init dropbox session
     if dropbox_api_key and (label_todoist_dropboxpaper or label_todoist_dropboxoffice):
-        dbx = dropbox.Dropbox(dropbox_api_key)
         try:
+            dbx = dropbox.Dropbox(dropbox_api_key)
             dbx.users_get_current_account()
             loggerdb.debug("Dropbox account set to: {}".format(dbx.users_get_current_account()))
+
         except AuthError as err:
             loggerdb.error("Invalid access token: {}".format(err))
             raise SystemExit(1)
@@ -380,7 +430,7 @@ def main():
                 with open(config_filename, 'w') as configfile:
                     secrets.write(codecs.open(config_filename, 'wb+', 'utf-8'))
     else:
-        loggerdb.debug("Dropbox feature disabled. No API key found.")
+        loggerdb.debug("Dropbox feature disabled. No API key and labelname found.")
 
     # init todoist session
     try:
@@ -486,7 +536,6 @@ def main():
 
     # Dropbox paper feature
     # Drpopbox paper is disabled in devmode -> will create files every time since url is not written in task title.
-    # Dropbox paper is annoying to cleanup
     if not devmode:
         if label_todoist_dropboxpaper:
             # Dropbox Paper
@@ -497,7 +546,7 @@ def main():
             for task in taskid:
                 item = api.items.get_by_id(task)
                 if "https://" not in item['content'] and not item['is_deleted'] and not item[
-                'in_history'] and not item['is_archived']:
+                    'in_history'] and not item['is_archived']:
                     newurl = createpaperdocument(gettasktitle(item['content'], secrets), dbx,
                                                  secrets.get('dropboxpaper', 'todoistfolderid'),
                                                  secrets.get('dropboxpaper', 'url'),
