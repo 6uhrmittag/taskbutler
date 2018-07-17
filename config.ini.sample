@@ -1,6 +1,6 @@
 [config]
 version = v.2.0-beta
-update_url = https://api.github.com/repos/6uhrmittag/todoist-progressbar/releases
+update_url = https://api.github.com/repos/6uhrmittag/taskbutler/releases
 devmode = false
 
 [todoist]

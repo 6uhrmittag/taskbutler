@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='todoist-progress',
+    name='taskbutler',
     version='',
     packages=[''],
     url='',
