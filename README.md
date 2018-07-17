@@ -1,12 +1,6 @@
 # Taskbutler
 
-Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks..
-
-![Demo iOS](docs/images/win-web-demo-list.PNG)
-
-![Feature - Paper](docs/images/feature-paper.gif)
-
-![Feature - Office Online](docs/images/feature-office.gif)
+Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/63b8c36a47b407aa99aa/maintainability)](https://codeclimate.com/github/6uhrmittag/taskbutler/maintainability)
 [![CodeFactor](https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/badge/feature-dropboxpaper)](https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/overview/feature-dropboxpaper)
@@ -15,11 +9,13 @@ Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files 
 
 - ***add progress bars to task-lists in Todoist (unicode, cross-plattform)***
     - Example usage: Create a new task list "File taxes" in your "personal" Todoist project. Add the label "progressbar" to the top task and always get the status of your taxes at a glance.
+![Demo iOS](docs/images/win-web-demo-list.png)
 - ***add and link a Word/Office365 template to tasks*** (with help of your Dropbox)
     - Example usage: Setup a letter template in Microsoft Word once and save it. Once you add the label "letter" to your Todoist task, the template gets uploaded to your Dropbox and the task get liked to Microsoft Office365. Now, by clicking the task in Todoist, Microsoft Word online opens in your browser and you can start writing.  
+![Feature - Office Online](docs/images/feature-office.gif)
 - ***add and link Dropbox Paper papers to tasks***
     - Example usage: Tired of the missing task-note feature in Todoist? Add the label "paper" to a task. Now, with a click on the title, you'll get a new Dropbox Paper with all its features just for this task. 
-
+![Feature - Paper](docs/images/feature-paper.gif)
         
 ## Prerequisites and notes
 
