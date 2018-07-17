@@ -321,7 +321,7 @@ def main():
         # If no logfile given, log to console
         if "log" in secrets.sections() and "logfile" in secrets["log"]:
             handler = logging.handlers.TimedRotatingFileHandler(secrets["log"]["logfile"], when="d", interval=7,
-                                                                backupCount=2)
+                                                                backupCount=2, encoding='utf-8',)
             logger.info("Set logging file: {}".format(handler.baseFilename))
             logger.propagate = False
             loggerdb.propagate = False
