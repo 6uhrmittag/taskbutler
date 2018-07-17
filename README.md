@@ -2,9 +2,7 @@
 
 Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/63b8c36a47b407aa99aa/maintainability)](https://codeclimate.com/github/6uhrmittag/taskbutler/maintainability)
-[![CodeFactor](https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/badge/feature-dropboxpaper)](https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/overview/feature-dropboxpaper)
-
+[![Maintainability](https://api.codeclimate.com/v1/badges/02c45c0604ad57ffc504/maintainability)](https://codeclimate.com/github/6uhrmittag/taskbutler/maintainability)[![CodeFactor](https://www.codefactor.io/repository/github/6uhrmittag/todoist-progressbar/badge)](https://www.codefactor.io/repository/github/6uhrmittag/todoist-progressbar)
 ## Features
 
 - ***add progress bars to task-lists in Todoist (unicode, cross-plattform)***
