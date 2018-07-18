@@ -2,7 +2,8 @@
 
 Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/02c45c0604ad57ffc504/maintainability)](https://codeclimate.com/github/6uhrmittag/taskbutler/maintainability)[![CodeFactor](https://www.codefactor.io/repository/github/6uhrmittag/todoist-progressbar/badge)](https://www.codefactor.io/repository/github/6uhrmittag/todoist-progressbar)
+[![Maintainability](https://api.codeclimate.com/v1/badges/02c45c0604ad57ffc504/maintainability)](https://codeclimate.com/github/6uhrmittag/taskbutler/maintainability)
+[![CodeFactor](https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/badge)](https://www.codefactor.io/repository/github/6uhrmittag/taskbutler)
 ## Features
 
 - ***add progress bars to task-lists in Todoist (unicode, cross-plattform)***
@@ -33,6 +34,8 @@ Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files 
 sudo apt-get install python3-pip
 sudo pip3 install --user pipenv
 git clone https://github.com/6uhrmittag/taskbutler.git
+git fetch && git fetch --tags
+git checkout v.2.0.0
 cd taskbutler
 python3 -m venv taskbutler
 source taskbutler/bin/activate
