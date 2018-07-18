@@ -174,7 +174,7 @@ sharing = false
 ## Start Taskbutler
 
 - `cd taskbutler/`
-- `python3 todoist_progress.py`
+- `python3 taskbutler.py`
 
 ## Continuous progress-update
 
