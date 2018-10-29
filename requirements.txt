@@ -1,7 +1,8 @@
 requests
 configparser==3.5.0
 altgraph
-certifi
+pyup-pin-certifi-2018.10.15
+certifi==2018.10.15
 chardet==3.0.4
 future==0.17.0
 idna
