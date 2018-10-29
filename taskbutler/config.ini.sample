@@ -1,5 +1,5 @@
 [config]
-version = v.2.0.0
+version = 2.0.0
 update_url = https://api.github.com/repos/6uhrmittag/taskbutler/releases
 devmode = false
 
