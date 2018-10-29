@@ -4,4 +4,6 @@ python:
 - '3.3'
 - pypy
 branches:
-  only: feature-githubsync
+  only:
+    - feature-githubsync
+    - master
