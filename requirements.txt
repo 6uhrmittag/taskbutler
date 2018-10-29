@@ -2,7 +2,7 @@ requests
 configparser==3.5.0
 altgraph
 certifi
-chardet
+chardet==3.0.4
 future==0.17.0
 idna
 macholib==1.11
