@@ -7,6 +7,6 @@ future==0.17.0
 idna
 macholib
 pefile
-pip
+pip==18.1
 todoist-python
 dropbox==9.1.0
