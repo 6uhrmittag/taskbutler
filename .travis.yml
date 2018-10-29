@@ -1,15 +1,21 @@
 language: python
 python:
-- 3.6
+- "3.5"
+- "3.6"
+- "3.7-dev"
 install: pip install -U tox-travis
 script: tox
+
+only:
+  - feature-githubsync
+
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
   user: 6uhrmittag
   on:
     branch: feature-githubsync
-    tags: false
+    tags: true
     repo: 6uhrmittag/taskbutler
     python: 3.6
   password:
