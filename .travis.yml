@@ -9,7 +9,6 @@ deploy:
   user: 6uhrmittag
   password:
     secure: trZKWnF+ocxCrUKxPj+X8X/WD/5TyqDXjXmtd2SCXI4hTd4U8l4QmlNR6uMR1upF50BxnEjceWGcFkeoiL66xQ6+5Pn/xms8vfczN50pDx04jZmcSLPYJtOpUKGjyy8916INLrMNP08vcsFieFxKN3bWzSec18Por9BwK3ELNmt10vMD5oDD9eDTKpqJWvvWkNn0v2g5DTkFsFxqX7Mf7YNh1jzrixCcqmTi/xDVmkV/nnzfjaLrcMB2rTHaWtKhoooYybXguoWWutOfAqvjr79GOZPsdL9Eyls0w9FyJcDHNVtxd8smAjse0rTuiiv9I9lHR6vs+138EMQ17/0FJDQrT79Tq2+ZyIjTI8NNEJv0lBqc8SZhhVXb8q75XHegYjP05vVGCsIE7dVhoQ/Fc/XlHJuispde++1XFBnVaa3p7AZEy4wGqDLPJG+ZbxcEzZ928oGBL5gAXQaJXziiC7SFczBT9bpESxyWys9TSjzsnVCVzbNj7fZJuJClcr1uJ7kHoqIiRwl4HJHBk/KFjT1cBfzBSY/Z5PbLSvtuXhA7PVcD08QZ0QO1NdiyKM9rteMR7bXn201aRzJkdBAdecCi7slk6qYxZk7zWbAIFNZZipVW7MrOoH6w15fOMYIXzGHGiogma0a6JGI8TerQOe1RaES2LuRTrv2Ti8flcLU=
-  server: https://test.pypi.org/legacy/
   on:
     branch: feature-githubsync
     tags: false
