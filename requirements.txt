@@ -9,4 +9,4 @@ macholib
 pefile
 pip
 todoist-python
-dropbox
+dropbox==9.1.0
