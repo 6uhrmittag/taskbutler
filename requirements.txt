@@ -6,7 +6,7 @@ chardet==3.0.4
 future==0.17.0
 idna==2.7
 macholib==1.11
-pefile
+pefile==2018.8.8
 pip
 todoist-python
 dropbox
