@@ -1,4 +1,4 @@
-requests
+requests==2.20.0
 configparser==3.5.0
 altgraph
 pyup-pin-certifi-2018.10.15
