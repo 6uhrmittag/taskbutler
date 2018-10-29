@@ -1,7 +1,7 @@
 requests==2.20.0
 configparser==3.5.0
 altgraph==0.16.1
-certifi
+certifi==2018.10.15
 chardet
 future
 idna
