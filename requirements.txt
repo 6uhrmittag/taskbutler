@@ -1,6 +1,6 @@
 requests==2.20.0
 configparser==3.5.0
-altgraph
+altgraph==0.16.1
 certifi
 chardet
 future
