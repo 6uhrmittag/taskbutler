@@ -3,7 +3,7 @@ configparser
 altgraph
 certifi
 chardet
-future
+future==0.17.0
 idna
 macholib
 pefile
