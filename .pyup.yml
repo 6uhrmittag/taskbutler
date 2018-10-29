@@ -1,0 +1,14 @@
+# set the default branch
+# default: empty, the default branch on GitHub
+branch: feature-githubsync
+requirements:
+  - requirements.txt:
+      # don't update dependencies, use global 'pin' default
+      update: insecure
+      pin: True
+  - requirements.txt:
+      # don't update dependencies, use global 'pin' default
+      update: False
+  - requirements_test.txt:
+      # don't update dependencies, use global 'pin' default
+      update: False

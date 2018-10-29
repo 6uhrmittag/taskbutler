@@ -275,3 +275,4 @@ templates/
 venv/
 
 .tox
+taskbutler.egg-info
