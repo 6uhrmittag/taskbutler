@@ -8,5 +8,5 @@ idna
 macholib
 pefile
 pip
-todoist-python
+todoist-python==7.0.18
 dropbox
