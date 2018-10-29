@@ -260,7 +260,7 @@ paket-files/
 __pycache__/
 *.pyc
 /secrets.py
-config.ini
+taskbutler/config.ini
 .build/
 .dist/
 todoist-progress.sln

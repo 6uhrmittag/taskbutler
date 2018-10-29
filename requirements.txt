@@ -5,7 +5,6 @@ certifi
 chardet
 future
 idna
-macholib
 pefile
 pip
 todoist-python

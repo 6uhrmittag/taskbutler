@@ -378,7 +378,7 @@ def main():
             raise SystemExit(1)
 
         if label_todoist_dropboxpaper:
-            # Check paper folder ID, get if not set
+            # Check paper folder ID, get if not encoding=self.encoding
             # Check that folder it still matches folder name
 
             if todoist_folder_id:
