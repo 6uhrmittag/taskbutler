@@ -1,7 +1,6 @@
 requests==2.20.0
 configparser==3.5.0
 altgraph
-pyup-pin-certifi-2018.10.15
 certifi==2018.10.15
 chardet==3.0.4
 future==0.17.0
