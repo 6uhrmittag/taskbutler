@@ -3,7 +3,7 @@ configparser==3.5.0
 altgraph==0.16.1
 certifi==2018.10.15
 chardet==3.0.4
-future
+future==0.17.0
 idna
 macholib
 pefile
