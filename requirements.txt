@@ -2,7 +2,7 @@ requests
 configparser
 altgraph
 certifi
-chardet
+chardet==3.0.4
 future
 idna
 macholib
