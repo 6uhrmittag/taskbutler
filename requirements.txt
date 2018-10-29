@@ -1,5 +1,5 @@
 requests==2.20.0
-configparser
+configparser==3.5.0
 altgraph
 certifi
 chardet
