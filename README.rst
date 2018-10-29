@@ -4,13 +4,15 @@ Taskbutler
 Taskbutler enriches your Todoist tasks by adding progress bars,
 Office365 Files and Dropbox Paper papers directly to your tasks.
 
-|Maintainability| |CodeFactor| ## Features
+|Maintainability| |CodeFactor|
+
+Features
 
 -  **add progress bars to task-lists in Todoist (unicode,
    cross-plattform)**
 
-   -  Example usage: Create a new task list “File taxes” in your
-      “personal” Todoist project. Add the label “progressbar” to the top
+   -  Example usage: Create a new task list "File taxes" in your
+      "personal" Todoist project. Add the label "progressbar" to the top
       task and always get the status of your taxes at a glance. |Demo
       iOS|
 
@@ -18,7 +20,7 @@ Office365 Files and Dropbox Paper papers directly to your tasks.
    your Dropbox)
 
    -  Example usage: Setup a letter template in Microsoft Word once and
-      save it. Once you add the label “letter” to your Todoist task, the
+      save it. Once you add the label "letter" to your Todoist task, the
       template gets uploaded to your Dropbox and the task get liked to
       Microsoft Office365. Now, by clicking the task in Todoist,
       Microsoft Word online opens in your browser and you can start
@@ -28,8 +30,8 @@ Office365 Files and Dropbox Paper papers directly to your tasks.
 -  **add and link Dropbox Paper papers to tasks**
 
    -  Example usage: Tired of the missing task-note feature in Todoist?
-      Add the label “paper” to a task. Now, with a click on the title,
-      you’ll get a new Dropbox Paper with all its features just for this
+      Add the label "paper" to a task. Now, with a click on the title,
+      you'll get a new Dropbox Paper with all its features just for this
       task. |Feature - Paper|
 
 Prerequisites and notes
@@ -38,7 +40,7 @@ Prerequisites and notes
 **Taskbutler is not associated or connected with Todoist, Dropbox,
 Github or Microsoft.**
 
-1. You’ll need a `Todoist`_ premium account
+1. You'll need a `Todoist`_ premium account
 2. The Dropbox Paper and Github features require a free account at
    Dropbox. The Microsoft Office365 feature requires a paid Office365
    subscription(or a free Microsoft Office 365 Education subscription).
@@ -46,7 +48,7 @@ Github or Microsoft.**
 4. For optimal use, Taskbutler should run periodical on a
    server/computer to continuously update your tasks
 
-*Even though I never experienced any data loss, it’s nice to know
+*Even though I never experienced any data loss, it's nice to know
 that*\ `Todoist provides a daily backup of your data.`_
 
 Setup

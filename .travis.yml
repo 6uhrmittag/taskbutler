@@ -3,7 +3,6 @@ python:
 - 3.6
 - 3.5
 - 3.4
-- 2.7
 install: pip install -U tox-travis
 script: tox
 deploy:
@@ -12,7 +11,9 @@ deploy:
   user: 6uhrmittag
   password:
     secure: qko9MiIpU/D1kaUYG7/tQvO1av3bL7KuwZqqvNOievlUhW8FRdt88JV8wAUryklOCAuqrXYokz3aGit4Nue/jJw8xWg2j3Bm5GFoawO0lP8uZrwCQxZKyACI0WUcq0VCp7a2mpgJfbjYy/SjGRyorUM/ZGUd77xGJI2jRHyBWFCKFfe47CS1WazFpoGyABrTplFiCjS7VBbVGt54u5Dbe9tMQJookmiCvOjxFmu4JvbAuOvgUuFg0AVABdsKi640511vZqNpA23sL3bvLmvAbrGXTWFjVz5+dHncAoQ8OccHVAKSd6s2k2yagBG08BHG8ccmtvNnobwdvA9tmA9WPTgkfFmAQ7QmtOMADnmypM690RhQ7YRH9aPwuJnlX1e/sWOOcyZC/dwGVmusir5fsR2rRdX1L6gCGHYdfUE07IpJRMiNbYqrBivGZ4LkCycV6ep+LXLZSuwYn7EbVd0TE+kewuqXGO4gn4y+/raE8MfQ0WfzgCoHzBVqveOxWtg5yy3PTGCGK7BJH7C03f78u2yQ/8wRPElV6YS3xcMG7oUGXcx+8AekxRr1UxRRr5ARv56s5n13PHcfzK6AqLjhdPBK9PrcxbAYFP+OvxBfLn+AtBznYSykryo7Y0HIRE8weO/wFVMQg9F5ZEfOU9O04Y8gkE5cTAReSVUnsWEe5ts=
+  server: https://test.pypi.org/legacy/
   on:
-    tags: true
+    branch: feature-githubsync
+    tags: false
     repo: 6uhrmittag/taskbutler
     python: 3.6
