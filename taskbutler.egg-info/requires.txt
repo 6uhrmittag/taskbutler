@@ -1,0 +1,5 @@
+Click>=6.0
+todoist-python
+PyGithub
+requests
+dropbox
