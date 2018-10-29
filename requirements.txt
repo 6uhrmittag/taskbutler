@@ -5,7 +5,7 @@ certifi
 chardet
 future==0.17.0
 idna
-macholib
+macholib==1.11
 pefile
 pip==18.1
 todoist-python
