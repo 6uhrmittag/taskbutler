@@ -9,4 +9,4 @@ macholib==1.11
 pefile==2018.8.8
 pip==18.1
 todoist-python==7.0.18
-dropbox
+dropbox==9.1.0
