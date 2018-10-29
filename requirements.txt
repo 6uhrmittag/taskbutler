@@ -4,7 +4,7 @@ altgraph
 certifi
 chardet
 future
-idna
+idna==2.7
 macholib
 pefile
 pip
