@@ -6,7 +6,7 @@ chardet
 future
 idna
 macholib
-pefile
+pefile==2018.8.8
 pip
 todoist-python
 dropbox
