@@ -1,12 +1,12 @@
 requests
-configparser
+configparser==3.5.0
 altgraph
 certifi
 chardet==3.0.4
-future
+future==0.17.0
 idna
-macholib
+macholib==1.11
 pefile
-pip
+pip==18.1
 todoist-python
-dropbox
+dropbox==9.1.0
