@@ -33,7 +33,7 @@ setup(
     description="taskbutler enriches your todoist tasks",
     entry_points={
         'console_scripts': [
-            'taskbutler=taskbutler:cli',
+            'taskbutler=taskbutler.cli:main',
         ],
     },
     install_requires=requirements,
