@@ -31,8 +31,16 @@ def test_command_line_interface():
     """Test the CLI."""
     runner = CliRunner()
     result = runner.invoke(cli.main)
-    assert result.exit_code == 0
-    assert 'taskbutler.cli.main' in result.output
+    assert result.exit_code == 1
+    #assert 'taskbutler.cli.main' in result.output
     help_result = runner.invoke(cli.main, ['--help'])
     assert help_result.exit_code == 0
     assert '--help  Show this message and exit.' in help_result.output
+
+
+def test_taskbutler_basic(capsys):
+    runner = CliRunner()
+    result = runner.invoke(cli.main)
+    #with capsys.disabled():
+    #    print(result.output)
+    assert 'Taskbutler - INFO - Read config from: config.ini' in result.output
