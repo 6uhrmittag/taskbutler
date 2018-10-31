@@ -243,13 +243,14 @@ def addurltotask(title_old, url, progress_seperator):
 
 
 def gettasktitle(title, progress_seperator):
+    #TODO: returns tailing space!  REMOVE!
     """
     Get task title withouth meta
     :type progress_seperator: str progress seperator
     :param title: Task title with seperator
     :return:
     """
-    if "‣" in title:
+    if progress_seperator and progress_seperator in title:
         title_headline, title_old_meta = title.split(progress_seperator)
     else:
         title_headline = title
