@@ -1,5 +1,3 @@
-#!/usr/bin/env bats
-
 @test "invoking foo with a nonexistent file prints an error" {
   cd $BATS_TMPDIR
   run $BATS_TEST_DIRNAME\script_setup.sh
