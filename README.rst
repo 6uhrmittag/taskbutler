@@ -30,7 +30,7 @@ Features
       "personal" Todoist project. Add the label "progressbar" to the top
       task and always get the status of your taxes at a glance.
 
-    .. image:: /docs/images/win-web-demo.png
+    .. image:: /docs/images/win-web-demo-list.png
 
 -  **add and link a Word/Office365 template to tasks** (with help of
    your Dropbox)
