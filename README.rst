@@ -4,8 +4,21 @@ Taskbutler
 
 Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/02c45c0604ad57ffc504/maintainability)](https://codeclimate.com/github/6uhrmittag/taskbutler/maintainability)
-[![CodeFactor](https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/badge)](https://www.codefactor.io/repository/github/6uhrmittag/taskbutler)
+.. image:: https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/badge/feature-githubsync
+    :target: https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/overview/feature-githubsync
+    :alt: CodeFactor
+
+.. image:: https://api.codeclimate.com/v1/badges/02c45c0604ad57ffc504/maintainability
+    :target: https://codeclimate.com/github/6uhrmittag/taskbutler/maintainability
+    :alt: Maintainability
+
+.. image:: https://travis-ci.org/6uhrmittag/taskbutler.svg?branch=feature-githubsync
+    :target: https://travis-ci.org/6uhrmittag/taskbutler
+    :alt: Travis
+
+.. image:: https://pyup.io/repos/github/6uhrmittag/taskbutler/shield.svg
+    :target: https://pyup.io/repos/github/6uhrmittag/taskbutler/
+    :alt: Updates
 
 Features
 ========
@@ -15,8 +28,9 @@ Features
 
    -  Example usage: Create a new task list "File taxes" in your
       "personal" Todoist project. Add the label "progressbar" to the top
-      task and always get the status of your taxes at a glance. |Demo
-      iOS|
+      task and always get the status of your taxes at a glance.
+
+    .. image:: /docs/images/win-web-demo.png
 
 -  **add and link a Word/Office365 template to tasks** (with help of
    your Dropbox)
@@ -27,18 +41,17 @@ Features
       Microsoft Office365. Now, by clicking the task in Todoist,
       Microsoft Word online opens in your browser and you can start
       writing.
-      |Feature - Office Online|
+
+    .. image:: /docs/images/feature-office.gif
 
 -  **add and link Dropbox Paper papers to tasks**
 
    -  Example usage: Tired of the missing task-note feature in Todoist?
       Add the label "paper" to a task. Now, with a click on the title,
       you'll get a new Dropbox Paper with all its features just for this
-      task. |Feature - Paper|
+      task.
 
-.. |Demo iOS| image:: docs/images/win-web-demo-list.png
-.. |Feature - Office Online| image:: docs/images/feature-office.gif
-.. |Feature - Paper| image:: docs/images/feature-paper.gif
+    .. image:: /docs/images/feature-paper.gif
 
 Prerequisites and notes
 =======================
@@ -62,25 +75,26 @@ that*\ 'Todoist provides a daily backup of your data.'_
 Setup
 =====
 
+requirements
+------------
+
+- Ubuntu 16 and up
+- tested with Python 3.5 and up
 
 install
 -------
 
+To install the latest taskbutler, run this command in your terminal:
 
-::
+.. code-block:: console
 
-   ''''bash
-   sudo apt-get install python3-pip
-   sudo pip3 install --user pipenv
-   git clone https://github.com/6uhrmittag/taskbutler.git
-   git fetch && git fetch --tags
-   git checkout v.2.0.0
-   cd taskbutler
-   python3 -m venv taskbutler
-   source taskbutler/bin/activate
-   pip3 install --user -r requirements.txt
-   cp config.ini.sample config.ini
-   ''''
+    sudo apt-get instapp python3
+    python3 -m pip install --user --upgrade pip
+    python3 -m virtualenv venv
+    source venv/bin/activate
+    pip install taskbutler
+    cp config.ini.sample config.ini
+
 
 configuration
 -------------
@@ -122,7 +136,7 @@ Change progressbar symbols
 The bar is implemented by adding 'unicode charaters'_ to the existing
 text. e.g. ⬛⬛⬜⬜⬜ 33 %
 
-::
+.. code:: ini
 
    [todoist]
    progress_bar_0=⬜⬜⬜⬜⬜
@@ -266,9 +280,11 @@ Edit the config section in config.ini:
 Start Taskbutler
 ^^^^^^^^^^^^^^^^
 
+.. code:: console
 
--  ''cd taskbutler/''
--  ''python3 taskbutler.py''
+    source venv/bin/activate
+    taskbutler
+
 
 Continuous progress-update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -279,21 +295,34 @@ or your computer
 Ubuntu Server
 """""""""""""
 
-run programm every 20Min via crontab (see 'crontab.guru'_ for setting
-time)
+**TODO: This section is not complete yet.**
 
-1. get the full path to taskbutler.py:
-   ''sudo find / -name taskbutler.py''
-2. copy path without "taskbutler.py" (e.g.
-   ''/home/USERNAME/taskbutler/'')
-3. ''crontab -e''
-4. add:
-   ''*/20 * * * * cd "INSERT-COPIED-PATH" && /usr/bin/python3 taskbutler.py''
+run programm every 20Min via crontab (see 'crontab.guru'_ for setting
+time):
+
+.. code:: bash
+
+    #! /bin/bash
+    # add the full path to your venv at PATH_VENV_TASKBUTLER
+    cd PATH_VENV_TASKBUTLER
+
+    #activate taskbutler venv
+    source bin/activate
+
+    # run taskbutler
+    taskbutler
+
+
+1. save the script above on your computer
+2. adjust the PATH_VENV_TASKBUTLER
+3. remember the full path to the saved scriped
+4. type: :code:`crontab -e`
+5. add a line: :code:`*/20 * * * * ADD_THE_REMEMBERED_PATH_HERE`
 
 .. _crontab.guru: https://crontab.guru/
 
-Computer
-""""""""
+Computer(Win/Mac/Linux)
+"""""""""""""""""""""""
 
 Taskbutler doesn't need to run on a server. It is also possible to run
 Taskbutler on your running computer. Just start Taskbutler manually or
@@ -348,30 +377,18 @@ Built With
 ==========
 
 
--  'Doist/todoist-python'_ - The official Todoist Python API library
--  'dropbox/dropbox-sdk-python'_ - The official Python SDK for Dropbox
+-  'Doist/todoist-python <https://github.com/Doist/todoist-python>'_ - The official Todoist Python API library
+-  'dropbox/dropbox-sdk-python <https://github.com/dropbox/dropbox-sdk-python>'_ - The official Python SDK for Dropbox
    API v2
--  'PyGithub python sdk'_ - Unofficial Python SDK for Github API
+-  'PyGithub python sdk <https://github.com/PyGithub/PyGithub>'_ - Unofficial Python SDK for Github API
 
 Contributing
 
 
-Please open a issue in the 'Github issue tracker'_.
-
-Versioning
-==========
+Please open a issue in the 'Github issue tracker <https://github.com/6uhrmittag/taskbutler/issues>'_.
 
 
-See 'github.com/6uhrmittag/taskbutler/'_ for source files.
+About Author
+============
 
-Author
-======
-
--  **Marvin Heimbrodt** - 'slashlog.de'_
-
-.. _Doist/todoist-python: https://github.com/Doist/todoist-python
-.. _dropbox/dropbox-sdk-python: https://github.com/dropbox/dropbox-sdk-python
-.. _PyGithub python sdk: https://github.com/PyGithub/PyGithub
-.. _Github issue tracker: https://github.com/6uhrmittag/taskbutler/issues
-.. _github.com/6uhrmittag/taskbutler/: https://github.com/6uhrmittag/taskbutler/
-.. _slashlog.de: https://github.com/6uhrmittag/
+**Marvin Heimbrodt** - 'github.com/6uhrmittag <https://github.com/6uhrmittag/>'_

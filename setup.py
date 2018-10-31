@@ -30,7 +30,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    description="taskbutler enriches your todoist tasks",
+    description="Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.",
     entry_points={
         'console_scripts': [
             'taskbutler=taskbutler.cli:main',
