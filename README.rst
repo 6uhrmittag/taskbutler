@@ -88,7 +88,7 @@ To install the latest taskbutler, run this command in your terminal:
 
 .. code-block:: console
 
-    sudo apt-get instapp python3
+    sudo apt-get install python3
     python3 -m pip install --user --upgrade pip
     python3 -m virtualenv venv
     source venv/bin/activate
