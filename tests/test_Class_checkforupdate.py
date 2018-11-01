@@ -9,7 +9,7 @@ import sys
 from taskbutler import taskbutler
 
 def test_returns_0_when_up_to_date():
-    exit = taskbutler.checkforupdate("v.1.0.0", "https://api.github.com/repos/6uhrmittag/taskbutler/releases")
+    exit = taskbutler.checkforupdate("v.2.0.0", "https://api.github.com/repos/6uhrmittag/taskbutler/releases")
     if exit == 1:
         pytest.xfail("Version can be outdated or Github blocks connection")
     else:
