@@ -12,7 +12,7 @@ from taskbutler import taskbutler
 
 @pytest.fixture(scope='session')
 def API_BEFORE():
-    testpath = sys.path[0] +'\\'
+    testpath = sys.path[0] +'/'
     data = TodoistAPI(cache=testpath, token="todoist_testdata_before")
     return data
 
