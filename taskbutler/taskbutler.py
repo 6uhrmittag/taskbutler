@@ -195,12 +195,18 @@ def checkforupdate(currentversion, updateurl):
             logger.info(
                 "Your version is not up-to-date! \nYour version: {}\nLatest version: {}\nSee latest version at: {}".format(
                     currentversion, release_info_json[0]['tag_name'], release_info_json[0]['html_url']))
+            return 1
+        else:
+            return 0
     except requests.exceptions.ConnectionError as e:
         logger.error("Error while checking for updates (Connection error): {}".format(e))
+        return 1
     except requests.exceptions.HTTPError as e:
         logger.error("Error while checking for updates (HTTP error): {}".format(e))
+        return 1
     except requests.exceptions.RequestException as e:
         logger.error("Error while checking for updates: {}".format(e))
+        return 1
 
 
 def getlabelid(labelname: str, api: object) -> str:
@@ -221,12 +227,12 @@ def getlabelid(labelname: str, api: object) -> str:
             if label['name'] == labelname:
                 label_progress_id = label['id']
                 logger.debug("ID for label: {} found! ID: {}".format(labelname, label_progress_id))
-                break
-        if not label_progress_id:
-            raise ValueError('Label not found in Todoist. Skipped!')
+                return label_progress_id
+        raise ValueError('Label not found in Todoist. Skipped!')
     except ValueError as error:
         logger.error("{}".format(error))
-    return label_progress_id
+        raise ValueError(error)
+
 
 
 def addurltotask(title_old, url, progress_seperator):
