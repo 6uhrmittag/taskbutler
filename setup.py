@@ -15,7 +15,7 @@ requirements = ['Click>=6.0', 'todoist-python', 'PyGithub', 'requests', 'dropbox
 
 setup_requirements = ['pytest-runner', ]
 
-test_requirements = ['pytest', 'pytest-testdox', ]
+test_requirements = ['pytest', 'pytest-testdox', 'sys', ]
 
 setup(
     author="Marvin Heimbrodt",
