@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `taskbutler` package."""
-
 import pytest
 
 from click.testing import CliRunner
@@ -10,33 +8,22 @@ from click.testing import CliRunner
 from taskbutler import taskbutler
 from taskbutler import cli
 
+"""Tests for `taskbutler` package."""
 
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
-
-
-def test_command_line_interface():
+def test_CLI_help():
     """Test the CLI."""
     runner = CliRunner()
-    result = runner.invoke(cli.main)
-    assert result.exit_code == 1
-    # assert 'taskbutler.cli.main' in result.output
     help_result = runner.invoke(cli.main, ['--help'])
     assert help_result.exit_code == 0
     assert '--help  Show this message and exit.' in help_result.output
 
+def test_cli_main_basic(capsys):
+    runner = CliRunner()
+    result = runner.invoke(cli.main)
+    # with capsys.disabled():
+    #    print(result.output)
+    assert 'Taskbutler - INFO - Read config from: config.ini' in result.output
+    assert result.exit_code == 1
 
 @pytest.mark.parametrize(
     ('title', 'seperator', 'additional'), [
@@ -48,16 +35,10 @@ def test_command_line_interface():
         ('random', '', ''),
     ]
 )
-def test_gettasktitle(title, seperator, additional):
+def test_get_task_title(title, seperator, additional):
     assert taskbutler.gettasktitle(title + seperator + additional, seperator) == title
 
-def test_addurltotask():
+def test_add_url_to_task():
     assert taskbutler.addurltotask("google", "https://google1.com", "-") == 'https://google1.com (google) '
     assert taskbutler.addurltotask("google - X", "https://google3.com", "-") == 'https://google3.com (google) - X'
 
-def test_taskbutler_basic(capsys):
-    runner = CliRunner()
-    result = runner.invoke(cli.main)
-    # with capsys.disabled():
-    #    print(result.output)
-    assert 'Taskbutler - INFO - Read config from: config.ini' in result.output
