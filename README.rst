@@ -30,7 +30,7 @@ Features
       "personal" Todoist project. Add the label "progressbar" to the top
       task and always get the status of your taxes at a glance.
 
-    .. image:: /docs/images/win-web-demo-list.png
+    .. image:: /_static/win-web-demo-list.png
 
 -  **add and link a Word/Office365 template to tasks** (with help of
    your Dropbox)
@@ -42,7 +42,7 @@ Features
       Microsoft Word online opens in your browser and you can start
       writing.
 
-    .. image:: /docs/images/feature-office.gif
+    .. image:: /_static/feature-office.gif
 
 -  **add and link Dropbox Paper papers to tasks**
 
@@ -51,14 +51,14 @@ Features
       you'll get a new Dropbox Paper with all its features just for this
       task.
 
-    .. image:: /docs/images/feature-paper.gif
+    .. image:: /_static/feature-paper.gif
 
 Prerequisites and notes
 =======================
 **Taskbutler is not associated or connected with Todoist, Dropbox,
 Github or Microsoft.**
 
-1. You'll need a 'Todoist'_ premium account
+1. You'll need a `Todoist <https://todoist.com>`_ premium account
 2. The Dropbox Paper and Github features require a free account at
    Dropbox. The Microsoft Office365 feature requires a paid Office365
    subscription(or a free Microsoft Office 365 Education subscription).
@@ -67,10 +67,8 @@ Github or Microsoft.**
    server/computer to continuously update your tasks
 
 *Even though I never experienced any data loss, it's nice to know
-that*\ 'Todoist provides a daily backup of your data.'_
+that*\ `Todoist provides a daily backup of your data. <https://support.todoist.com/hc/en-us/articles/115001799989>`_
 
-.. _Todoist: https://todoist.com
-.. _Todoist provides a daily backup of your data.: https://support.todoist.com/hc/en-us/articles/115001799989
 
 Setup
 =====
@@ -185,16 +183,14 @@ setup it once and it is only accessible for you.
 
 Get a API key for your Dropbox(by creating a Dropbox app):
 
-1. Go to 'https://www.dropbox.com/developers/apps/create'_
-2. Select ''Dropbox API''
-3. Select
-   ''Full Dropbox– Access to all files and folders in a user's Dropbox.''
+1. Go to `https://www.dropbox.com/developers/apps/create <https://www.dropbox.com/developers/apps/create>`_
+2. Select *Dropbox API*
+3. Select *Full Dropbox- Access to all files and folders in a user's Dropbox.*
 4. Give it a name (doesn't matter)
-5. Click ''Create app''
-6. On the app settings page click ''Generated access token'' and copy
+5. Click *Create app*
+6. On the app settings page click *Generated access token* and copy
    the token
 
-.. _'https://www.dropbox.com/developers/apps/create': https://www.dropbox.com/developers/apps/create
 
 
 
@@ -211,13 +207,11 @@ Pre-tasks
 """""""""
 
 
--  create a new folder in 'your Dropbox'_. All files will be saved here
+-  create a new folder in `your Dropbox <https://www.dropbox.com/h>`_. All files will be saved here
 -  connect Microsoft Office Online to 'your
-   Dropbox <https://www.dropbox.com/account/connected_apps>'__
+   Dropbox `<https://www.dropbox.com/account/connected_apps>`__
 
 Edit the config section in config.ini:
-
-.. _your Dropbox: https://www.dropbox.com/h
 
 .. code:: ini
 
@@ -246,7 +240,7 @@ Pre-tasks
 ^^^^^^^^^
 
 
--  create a new folder in your 'Dropbox Paper'_. All papers will be
+-  create a new folder in your `Dropbox Paper <https://paper.dropbox.com/folders>`_. All papers will be
    saved here
 -  Create an empty paper in this folder(Taskbutler only recognises
    folders once a paper is placed in it)
@@ -266,7 +260,6 @@ Edit the config section in config.ini:
    foldername = todoist
    sharing = false
 
-.. _Dropbox Paper: https://paper.dropbox.com/folders
 
 -  apikey: add the Dropbox API key you created above
 -  todoistfolderid: don't change. Will get set automatically by
@@ -297,7 +290,7 @@ Ubuntu Server
 
 **TODO: This section is not complete yet.**
 
-run programm every 20Min via crontab (see 'crontab.guru'_ for setting
+run programm every 20Min via crontab (see `crontab.guru <https://crontab.guru/>`_ for setting
 time):
 
 .. code:: bash
@@ -319,7 +312,6 @@ time):
 4. type: :code:`crontab -e`
 5. add a line: :code:`*/20 * * * * ADD_THE_REMEMBERED_PATH_HERE`
 
-.. _crontab.guru: https://crontab.guru/
 
 Computer(Win/Mac/Linux)
 """""""""""""""""""""""
@@ -337,7 +329,7 @@ leaves a message in the console.
 
 To update:
 
--  See releasenotes at 'releases page'_ and check for compatibility.
+-  See releasenotes at `releases page <https://github.com/6uhrmittag/taskbutler/releases>`_ and check for compatibility.
 -  Backup your current configuration/setup-folder
 -  Download release from 'releases page'_ and overwrite files or "git
    pull origin" when you cloned this repository
@@ -345,7 +337,6 @@ To update:
    testing (set ''label_progress'' and create a task with the test
    label)
 
-.. _releases page: https://github.com/6uhrmittag/taskbutler/releases
 
 Logging
 -------
@@ -377,18 +368,18 @@ Built With
 ==========
 
 
--  'Doist/todoist-python <https://github.com/Doist/todoist-python>'_ - The official Todoist Python API library
--  'dropbox/dropbox-sdk-python <https://github.com/dropbox/dropbox-sdk-python>'_ - The official Python SDK for Dropbox
+-  'Doist/todoist-python `<https://github.com/Doist/todoist-python>`_ - The official Todoist Python API library
+-  'dropbox/dropbox-sdk-python `<https://github.com/dropbox/dropbox-sdk-python>`_ - The official Python SDK for Dropbox
    API v2
--  'PyGithub python sdk <https://github.com/PyGithub/PyGithub>'_ - Unofficial Python SDK for Github API
+-  'PyGithub python sdk `<https://github.com/PyGithub/PyGithub>`_ - Unofficial Python SDK for Github API
 
 Contributing
 
 
-Please open a issue in the 'Github issue tracker <https://github.com/6uhrmittag/taskbutler/issues>'_.
+Please open a issue in the 'Github issue tracker `<https://github.com/6uhrmittag/taskbutler/issues>`_.
 
 
 About Author
 ============
 
-**Marvin Heimbrodt** - 'github.com/6uhrmittag <https://github.com/6uhrmittag/>'_
+**Marvin Heimbrodt** - `github.com/6uhrmittag <https://github.com/6uhrmittag/>`_

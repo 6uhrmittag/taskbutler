@@ -8,7 +8,7 @@ Welcome to taskbutler's documentation!
    readme
    installation
    usage
-   modules
+   taskbutler
    contributing
    history
 
