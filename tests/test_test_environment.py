@@ -64,14 +64,16 @@ class TestCreateConfigPaths:
         assert os.path.exists(config.getConfigPaths().app()) is True
 
     @pytest.mark.second
-    def test_create_config_path(self):
+    def test_create_config_path(self, capsys):
         # create config
-        try:
-            while not os.path.exists(config.getConfigPaths().config()):
-                if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
+        while True:
+            try:
+                while not os.path.exists(config.getConfigPaths().config()):
+                    if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
                     os.makedirs(config.getConfigPaths().config(), exist_ok=True)
-        except OSError:
-            pass
+            except OSError:
+                continue
+            break
         assert os.path.exists(config.getConfigPaths().config()) is True
 
     def test_create_initial_config(self):
