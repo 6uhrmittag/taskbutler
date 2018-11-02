@@ -4,6 +4,10 @@ Taskbutler
 
 Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.
 
+.. image:: https://travis-ci.org/6uhrmittag/taskbutler.svg?branch=feature-githubsync
+    :target: https://travis-ci.org/6uhrmittag/taskbutler
+    :alt: Travis
+
 .. image:: https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/badge/feature-githubsync
     :target: https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/overview/feature-githubsync
     :alt: CodeFactor
@@ -12,13 +16,13 @@ Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files 
     :target: https://codeclimate.com/github/6uhrmittag/taskbutler/maintainability
     :alt: Maintainability
 
-.. image:: https://travis-ci.org/6uhrmittag/taskbutler.svg?branch=feature-githubsync
-    :target: https://travis-ci.org/6uhrmittag/taskbutler
-    :alt: Travis
-
 .. image:: https://pyup.io/repos/github/6uhrmittag/taskbutler/shield.svg
     :target: https://pyup.io/repos/github/6uhrmittag/taskbutler/
     :alt: Updates
+
+.. image:: https://readthedocs.org/projects/taskbutler/badge/?version=latest
+    :target: https://taskbutler.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 Features
 ========
@@ -82,13 +86,17 @@ requirements
 install
 -------
 
-To install the latest taskbutler, run this command in your terminal:
+To install the latest taskbutler in your home, run this commands in your terminal:
+
 
 .. code-block:: console
 
+    cd ~
+    mkdir taskbutler && cd taskbutler
     sudo apt-get install python3
     python3 -m pip install --user --upgrade pip
-    python3 -m virtualenv venv
+    python3 -m venv venv
+    pip install --upgrade pip
     source venv/bin/activate
     pip install taskbutler
     cp config.ini.sample config.ini

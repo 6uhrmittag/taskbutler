@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import codecs
@@ -15,6 +16,13 @@ from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicy
 from github import Github
 from github import GithubObject, NamedUser
 from todoist.api import TodoistAPI
+import os
+import shutil
+
+# import static config
+from .config import staticConfig, getConfigPaths
+
+# from helpers import github
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
@@ -234,7 +242,6 @@ def getlabelid(labelname: str, api: object) -> str:
         raise ValueError(error)
 
 
-
 def addurltotask(title_old, url, progress_seperator):
     title_old_meta = ""
 
@@ -249,7 +256,7 @@ def addurltotask(title_old, url, progress_seperator):
 
 
 def gettasktitle(title, progress_seperator):
-    #TODO: returns tailing space!  REMOVE!
+    # TODO: returns tailing space!  REMOVE!
     """
     Get task title withouth meta
     :type progress_seperator: str progress seperator
@@ -283,7 +290,22 @@ def gettaskwithlabelid(labelid, api):
 
 
 def main():
-    config_filename = "config.ini"
+    # create config
+    if not os.path.exists(getConfigPaths().config()):
+        os.mkdir(getConfigPaths().app(), 700)
+        os.mkdir(getConfigPaths().config(), 700)
+
+    # create templates
+    if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().templates()):
+        os.mkdir(getConfigPaths().templates(), 700)
+
+    # create log
+    if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().log()):
+        os.mkdir(getConfigPaths().log(), 700)
+
+    # create initial config
+    if not os.path.exists(getConfigPaths().file_config()):
+        shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), staticConfig.filename_config_initial), getConfigPaths().file_config())
 
     # Read config.ini
     # TODO refactor read/write config -> https://docs.python.org/3/library/configparser.html
@@ -301,15 +323,15 @@ def main():
         loggerinit.addHandler(handler)
 
         loggerinit.info("Start Taskbutler.")
-        loggerinit.info("Read config from: {}".format(config_filename))
+        loggerinit.info("Read config from: {}".format(getConfigPaths().file_config()))
 
         config = ConfigParser()
-        config.read_file(open(config_filename, 'r', encoding='utf-8'))
+        config.read_file(open(getConfigPaths().file_config(), 'r', encoding='utf-8'))
 
         # If no logfile given, log to console
         if "log" in config.sections() and "logfile" in config["log"]:
-            handler = logging.handlers.TimedRotatingFileHandler(config["log"]["logfile"], when="d", interval=7,
-                                                                backupCount=2)
+            handler = logging.handlers.TimedRotatingFileHandler(os.path.join(getConfigPaths().log(), config["log"]["logfile"]), when="d", interval=7,
+                                                                backupCount=2, encoding='utf-8')
             loggerinit.info("Set logging file: {}".format(handler.baseFilename))
             logger.propagate = False
             loggerdb.propagate = False
@@ -404,8 +426,8 @@ def main():
             else:
                 todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
                 config.set('dropboxpaper', 'todoistfolderid', todoist_folder_id)
-                with open(config_filename, 'w') as configfile:
-                    config.write(codecs.open(config_filename, 'wb+', 'utf-8'))
+                with open(getConfigPaths().file_config(), 'w') as configfile:
+                    config.write(codecs.open(getConfigPaths().file_config(), 'wb+', 'utf-8'))
     else:
         loggerdb.debug("Dropbox feature disabled. No API key found.")
 
