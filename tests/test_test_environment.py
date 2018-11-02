@@ -53,8 +53,10 @@ class TestCreateConfigPaths:
 
     def test_create_config_path(self):
         # create config
-        if not os.path.exists(config.getConfigPaths().config()):
+        if not os.path.exists(config.getConfigPaths().app()):
             os.mkdir(config.getConfigPaths().app(), 700)
+
+        if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
             os.mkdir(config.getConfigPaths().config(), 700)
 
         assert os.path.exists(config.getConfigPaths().app()) is True
