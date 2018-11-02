@@ -56,6 +56,7 @@ class TestCreateConfigPaths:
     def test_create_app_path(self):
         # create app
         if not os.path.exists(config.getConfigPaths().app()):
+            os.umask(000)
             os.makedirs(config.getConfigPaths().app(), mode=0o722, exist_ok=True)
 
         assert os.path.exists(config.getConfigPaths().app()) is True
@@ -65,6 +66,7 @@ class TestCreateConfigPaths:
         # create config
         while not os.path.exists(config.getConfigPaths().config()):
             if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
+                os.umask(000)
                 os.makedirs(config.getConfigPaths().config(), mode=0o722, exist_ok=True)
 
         assert os.path.exists(config.getConfigPaths().config()) is True
@@ -72,6 +74,7 @@ class TestCreateConfigPaths:
     def test_create_initial_config(self):
         # create initial config
         if not os.path.exists(config.getConfigPaths().file_config()):
+            os.umask(000)
             shutil.copy(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'taskbutler', config.staticConfig.filename_config_initial),
                         config.getConfigPaths().file_config())
 
@@ -80,6 +83,7 @@ class TestCreateConfigPaths:
     def test_create_template_paths(self):
         # create templates
         if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().templates()):
+            os.umask(000)
             os.makedirs(config.getConfigPaths().templates(), mode=0o722, exist_ok=True)
 
         assert os.path.exists(config.getConfigPaths().templates()) is True
@@ -87,6 +91,7 @@ class TestCreateConfigPaths:
     def test_create_log_paths(self):
         # create log
         if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().log()):
+            os.umask(000)
             os.makedirs(config.getConfigPaths().log(), mode=0o722, exist_ok=True)
 
         assert os.path.exists(config.getConfigPaths().log()) is True
