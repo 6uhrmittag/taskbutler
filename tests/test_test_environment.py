@@ -70,7 +70,7 @@ class TestCreateConfigPaths:
             try:
                 while not os.path.exists(config.getConfigPaths().config()):
                     if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
-                    os.makedirs(config.getConfigPaths().config(), exist_ok=True)
+                        os.makedirs(config.getConfigPaths().config(), exist_ok=True)
             except OSError:
                 continue
             break
