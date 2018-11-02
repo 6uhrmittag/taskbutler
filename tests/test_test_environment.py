@@ -56,7 +56,7 @@ class TestCreateConfigPaths:
     def test_create_app_path(self):
         # create app
         if not os.path.exists(config.getConfigPaths().app()):
-            os.mkdir(config.getConfigPaths().app(), 755)
+            os.mkdir(config.getConfigPaths().app(), 777)
 
         assert os.path.exists(config.getConfigPaths().app()) is True
 
@@ -65,7 +65,7 @@ class TestCreateConfigPaths:
         # create config
         while not os.path.exists(config.getConfigPaths().config()):
             if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
-                os.mkdir(config.getConfigPaths().config(), 720)
+                os.mkdir(config.getConfigPaths().config(), 777)
 
         assert os.path.exists(config.getConfigPaths().config()) is True
 
@@ -80,13 +80,13 @@ class TestCreateConfigPaths:
     def test_create_template_paths(self):
         # create templates
         if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().templates()):
-            os.mkdir(config.getConfigPaths().templates(), 755)
+            os.mkdir(config.getConfigPaths().templates(), 777)
 
         assert os.path.exists(config.getConfigPaths().templates()) is True
 
     def test_create_log_paths(self):
         # create log
         if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().log()):
-            os.mkdir(config.getConfigPaths().log(), 720)
+            os.mkdir(config.getConfigPaths().log(), 777)
 
         assert os.path.exists(config.getConfigPaths().log()) is True
