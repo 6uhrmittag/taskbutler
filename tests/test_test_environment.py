@@ -8,6 +8,7 @@ from os import path
 
 import taskbutler.config as config
 import shutil
+import pytest
 
 """Tests environment to make sure the test setup works"""
 
@@ -40,7 +41,6 @@ class TestConfigVariables:
             print('paths in this env: ', config.getConfigPaths().user())
             print('paths in this env: ', config.getConfigPaths().app())
             print('paths in this env: ', config.getConfigPaths().config())
-            print('paths in this env: ', config.getConfigPaths().config())
             print('paths in this env: ', config.getConfigPaths().log())
             print('paths in this env: ', config.getConfigPaths().templates())
             print('paths in this env: ', config.getConfigPaths().file_config())
@@ -50,19 +50,22 @@ class TestConfigVariables:
 
 
 class TestCreateConfigPaths:
+    # order can be important when running tests in parallel
 
+    @pytest.mark.first
     def test_create_app_path(self):
         # create app
         if not os.path.exists(config.getConfigPaths().app()):
-            os.mkdir(config.getConfigPaths().app(), 720)
+            os.mkdir(config.getConfigPaths().app(), 755)
 
         assert os.path.exists(config.getConfigPaths().app()) is True
 
+    @pytest.mark.second
     def test_create_config_path(self):
         # create config
-
-        if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
-            os.mkdir(config.getConfigPaths().config(), 720)
+        while not os.path.exists(config.getConfigPaths().config()):
+            if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
+                os.mkdir(config.getConfigPaths().config(), 720)
 
         assert os.path.exists(config.getConfigPaths().config()) is True
 
@@ -77,7 +80,7 @@ class TestCreateConfigPaths:
     def test_create_template_paths(self):
         # create templates
         if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().templates()):
-            os.mkdir(config.getConfigPaths().templates(), 720)
+            os.mkdir(config.getConfigPaths().templates(), 755)
 
         assert os.path.exists(config.getConfigPaths().templates()) is True
 
