@@ -18,3 +18,22 @@
 - [Github API](https://developer.github.com/v3/)
 - [PyGithub python sdk](https://github.com/PyGithub/PyGithub)
 - [PyGihub doc](https://pygithub.readthedocs.io/en/latest/apis.html)
+
+
+# install
+## install from test.pypi.org
+installing requirements doesn't work 100% with test.pypi.org, so they must be installed manually
+
+
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+python3 -m pip install --user --upgrade pip
+pip install Click
+pip install configparser
+pip install dropbox
+pip install PyGithub
+pip install todoist-python
+pip install requests
+pip install -i https://test.pypi.org/simple/ taskbutler
+
