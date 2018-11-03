@@ -292,16 +292,16 @@ def gettaskwithlabelid(labelid, api):
 def main():
     # create config
     if not os.path.exists(getConfigPaths().config()):
-        os.mkdir(getConfigPaths().app(), mode=0o755)
-        os.mkdir(getConfigPaths().config(), mode=0o755)
+        os.mkdir(getConfigPaths().app(), mode=0o750)
+        os.mkdir(getConfigPaths().config(), mode=0o750)
 
     # create templates
     if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().templates()):
-        os.mkdir(getConfigPaths().templates(), mode=0o755)
+        os.mkdir(getConfigPaths().templates(), mode=0o750)
 
     # create log
     if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().log()):
-        os.mkdir(getConfigPaths().log(), mode=0o755)
+        os.mkdir(getConfigPaths().log(), mode=0o750)
 
     # create initial config
     if not os.path.exists(getConfigPaths().file_config()):
@@ -455,7 +455,7 @@ def main():
     # GITHUB FEATURE
     # TODO move into function
 
-    if github_synclabel_name:
+    if github_apikey and github_synclabel_name:
 
         # TODO move outside main?!
         class githubissue(object):
