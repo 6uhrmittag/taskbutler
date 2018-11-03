@@ -55,51 +55,35 @@ class TestCreateConfigPaths:
     @pytest.mark.first
     def test_create_app_path(self, capsys):
         # create app
-        try:
+        while not os.path.exists(config.getConfigPaths().app()):
             if not os.path.exists(config.getConfigPaths().app()):
                 os.makedirs(config.getConfigPaths().app(), exist_ok=True)
                 os.chmod(config.getConfigPaths().app(), 755)
-        except OSError:
-            pass
         assert os.path.exists(config.getConfigPaths().app()) is True
 
     @pytest.mark.second
     def test_create_config_path(self, capsys):
         # create config
-        while True:
-            try:
-                while not os.path.exists(config.getConfigPaths().config()):
-                    if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
-                        os.makedirs(config.getConfigPaths().config(), exist_ok=True)
-            except OSError:
-                continue
-            break
+        while not os.path.exists(config.getConfigPaths().config()):
+            if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().config()):
+                os.makedirs(config.getConfigPaths().config(), exist_ok=True)
         assert os.path.exists(config.getConfigPaths().config()) is True
 
     def test_create_initial_config(self):
         # create initial config
-        try:
-            if not os.path.exists(config.getConfigPaths().file_config()):
-                shutil.copy(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'taskbutler', config.staticConfig.filename_config_initial),
-                            config.getConfigPaths().file_config())
-        except OSError:
-            pass
+        if not os.path.exists(config.getConfigPaths().file_config()):
+            shutil.copy(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'taskbutler', config.staticConfig.filename_config_initial),
+                        config.getConfigPaths().file_config())
         assert os.path.exists(config.getConfigPaths().file_config()) is True
 
     def test_create_template_paths(self):
         # create templates
-        try:
-            if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().templates()):
-                os.makedirs(config.getConfigPaths().templates(), exist_ok=True)
-        except OSError:
-            pass
+        if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().templates()):
+            os.makedirs(config.getConfigPaths().templates(), exist_ok=True)
         assert os.path.exists(config.getConfigPaths().templates()) is True
 
     def test_create_log_paths(self):
         # create log
         if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().log()):
-            try:
                 os.makedirs(config.getConfigPaths().log(), exist_ok=True)
-            except OSError:
-                pass
         assert os.path.exists(config.getConfigPaths().log()) is True
