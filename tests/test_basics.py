@@ -11,6 +11,8 @@ from taskbutler import cli
 """Tests for `taskbutler` package."""
 
 
+@pytest.mark.second
+@pytest.mark.serial
 class TestCLI:
 
     def testCLIHelp(self):
@@ -20,7 +22,7 @@ class TestCLI:
         assert help_result.exit_code == 0
         assert '--help  Show this message and exit.' in help_result.output
 
-    @pytest.mark.xfail
+    # @pytest.mark.xfail
     def test_cli_main_basic(self, capsys):
         runner = CliRunner()
         result = runner.invoke(cli.main)

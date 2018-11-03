@@ -1,6 +1,5 @@
 language: python
 cache: pip
-before install: umask 022
 sudo: false
 
 python:

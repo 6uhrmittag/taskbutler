@@ -49,11 +49,12 @@ class TestConfigVariables:
             print('paths in this env: ', os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'taskbutler', config.staticConfig.filename_config_initial))
 
 
+@pytest.mark.first
+@pytest.mark.serial
 class TestCreateConfigPaths:
     # order can be important when running tests in parallel
 
-    @pytest.mark.first
-    @pytest.mark.xfail
+    # @pytest.mark.xfail(reason="Race Condition on Travis")
     def test_create_app_path(self, capsys):
         # create app
         while not os.path.exists(config.getConfigPaths().app()):
@@ -62,8 +63,7 @@ class TestCreateConfigPaths:
                 os.chmod(config.getConfigPaths().app(), 755)
         assert os.path.exists(config.getConfigPaths().app()) is True
 
-    @pytest.mark.second
-    @pytest.mark.xfail
+    #@pytest.mark.xfail(reason="Race Condition on Travis")
     def test_create_config_path(self, capsys):
         # create config
         while not os.path.exists(config.getConfigPaths().config()):
@@ -71,7 +71,7 @@ class TestCreateConfigPaths:
                 os.makedirs(config.getConfigPaths().config(), exist_ok=True)
         assert os.path.exists(config.getConfigPaths().config()) is True
 
-    @pytest.mark.xfail
+    #pytest.mark.xfail(reason="Race Condition on Travis")
     def test_create_initial_config(self):
         # create initial config
         if not os.path.exists(config.getConfigPaths().file_config()):
@@ -79,14 +79,14 @@ class TestCreateConfigPaths:
                         config.getConfigPaths().file_config())
         assert os.path.exists(config.getConfigPaths().file_config()) is True
 
-    @pytest.mark.xfail
+    #@pytest.mark.xfail(reason="Race Condition on Travis")
     def test_create_template_paths(self):
         # create templates
         if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().templates()):
             os.makedirs(config.getConfigPaths().templates(), exist_ok=True)
         assert os.path.exists(config.getConfigPaths().templates()) is True
 
-    @pytest.mark.xfail
+    #@pytest.mark.xfail(reason="Race Condition on Travis")
     def test_create_log_paths(self):
         # create log
         if os.path.exists(config.getConfigPaths().app()) and not os.path.exists(config.getConfigPaths().log()):
