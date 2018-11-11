@@ -11,13 +11,13 @@ python:
 
 jobs:
   include:
-  - only:
-    - feature-githubsync
   - stage: test
   - stage: deploy
     install: skip
     python: 3.6
 
+only:
+- feature-githubsync
 install: pip install -U tox-travis
 before_script:
 - git clone https://github.com/sstephenson/bats.git /tmp/bats
