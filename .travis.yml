@@ -2,11 +2,6 @@ language: python
 cache: pip
 sudo: false
 
-stages:
-- tests
-- name: deploy
-  if: tag IS present
-
 jobs:
   include:
   - python: 3.4
@@ -14,8 +9,10 @@ jobs:
   - python: 3.6
   - python: nightly
   - python: 3.7-dev
+  - stage: test
   - stage: deploy
     install: skip
+    script: skip
     python: 3.6
     deploy:
       provider: pypi
