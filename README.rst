@@ -86,7 +86,8 @@ requirements
 install
 -------
 
-To install the latest taskbutler in your home, run this commands in your terminal:
+To install the latest taskbutler in your home directory, run this commands in your terminal:
+(Feel free to install it anywhere you want. Just adapt the path when using this readme.)
 
 
 .. code-block:: console
@@ -97,13 +98,14 @@ To install the latest taskbutler in your home, run this commands in your termina
     python3 -m pip install --user --upgrade pip
     python3 -m venv venv
     pip install --upgrade pip
-    source venv/bin/activate
+    ~/taskbutler/source venv/bin/activate
     pip install taskbutler
-    cp config.ini.sample config.ini
 
 
 configuration
 -------------
+
+The configuration is stored in your home directory: `/home/$YourUsername/.taskbutler/config/config.ini`
 
 Each feature can be disabled by leaving the corresponding labelname in
 the config.ini emtpy. Each feature is configured in the config.ini.
@@ -283,7 +285,7 @@ Start Taskbutler
 
 .. code:: console
 
-    source venv/bin/activate
+    ~/taskbutler/source venv/bin/activate
     taskbutler
 
 
@@ -305,6 +307,7 @@ time):
 
     #! /bin/bash
     # add the full path to your venv at PATH_VENV_TASKBUTLER
+    # ~/taskbutler/
     cd PATH_VENV_TASKBUTLER
 
     #activate taskbutler venv
