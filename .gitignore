@@ -276,3 +276,4 @@ venv/
 
 .tox
 taskbutler.egg-info
+*.vagrant*
