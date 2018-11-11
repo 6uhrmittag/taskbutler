@@ -48,6 +48,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/6uhrmittag/taskbutler',
-    version='2.0.15',
+    version='2.0.16',
     zip_safe=False,
 )
