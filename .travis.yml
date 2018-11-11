@@ -5,8 +5,10 @@ python: 3.4
 
 matrix:
   include:
-  - dist: precise
-  - dist: trusty
+  - os: linux
+    dist: precise
+  - os: linux
+    dist: trusty
 
 jobs:
   include:
