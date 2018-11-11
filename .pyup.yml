@@ -1,6 +1,6 @@
 # set the default branch
 # default: empty, the default branch on GitHub
-branch: feature-githubsync
+branch: master
 requirements:
   - requirements.txt:
       # don't update dependencies, use global 'pin' default
@@ -9,6 +9,8 @@ requirements:
   - requirements.txt:
       # don't update dependencies, use global 'pin' default
       update: False
+      pin: False
   - requirements_test.txt:
       # don't update dependencies, use global 'pin' default
       update: False
+      pin: False
