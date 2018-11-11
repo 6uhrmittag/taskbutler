@@ -83,18 +83,3 @@ class TestCreateConfigPaths:
         runner = CliRunner()
         result = runner.invoke(cli.main)
         assert os.path.exists(config.getConfigPaths().log()) is True
-
-
-class TestEditConfig():
-
-    @pytest.mark.xfail
-    def test_read_Config_File(self):
-        config.readConfig(config.getConfigPaths().file_config(), 'todoist', 'apikey')
-
-        assert config.readConfig(config.getConfigPaths().file_config(), 'todoist', 'apikey')
-
-    @pytest.mark.xfail
-    def test_write_Config_File(self):
-        config.writeConfig(config.getConfigPaths().file_config(), 'todoist', 'apikey', '2')
-
-        assert config.readConfig(config.getConfigPaths().file_config(), 'todoist', 'apikey') == '2'
