@@ -21,14 +21,11 @@ class TestCLI:
         assert help_result.exit_code == 0
         assert '--help  Show this message and exit.' in help_result.output
 
-    @pytest.mark.xfail(reason="Race Condition on Travis")
-    def test_cli_main_basic(self, capsys):
+    def test_cli_main_basic(self):
         runner = CliRunner()
         result = runner.invoke(cli.main)
-        # with capsys.disabled():
-        #    print(result.output)
         assert 'Taskbutler - INFO - Read config from:' in result.output
-        assert result.exit_code == 1
+        assert result.exit_code == 0
 
 
 class TestModifyTitle:
