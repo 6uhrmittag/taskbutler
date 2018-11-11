@@ -52,13 +52,13 @@ class TestConfigVariables:
 
 class TestCreateConfigPaths:
 
-    def test_create_app_path(self, capsys):
+    def test_create_app_path(self):
         # create app
         runner = CliRunner()
         result = runner.invoke(cli.main)
         assert os.path.exists(config.getConfigPaths().app()) is True
 
-    def test_create_config_path(self, capsys):
+    def test_create_config_path(self):
         # create config
         runner = CliRunner()
         result = runner.invoke(cli.main)
@@ -81,3 +81,16 @@ class TestCreateConfigPaths:
         runner = CliRunner()
         result = runner.invoke(cli.main)
         assert os.path.exists(config.getConfigPaths().log()) is True
+
+
+class TestEditConfig():
+
+    def test_read_Config_File(self):
+        config.readConfig(config.getConfigPaths().file_config(), 'todoist', 'apikey')
+
+        assert config.readConfig(config.getConfigPaths().file_config(), 'todoist', 'apikey') == '1'
+
+    def test_write_Config_File(self):
+        config.writeConfig(config.getConfigPaths().file_config(), 'todoist', 'apikey', '2')
+
+        assert config.readConfig(config.getConfigPaths().file_config(), 'todoist', 'apikey') == '2'
