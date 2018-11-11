@@ -3,6 +3,11 @@ cache: pip
 sudo: false
 python: 3.4
 
+matrix:
+  include:
+  - dist: precise
+  - dist: trusty
+
 jobs:
   include:
   - python: 3.5
