@@ -380,8 +380,7 @@ Built With
 
 
 - `Doist/todoist-python <https://github.com/Doist/todoist-python>`_ - The official Todoist Python API library
-- `dropbox/dropbox-sdk-python <https://github.com/dropbox/dropbox-sdk-python>`_ - The official Python SDK for Dropbox
-   API v2
+- `dropbox/dropbox-sdk-python <https://github.com/dropbox/dropbox-sdk-python>`_ - The official Python SDK for Dropbox API v2
 - `PyGithub python sdk <https://github.com/PyGithub/PyGithub>`_ - Unofficial Python SDK for Github API
 - `Cookiecutter template for a Python package <https://github.com/audreyr/cookiecutter-pypackage>`_
 
