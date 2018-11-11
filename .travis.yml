@@ -3,13 +3,6 @@ cache: pip
 sudo: false
 python: 3.4
 
-matrix:
-  include:
-  - os: linux
-    dist: precise
-  - os: linux
-    dist: trusty
-
 jobs:
   include:
   - python: 3.5
@@ -27,7 +20,7 @@ jobs:
       distributions: sdist bdist_wheel
       user: 6uhrmittag
       on:
-        branch: feature-githubsync
+        branch: feature-InitialPypiRelease
         tags: true
         repo: 6uhrmittag/taskbutler
         python: 3.6
@@ -36,7 +29,7 @@ jobs:
       server: https://test.pypi.org/legacy/
 
 only:
-- feature-githubsync
+- feature-InitialPypiRelease
 install: pip install -U tox-travis
 before_script:
 - git clone https://github.com/sstephenson/bats.git /tmp/bats
