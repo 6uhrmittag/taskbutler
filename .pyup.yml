@@ -6,7 +6,7 @@ requirements:
       # don't update dependencies, use global 'pin' default
       update: insecure
       pin: True
-  - requirements.txt:
+  - requirements_dev.txt:
       # don't update dependencies, use global 'pin' default
       update: False
       pin: False
