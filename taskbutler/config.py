@@ -7,7 +7,7 @@ import os
 
 
 # configuration directories
-class staticConfig():
+class staticConfig:
     # directory names
     dir_app = '.taskbutler'
     dir_config = 'config'
@@ -20,7 +20,7 @@ class staticConfig():
     filename_log = 'taskbutler.log'
 
 
-class getConfigPaths():
+class getConfigPaths:
 
     def user(self):
         return os.path.expanduser('~')
