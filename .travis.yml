@@ -11,6 +11,7 @@ jobs:
   - python: 3.7-dev
   - stage: test
   - stage: deploy
+    if: tag IS present
     install: skip
     script: skip
     python: 3.6
