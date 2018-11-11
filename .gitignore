@@ -260,7 +260,7 @@ paket-files/
 __pycache__/
 *.pyc
 /secrets.py
-config.ini
+taskbutler/config.ini
 .build/
 .dist/
 todoist-progress.sln
@@ -272,3 +272,8 @@ todoist_progress.spec
 __pycache__/
 
 templates/
+venv/
+
+.tox
+taskbutler.egg-info
+*.vagrant*

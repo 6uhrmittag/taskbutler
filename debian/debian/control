@@ -1,0 +1,17 @@
+Source: taskbutler
+Section: python
+Priority: extra
+Maintainer: Marvin Heimbrodt <marvin@6uhrmittag.de>
+Vcs-Git: https://github.com/6uhrmittag/taskbutler.git
+Vcs-browser: https://github.com/6uhrmittag/taskbutler
+Homepage: https://github.com/6uhrmittag/taskbutler
+Build-Depends: debhelper (>= 9), python3, dh-virtualenv (>= 1.0),
+    python3-setuptools, python3-pip, python3-dev, libffi-devs
+Standards-Version: 3.9.5
+
+Package: taskbutler
+Architecture: any
+Pre-Depends: dpkg (>= 1.16.1), python3 (>= 3.5), ${misc:Pre-Depends}
+Depends: ${python:Depends}, ${misc:Depends}
+Description: Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.
+ Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.

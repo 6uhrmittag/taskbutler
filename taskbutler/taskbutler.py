@@ -1,23 +1,26 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import codecs
+import logging
+import logging.handlers
 from configparser import ConfigParser
 
 import dropbox
 import requests
-import logging
-import logging.handlers
-
-import time
-
-from dropbox.files import WriteMode
-from dropbox import DropboxOAuth2FlowNoRedirect
 from dropbox.exceptions import ApiError, AuthError
+from dropbox.files import WriteMode
 from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicyType, SharingPolicy
+
 from todoist.api import TodoistAPI
-import codecs
+import os
+import shutil
+
+from .config import staticConfig, getConfigPaths
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
+loggerdg = logging.getLogger('github')
 
 
 def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -> str:
@@ -78,31 +81,6 @@ def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -
         except Exception as err:
             loggerdb.error("Something went wrong: {}".format(err))
             raise SystemExit(1)
-
-
-def getDropboxKey(consumer_key: str, consumer_secret: str):
-    """
-    Used for devmode only. Requires dropbox app + client id, app secret
-
-    :param consumer_key:
-    :param consumer_secret:
-    :return:
-    """
-    auth_flow = DropboxOAuth2FlowNoRedirect(consumer_key, consumer_secret)
-
-    authorize_url = auth_flow.start()
-    print("1. Go to: " + authorize_url)
-    print("2. Click \"Allow\" (you might have to log in first).")
-    print("3. Copy the authorization code.")
-    auth_code = input("Enter the authorization code here: ").strip()
-
-    try:
-        oauth_result = auth_flow.finish(auth_code)
-    except Exception as e:
-        loggerdb.debug("Error : {}".format(e))
-        return
-
-    return oauth_result.access_token
 
 
 def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -> str:
@@ -219,12 +197,18 @@ def checkforupdate(currentversion, updateurl):
             logger.info(
                 "Your version is not up-to-date! \nYour version: {}\nLatest version: {}\nSee latest version at: {}".format(
                     currentversion, release_info_json[0]['tag_name'], release_info_json[0]['html_url']))
+            return 1
+        else:
+            return 0
     except requests.exceptions.ConnectionError as e:
         logger.error("Error while checking for updates (Connection error): {}".format(e))
+        return 1
     except requests.exceptions.HTTPError as e:
         logger.error("Error while checking for updates (HTTP error): {}".format(e))
+        return 1
     except requests.exceptions.RequestException as e:
         logger.error("Error while checking for updates: {}".format(e))
+        return 1
 
 
 def getlabelid(labelname: str, api: object) -> str:
@@ -245,21 +229,19 @@ def getlabelid(labelname: str, api: object) -> str:
             if label['name'] == labelname:
                 label_progress_id = label['id']
                 logger.debug("ID for label: {} found! ID: {}".format(labelname, label_progress_id))
-                break
-        if not label_progress_id:
-            raise ValueError('Label not found in Todoist. Skipped!')
+                return label_progress_id
+        raise ValueError('Label not found in Todoist. Skipped!')
     except ValueError as error:
         logger.error("{}".format(error))
-    return label_progress_id
+        raise ValueError(error)
 
 
-def addurltotask(title_old, url, secrets):
+def addurltotask(title_old, url, progress_seperator):
     title_old_meta = ""
 
-    if secrets["todoist"]["progress_seperator"] in title_old:
-        title_old_headline, title_old_meta = title_old.split(secrets["todoist"]["progress_seperator"])
-        title_new = url + " (" + title_old_headline.rstrip() + ") " + "" + secrets["todoist"][
-            "progress_seperator"] + title_old_meta
+    if progress_seperator in title_old:
+        title_old_headline, title_old_meta = title_old.split(progress_seperator)
+        title_new = url + " (" + title_old_headline.rstrip() + ") " + "" + progress_seperator + title_old_meta
     else:
         title_old_headline = title_old
         title_new = url + " (" + title_old_headline.rstrip() + ") " + "" + title_old_meta
@@ -267,15 +249,16 @@ def addurltotask(title_old, url, secrets):
     return title_new
 
 
-def gettasktitle(title, secrets):
+def gettasktitle(title, progress_seperator):
+    # TODO: returns tailing space!  REMOVE!
     """
     Get task title withouth meta
-    :type secrets: object config.ini
+    :type progress_seperator: str progress seperator
     :param title: Task title with seperator
     :return:
     """
-    if "‣" in title:
-        title_headline, title_old_meta = title.split(secrets["todoist"]["progress_seperator"])
+    if progress_seperator and progress_seperator in title:
+        title_headline, title_old_meta = title.split(progress_seperator)
     else:
         title_headline = title
 
@@ -301,52 +284,78 @@ def gettaskwithlabelid(labelid, api):
 
 
 def main():
-    config_filename = "config.ini"
+    # create config
+    if not os.path.exists(getConfigPaths().config()):
+        os.mkdir(getConfigPaths().app(), mode=0o750)
+        os.mkdir(getConfigPaths().config(), mode=0o750)
+
+    # create templates
+    if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().templates()):
+        os.mkdir(getConfigPaths().templates(), mode=0o750)
+
+    # create log
+    if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().log()):
+        os.mkdir(getConfigPaths().log(), mode=0o750)
+
+    # create initial config
+    if not os.path.exists(getConfigPaths().file_config()):
+        shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), staticConfig.filename_config_initial), getConfigPaths().file_config())
 
     # Read config.ini
     # TODO refactor read/write config -> https://docs.python.org/3/library/configparser.html
     # check for every non-optional parameter
     try:
-        logging.info("Read config from: {}".format(config_filename))
-
-        secrets = ConfigParser()
-        secrets.read_file(open(config_filename, 'r', encoding='utf-8'))
-
         # Setup logging
         # Set logging format
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
         # Make sure to output everthing as long no loglevel is set
-        logger.setLevel(logging.DEBUG)
+        loggerinit = logging.getLogger("Taskbutler")
+        loggerinit.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        loggerinit.addHandler(handler)
+
+        loggerinit.info("Start Taskbutler.")
+        loggerinit.info("Read config from: {}".format(getConfigPaths().file_config()))
+
+        config = ConfigParser()
+        config.read_file(open(getConfigPaths().file_config(), 'r', encoding='utf-8'))
 
         # If no logfile given, log to console
-        if "logfile" in secrets["log"] and secrets["log"]["logfile"]:
-            handler = logging.handlers.TimedRotatingFileHandler(secrets["log"]["logfile"], when="d", interval=7,
-                                                                backupCount=2, encoding='utf-8',)
-            logger.info("Set logging file: {}".format(handler.baseFilename))
+        if "log" in config.sections() and "logfile" in config["log"]:
+            handler = logging.handlers.TimedRotatingFileHandler(os.path.join(getConfigPaths().log(), config["log"]["logfile"]), when="d", interval=7,
+                                                                backupCount=2, encoding='utf-8')
+            loggerinit.info("Set logging file: {}".format(handler.baseFilename))
             logger.propagate = False
             loggerdb.propagate = False
+            loggerdg.propagate = False
         else:
             handler = logging.StreamHandler()
-            logger.info("Set log output to console")
+            loggerinit.info("Set log output to console")
             logger.propagate = False
             loggerdb.propagate = False
+            loggerdg.propagate = False
 
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         loggerdb.addHandler(handler)
+        loggerdg.addHandler(handler)
 
         # Set loglevel. Default is DEBUG
-        if "log" in secrets.sections() and "loglevel" in secrets["log"]:
-            logger.setLevel(logging.getLevelName(secrets["log"]["loglevel"]))
-            loggerdb.setLevel(logging.getLevelName(secrets["log"]["loglevel"]))
+        if "log" in config.sections() and "loglevel" in config["log"]:
+            logger.setLevel(logging.getLevelName(config["log"]["loglevel"]))
+            loggerdb.setLevel(logging.getLevelName(config["log"]["loglevel"]))
+            loggerdg.setLevel(logging.getLevelName(config["log"]["loglevel"]))
         else:
             logger.setLevel(logging.DEBUG)
             loggerdb.setLevel(logging.DEBUG)
+            loggerdg.setLevel(logging.DEBUG)
 
         logger.info("Set logging level: {}".format(logging.getLevelName(logger.level)))
 
         # Setup devmode. If true -> no todoist commit and github update check(60 requests per hour)
-        if secrets.get('config', 'devmode') == "True" or secrets.get('config', 'devmode') == "true":
+        if config.get('config', 'devmode') == "True" or config.get('config', 'devmode') == "true":
             devmode = True
             logger.info("Entering DEVMODE - no todoist data will get changed")
         else:
@@ -354,60 +363,45 @@ def main():
             logger.info("Entering Production mode - All changed will get synced")
 
         # Read config
-        todoist_api_key = secrets.get('todoist', 'apikey')
-        label_progress = secrets.get('todoist', 'label_progress')
+        todoist_api_key = config.get('todoist', 'apikey')
+        label_progress = config.get('todoist', 'label_progress')
+        todoist_seperator = config.get('todoist', 'progress_seperator')
 
-        dropbox_api_key = secrets.get('dropbox', 'apikey')
+        dropbox_api_key = config.get('dropbox', 'apikey')
 
-        todoist_folder_id = str(secrets.get('dropboxpaper', 'todoistfolderid'))
-        todoist_folder_name = secrets.get('dropboxpaper', 'foldername')
-        label_todoist_dropboxpaper = secrets.get('dropboxpaper', 'labelname')
-        todoist_paper_sharing = secrets.get('dropboxpaper', 'sharing')
+        todoist_folder_id = str(config.get('dropboxpaper', 'todoistfolderid'))
+        todoist_folder_name = config.get('dropboxpaper', 'foldername')
+        label_todoist_dropboxpaper = config.get('dropboxpaper', 'labelname')
+        todoist_paper_sharing = config.get('dropboxpaper', 'sharing')
 
-        todoist_dropbox_templatefile = secrets.get('dropboxoffice', 'templatefile')
-        label_todoist_dropboxoffice = secrets.get('dropboxoffice', 'labelname')
-        todoist_dropbox_prepart_files = secrets.get('dropboxoffice', 'dropbox_prepart_files')
-        dropbox_todoist_folder = secrets.get('dropboxoffice', 'folder')
+        todoist_dropbox_templatefile = config.get('dropboxoffice', 'templatefile')
+        label_todoist_dropboxoffice = config.get('dropboxoffice', 'labelname')
+        todoist_dropbox_prepart_files = config.get('dropboxoffice', 'dropbox_prepart_files')
+        dropbox_todoist_folder = config.get('dropboxoffice', 'folder')
+
+        github_apikey = config.get('github', 'apikey')
+        github_sync_project_name = config.get('github', 'TodoistProjectToSync')
+        github_synclabel_name = config.get('github', 'TodoistSyncLabel')
+        github_url_identifier = config.get('github', 'GithubURLIdentifier')
+        github_sync_repo_name = config.get('github', 'GithubSyncRepoName')
+        github_username = config.get('github', 'GithubUsername')
+
     except FileNotFoundError as error:
         logger.error("Config file not found! Create config.ini first. \nOriginal Error: {}".format(error))
         raise SystemExit(1)
 
-    if devmode:
-        # oauth is currently devonly since it requires to publish app_secret which is unsafe!
-        # set id and secret in config.ini. When no API key is found instructions will get shown in console
-        if not dropbox_api_key:
-            loggerdb.error("No Dropbox API key found. Start authflow.")
-            dropbox_api_clientid = secrets.get('dropbox', 'clientid')
-            dropbox_api_clientsecret = secrets.get('dropbox', 'clientsecret')
-
-            # sleep to wait for logger
-            time.sleep(2)
-
-            dropbox_api_key = getDropboxKey(dropbox_api_clientid, dropbox_api_clientsecret)
-
-            dbx = dropbox.Dropbox(dropbox_api_key)
-            print("Dropbox account set to: " + str(dbx.users_get_current_account().name))
-
-            # Write API key
-            secrets.set('dropbox', 'apikey', dropbox_api_key)
-            with open(config_filename, 'w'):
-                secrets.write(codecs.open(config_filename, 'wb+', 'utf-8'))
-                print("API key written to config.ini. Please restart Taskbutler.")
-                raise SystemExit(0)
-
     # init dropbox session
     if dropbox_api_key and (label_todoist_dropboxpaper or label_todoist_dropboxoffice):
+        dbx = dropbox.Dropbox(dropbox_api_key)
         try:
-            dbx = dropbox.Dropbox(dropbox_api_key)
             dbx.users_get_current_account()
             loggerdb.debug("Dropbox account set to: {}".format(dbx.users_get_current_account()))
-
         except AuthError as err:
             loggerdb.error("Invalid access token: {}".format(err))
             raise SystemExit(1)
 
         if label_todoist_dropboxpaper:
-            # Check paper folder ID, get if not set
+            # Check paper folder ID, get if not encoding=self.encoding
             # Check that folder it still matches folder name
 
             if todoist_folder_id:
@@ -426,11 +420,11 @@ def main():
                 #     todoist_folder_id = None
             else:
                 todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
-                secrets.set('dropboxpaper', 'todoistfolderid', todoist_folder_id)
-                with open(config_filename, 'w') as configfile:
-                    secrets.write(codecs.open(config_filename, 'wb+', 'utf-8'))
+                config.set('dropboxpaper', 'todoistfolderid', todoist_folder_id)
+                with open(getConfigPaths().file_config(), 'w') as configfile:
+                    config.write(codecs.open(getConfigPaths().file_config(), 'wb+', 'utf-8'))
     else:
-        loggerdb.debug("Dropbox feature disabled. No API key and labelname found.")
+        loggerdb.debug("Dropbox feature disabled. No API key found.")
 
     # init todoist session
     try:
@@ -442,18 +436,15 @@ def main():
         logger.error("Sync Error. \nOriginal Error: {}".format(error))
         raise SystemExit(1)
 
-    # Usefull for development:
-    # Delete todoist tasks
-    # print( api.state['items'])
-    # print( api.state['projects'])
-    # item = api.items.get_by_id("ID_TO_DELETE")
-    # item.delete()
-    # api.commit()
+        # Usefull for development:
+        # Delete todoist tasks
+        # print( api.state['items'])
+        # print( api.state['projects'])
+        # item = api.items.get_by_id("ID_TO_DELETE")
+        # item.delete()
+        # api.commit()
 
-    # List projects
-    # for project in api.state['projects']:
-    #    print (project['name'].encode('unicode_escape'))
-    # print("######\n")
+        # List projects
 
     if label_progress:
 
@@ -498,14 +489,14 @@ def main():
                         item_task_old = task['content']
 
                         if "‣" in task['content']:
-                            item_content_old = task['content'].split(secrets["todoist"]["progress_seperator"])
+                            item_content_old = task['content'].split(todoist_seperator)
                             item_content_new = item_content_old[0]
 
                         else:
                             item_content_new = task['content'] + " "
 
-                        item_content = item_content_new + "" + secrets["todoist"][
-                            "progress_seperator"] + " " + getprogresssymbols(progress_done, secrets) + " " + str(
+                        item_content = item_content_new + "" + config["todoist"][
+                            "progress_seperator"] + " " + getprogresssymbols(progress_done, config) + " " + str(
                             progress_done) + ' %'
 
                         if not item_task_old == item_content:
@@ -531,11 +522,12 @@ def main():
         logger.debug("Progressbar feature disabled. No labelname found.")
 
     # Check for Update
-    if not devmode and secrets["config"]["update_url"]:
-        checkforupdate(secrets["config"]["version"], secrets["config"]["update_url"])
+    if not devmode and config["config"]["update_url"]:
+        checkforupdate(config["config"]["version"], config["config"]["update_url"])
 
     # Dropbox paper feature
     # Drpopbox paper is disabled in devmode -> will create files every time since url is not written in task title.
+    # Dropbox paper is annoying to cleanup
     if not devmode:
         if label_todoist_dropboxpaper:
             # Dropbox Paper
@@ -547,11 +539,11 @@ def main():
                 item = api.items.get_by_id(task)
                 if "https://" not in item['content'] and not item['is_deleted'] and not item[
                     'in_history'] and not item['is_archived']:
-                    newurl = createpaperdocument(gettasktitle(item['content'], secrets), dbx,
-                                                 secrets.get('dropboxpaper', 'todoistfolderid'),
-                                                 secrets.get('dropboxpaper', 'url'),
+                    newurl = createpaperdocument(gettasktitle(item['content'], todoist_seperator), dbx,
+                                                 config.get('dropboxpaper', 'todoistfolderid'),
+                                                 config.get('dropboxpaper', 'url'),
                                                  todoist_paper_sharing)
-                    item.update(content=addurltotask(item['content'], newurl, secrets))
+                    item.update(content=addurltotask(item['content'], newurl, todoist_seperator))
                     loggerdb.info("Added paper to task: {}".format(item['content']))
             if not devmode:
                 api.commit()
@@ -573,7 +565,7 @@ def main():
                 'in_history'] and not item['is_archived']:
                 newurl = createdropboxfile(item["content"], dbx, todoist_dropbox_templatefile,
                                            todoist_dropbox_prepart_files, dropbox_todoist_folder)
-                item.update(content=addurltotask(item['content'], newurl, secrets))
+                item.update(content=addurltotask(item['content'], newurl, todoist_seperator))
                 loggerdb.info("Added File to Task: {}".format(item['content']))
         if not devmode:
             api.commit()
@@ -581,7 +573,7 @@ def main():
     else:
         logger.info("Dropbox to Office feature disabled. No labelname found.")
 
-    logger.info("Programm end")
+    logger.info("Taskbutler end")
 
 
 if __name__ == '__main__':
