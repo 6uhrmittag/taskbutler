@@ -20,7 +20,7 @@ jobs:
       distributions: sdist bdist_wheel
       user: 6uhrmittag
       on:
-        branch: feature-InitialPypiRelease
+        branch: master
         tags: true
         repo: 6uhrmittag/taskbutler
         python: 3.6
@@ -29,7 +29,8 @@ jobs:
       server: https://test.pypi.org/legacy/
 
 only:
-- feature-InitialPypiRelease
+- master
+
 install: pip install -U tox-travis
 before_script:
 - git clone https://github.com/sstephenson/bats.git /tmp/bats
