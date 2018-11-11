@@ -32,7 +32,7 @@ dropbox_prepart_files = https://www.dropbox.com/ow/msft/edit/home/
 
 [log]
 loglevel=INFO
-logfile = ./todoist.log
+logfile = todoist.log
 
 [github]
 apikey=
