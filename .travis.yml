@@ -2,18 +2,20 @@ language: python
 cache: pip
 sudo: false
 
-python:
-- "3.4"
-- "3.5"
-- "3.6"
-- "3.7-dev"
-install: pip install -U tox-travis
-only:
-- feature-githubsync
+
+
 
 jobs:
   include:
   - stage: test
+    only:
+    - feature-githubsync
+    python:
+    - "3.4"
+    - "3.5"
+    - "3.6"
+    - "3.7-dev"
+    install: pip install -U tox-travis
     before_script:
     - git clone https://github.com/sstephenson/bats.git /tmp/bats
     - mkdir -p /tmp/local
@@ -22,6 +24,8 @@ jobs:
     script: tox
 
   - stage: deploy
+    python:
+    - "3.6"
     deploy:
       provider: pypi
       distributions: sdist bdist_wheel
