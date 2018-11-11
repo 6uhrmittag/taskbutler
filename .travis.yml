@@ -2,44 +2,40 @@ language: python
 cache: pip
 sudo: false
 
+python:
+- "3.4"
+- "3.5"
+- "3.6"
+- "3.7-dev"
+- "nightly"
+
 jobs:
   include:
-  - python: 3.4
-  - python: 3.5
-  - python: 3.6
-  - python: 3.7-dev
   - only:
     - feature-githubsync
   - stage: test
-    install: pip install -U tox-travis
-    before_script:
-    - git clone https://github.com/sstephenson/bats.git /tmp/bats
-    - mkdir -p /tmp/local
-    - bash /tmp/bats/install.sh /tmp/local
-    - export PATH=$PATH:/tmp/local/bin
-    script: tox
-
   - stage: deploy
+    install: skip
     python: 3.6
-    deploy:
-      provider: pypi
-      distributions: sdist bdist_wheel
-      user: 6uhrmittag
-      on:
-        branch: feature-githubsync
-        tags: true
-        repo: 6uhrmittag/taskbutler
-        python: 3.6
-      password:
-        secure: jNQ/eiJmbFRtW0zg3Ckl1ImP12sE+kTOpZrdiHNpuOPZx9hBuUHaemVjM5Ca8lLfIzwRq17Kj+rfjtvhz2l7j4RTpNgbTcm+gITSArGtXu3ZO2kl5Fk+a1J6QYT3hTISCGtuPmQi7RBA2kCX42rTbNGGb29UY9hhItLv5pVJaz0y2q5Hl8w3xMvyLRz6XivHgtrd4JNk+JPFEWsafrBOYU1BgxarGzmw0GiuyrtJJnHbjK5e3IUeJMEtftTfY+QsFrQRsgrqsmBPlakjucTXDba3UypHDCUFjpcuYkUDvp62fFS/kaklr/Sw8CWP0LaPxkDSGpuHowICRWw5fQY6wnPPVv5FCTyCloqAwOf4QF8DHwz2W9oGAU82TnlqDnilqt6SXuleAFn8L9F6BSIubuTtVQeXPztrEuR+hYPh5yoVTRi0eNTRETsgYldCAp5uPBGxmv54qWxXUQlWR30K7lM6leXaJIy8Kc3Vf9LsSnnz6bYEifiL/UQOjTqfnBzVttaZZbuls36H+y2SkJOw+KaypuxwBk2fWYwb5i3RV9zEy1WMYFr0HlwaJ6vU/3IGtS7GZsBSwK/jm7yQWnaRFCin6CkUSEpeT+GSmeMt0otL3/Z4i8VznBnHbS4OyZRxu0Xx/s9Wwjjp3YMJT2BVDa/c4nkGgpm2qWZPp9nREnM=
-      server: https://test.pypi.org/legacy/
 
+install: pip install -U tox-travis
+before_script:
+- git clone https://github.com/sstephenson/bats.git /tmp/bats
+- mkdir -p /tmp/local
+- bash /tmp/bats/install.sh /tmp/local
+- export PATH=$PATH:/tmp/local/bin
+script: tox
 
-
-
-
-
-
-
-
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: 6uhrmittag
+  on:
+    branch: feature-githubsync
+    tags: true
+    repo: 6uhrmittag/taskbutler
+    python: 3.6
+  password:
+    secure: jNQ/eiJmbFRtW0zg3Ckl1ImP12sE+kTOpZrdiHNpuOPZx9hBuUHaemVjM5Ca8lLfIzwRq17Kj+rfjtvhz2l7j4RTpNgbTcm+gITSArGtXu3ZO2kl5Fk+a1J6QYT3hTISCGtuPmQi7RBA2kCX42rTbNGGb29UY9hhItLv5pVJaz0y2q5Hl8w3xMvyLRz6XivHgtrd4JNk+JPFEWsafrBOYU1BgxarGzmw0GiuyrtJJnHbjK5e3IUeJMEtftTfY+QsFrQRsgrqsmBPlakjucTXDba3UypHDCUFjpcuYkUDvp62fFS/kaklr/Sw8CWP0LaPxkDSGpuHowICRWw5fQY6wnPPVv5FCTyCloqAwOf4QF8DHwz2W9oGAU82TnlqDnilqt6SXuleAFn8L9F6BSIubuTtVQeXPztrEuR+hYPh5yoVTRi0eNTRETsgYldCAp5uPBGxmv54qWxXUQlWR30K7lM6leXaJIy8Kc3Vf9LsSnnz6bYEifiL/UQOjTqfnBzVttaZZbuls36H+y2SkJOw+KaypuxwBk2fWYwb5i3RV9zEy1WMYFr0HlwaJ6vU/3IGtS7GZsBSwK/jm7yQWnaRFCin6CkUSEpeT+GSmeMt0otL3/Z4i8VznBnHbS4OyZRxu0Xx/s9Wwjjp3YMJT2BVDa/c4nkGgpm2qWZPp9nREnM=
+  server: https://test.pypi.org/legacy/
 
