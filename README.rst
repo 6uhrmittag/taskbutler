@@ -285,7 +285,7 @@ Start Taskbutler
 
 .. code:: console
 
-    ~/taskbutler/source venv/bin/activate
+    source ~/taskbutler/venv/bin/activate
     taskbutler
 
 
