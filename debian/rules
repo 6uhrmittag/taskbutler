@@ -10,7 +10,7 @@ endif
 
 PACKAGE=$(shell dh_listpackages)
 VERSION=$(shell parsechangelog | grep ^Version: | sed -re 's/[^0-9]+([^-]+).*/\1/')
-DH_VENV_ARGS=--setuptools --python $(SNAKE) $(EXTRA_REQUIREMENTS) --extra-pip-arg "--no-index" --extra-pip-arg "--find-links=file://${PWD}/debian/pypi
+DH_VENV_ARGS=--setuptools --python $(SNAKE) $(EXTRA_REQUIREMENTS) --extra-pip-arg "--no-index" --extra-pip-arg "--find-links=file://${PWD}/debian/"
 DH_VENV_DIR=debian/$(PACKAGE)$(DH_VIRTUALENV_INSTALL_ROOT)/$(PACKAGE)
 
 %:
