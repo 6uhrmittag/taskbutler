@@ -23,8 +23,8 @@ sudo find ../ -name dh-virtualenv*.deb -exec dpkg -i {} \;
 cd
 
 # build package
-git clone https://github.com/6uhrmittag/taskbutler.git
-cd taskbutler
+#git clone https://github.com/6uhrmittag/taskbutler.git
+#cd taskbutler
 #git fetch origin
 #git branch -v -a
 #git checkout -b debian remotes/origin/feature-githubsync
@@ -33,4 +33,4 @@ cd taskbutler
 #pip install make-deb
 #make-deb
 
-dpkg-buildpackage -us -uc -b
+#dpkg-buildpackage -us -uc -b

@@ -6,7 +6,8 @@ Vcs-Git: https://github.com/6uhrmittag/taskbutler.git
 Vcs-browser: https://github.com/6uhrmittag/taskbutler
 Homepage: https://github.com/6uhrmittag/taskbutler
 Build-Depends: debhelper (>= 9), python3, dh-virtualenv (>= 1.0),
-    python3-setuptools, python3-pip, python3-dev, libffi-dev
+    python3-setuptools, python3-pip, python3-dev, libffi-dev, devscripts,
+    python-virtualenv, equivs
 Standards-Version: 3.9.5
 
 Package: taskbutler
