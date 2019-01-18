@@ -161,8 +161,7 @@ characters with other characters ''⚫⚫⚫⚪⚪''.
 Change progressbar seperator
 """"""""""""""""""""""""""""
 To separate the task-text from the progressbar, a rare unicode character
-is used. Just replace the seperator in the line
-''progress_seperator=‣'' in the ''config.ini'' file.
+is used. Just replace the seperator in the ''config.ini'' file.
 
 .. code:: ini
 
@@ -180,7 +179,7 @@ label-name can be changed in the ''config.ini'' file:
 
 .. code:: ini
 
-''label_progress=progressbar''
+   label_progress=progressbar
 
 Remember to rename the label in Todoist when renaming labels!
 
