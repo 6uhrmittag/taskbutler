@@ -30,18 +30,14 @@ Features
 -  **add progress bars to task-lists in Todoist (unicode,
    cross-plattform)**
 
-   -  Example usage: Create a new task list "File taxes" in your
-      "personal" Todoist project. Add the label "progressbar" to the top
-      task and always get the status of your taxes at a glance.
+   -  Create a new task list and add the label "progressbar". Now you always know the progress without scrolling to your entire list.
 
     .. image:: /_static/win-web-demo-list.png
 
 -  **add and link a Word/Office365 template to tasks** (with help of
    your Dropbox)
 
-   -  Example usage: Setup a letter template in Microsoft Word once and
-      save it. Once you add the label "letter" to your Todoist task, the
-      template gets uploaded to your Dropbox and the task get liked to
+   -  Upload your favorite Word template by adding a label to your Todoist task. Taskbutler uploads the template to your Dropbox and the task get liked to
       Microsoft Office365. Now, by clicking the task in Todoist,
       Microsoft Word online opens in your browser and you can start
       writing.
@@ -50,7 +46,7 @@ Features
 
 -  **add and link Dropbox Paper papers to tasks**
 
-   -  Example usage: Tired of the missing task-note feature in Todoist?
+   -  Tired of the missing task-note feature in Todoist?
       Add the label "paper" to a task. Now, with a click on the title,
       you'll get a new Dropbox Paper with all its features just for this
       task.
