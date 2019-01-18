@@ -71,7 +71,7 @@ Github or Microsoft.**
    server/computer to continuously update your tasks
 
 *Even though I never experienced any data loss, it's nice to know
-that*\ `Todoist provides a daily backup of your data. <https://support.todoist.com/hc/en-us/articles/115001799989>`_
+that* \ `Todoist provides a daily backup of your data. <https://support.todoist.com/hc/en-us/articles/115001799989>`_
 
 
 Setup
@@ -87,8 +87,6 @@ install
 -------
 
 To install the latest taskbutler in your home directory, run this commands in your terminal:
-(Feel free to install it anywhere you want. Just adapt the path when using this readme.)
-
 
 .. code-block:: console
 
@@ -117,7 +115,7 @@ existing Todoist tasks manually according to your changes before
 starting Taskbutler again.**
 
 Taskbutler is not aware of your changes and will mix and mess up your
-tasks. Changes can easily be tested by using a different/new labelname.
+tasks. Changes can easily be tested by using a different labelname.
 
 Setup Progress bars
 ^^^^^^^^^^^^^^^^^^^
@@ -141,7 +139,7 @@ Change progressbar symbols
 """"""""""""""""""""""""""
 
 
-The bar is implemented by adding 'unicode charaters'_ to the existing
+The bar is implemented by adding `unicode charaters`_ to the existing
 text. e.g. ⬛⬛⬜⬜⬜ 33 %
 
 .. code:: ini
@@ -157,13 +155,13 @@ text. e.g. ⬛⬛⬜⬜⬜ 33 %
 .. _unicode charaters: http://jrgraphix.net/r/Unicode/2600-26FF
 
 
-To change the bar to e.g. empty/full bullets, just overwrite the
+To change the bar to bullets, just overwrite the
 characters with other characters ''⚫⚫⚫⚪⚪''.
 
 Change progressbar seperator
 """"""""""""""""""""""""""""
 To separate the task-text from the progressbar, a rare unicode character
-is used. To change the separator just change the line
+is used. Just replace the seperator in the line
 ''progress_seperator=‣'' in the ''config.ini'' file.
 
 .. code:: ini
@@ -171,7 +169,6 @@ is used. To change the separator just change the line
    [todoist]
    progress_seperator=‣
 
-Just replace the existing character with the character of your choice.
 Remember to rename the separator manually in Todoist before running
 Taskbutler again!
 
@@ -180,7 +177,11 @@ Edit progressbar label
 
 The bar added to every task with the label ''progressbar''. The
 label-name can be changed in the ''config.ini'' file:
-''label_progress=progressbar'' To change the labelname after the "=".
+
+.. code:: ini
+
+''label_progress=progressbar''
+
 Remember to rename the label in Todoist when renaming labels!
 
 Setup Dropbox features
