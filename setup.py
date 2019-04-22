@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'todoist-python', 'PyGithub', 'requests', 'dropbox']
+requirements = ['Click>=6.0', 'todoist-python==7.0.18', 'PyGithub', 'requests', 'dropbox']
 
 setup_requirements = ['pytest-runner', ]
 
@@ -48,6 +48,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/6uhrmittag/taskbutler',
-    version='2.1.1',
+    version='2.1.2',
     zip_safe=False,
 )
