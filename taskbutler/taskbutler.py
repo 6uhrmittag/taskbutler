@@ -276,7 +276,7 @@ def gettaskwithlabelid(labelid, api):
     found = []
     for task in api.state['items']:
         if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
-            'in_history'] and not task['is_archived']:
+            'in_history'] and not getattr(task, 'is_archived', 0):
             for label in task['labels']:
                 if label == labelid:
                     found.append(task['id'])
@@ -454,7 +454,7 @@ def main():
 
         for task in api.state['items']:
             if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
-                'in_history'] and not task['is_archived']:
+                'in_history'] and not getattr(task, 'is_archived', 0):
                 for label in task['labels']:
                     if label == label_progress_id:
                         logger.debug("Found task to track: {}".format(task['content']))
@@ -466,8 +466,7 @@ def main():
                             if not subTask['content'].startswith("*"):
                                 # * -> Skip "text only Tasks"
 
-                                if not subTask['is_deleted'] and not subTask['in_history'] and not subTask[
-                                    'is_archived'] and subTask['parent_id'] == task['id']:
+                                if not subTask['is_deleted'] and not subTask['in_history'] and not getattr(subTask, 'is_archived', 0) and subTask['parent_id'] == task['id']:
                                     logger.debug(
                                         "Found connected Subtask: {}".format(subTask['content'], subTask['id']))
                                     if subTask['checked']:
@@ -538,7 +537,7 @@ def main():
             for task in taskid:
                 item = api.items.get_by_id(task)
                 if "https://" not in item['content'] and not item['is_deleted'] and not item[
-                    'in_history'] and not item['is_archived']:
+                    'in_history'] and not getattr(item, 'is_archived', 0):
                     newurl = createpaperdocument(gettasktitle(item['content'], todoist_seperator), dbx,
                                                  config.get('dropboxpaper', 'todoistfolderid'),
                                                  config.get('dropboxpaper', 'url'),
@@ -562,7 +561,7 @@ def main():
         for task in taskid:
             item = api.items.get_by_id(task)
             if "https://" not in item['content'] and not item['is_deleted'] and not item[
-                'in_history'] and not item['is_archived']:
+                'in_history'] and not getattr(item, 'is_archived', 0):
                 newurl = createdropboxfile(item["content"], dbx, todoist_dropbox_templatefile,
                                            todoist_dropbox_prepart_files, dropbox_todoist_folder)
                 item.update(content=addurltotask(item['content'], newurl, todoist_seperator))
