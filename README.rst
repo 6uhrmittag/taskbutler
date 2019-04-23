@@ -86,14 +86,9 @@ To install the latest taskbutler in your home directory, run this commands in yo
 
 .. code-block:: console
 
-    cd ~
-    mkdir taskbutler && cd taskbutler
-    sudo apt-get install python3
-    python3 -m pip install --user --upgrade pip
-    python3 -m venv venv
-    pip install --upgrade pip
-    ~/taskbutler/source venv/bin/activate
-    pip install taskbutler
+    pip install taskbutler --user
+    # To start taskbutler without full path:
+    echo 'PATH="$PATH:$HOME/.local/bin/"' >> ~/.bash_profile
 
 
 configuration
@@ -279,46 +274,33 @@ Edit the config section in config.ini:
 Start Taskbutler
 ^^^^^^^^^^^^^^^^
 
+Make sure you added the Python default path to your PATH via: `echo 'PATH="$PATH:$HOME/.local/bin/"' >> ~/.bash_profile`
+
+
 .. code:: console
 
-    source ~/taskbutler/venv/bin/activate
+    # taskbutler now starts by simply typing:
     taskbutler
 
 
 Continuous progress-update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To continuously update your tasks run Taskbutler periodical on a server
+To continuously update your tasks run Taskbutler periodical on a internet connected server
 or your computer
 
 Ubuntu Server
 """""""""""""
 
-**TODO: This section is not complete yet.**
-
-run programm every 20Min via crontab (see `crontab.guru <https://crontab.guru/>`_ for setting
+To run taskbutler every 20Min via crontab (see `crontab.guru <https://crontab.guru/>`_ for setting
 time):
 
-.. code:: bash
-
-    #! /bin/bash
-    # add the full path to your venv at PATH_VENV_TASKBUTLER
-    # ~/taskbutler/
-    cd PATH_VENV_TASKBUTLER
-
-    #activate taskbutler venv
-    source bin/activate
-
-    # run taskbutler
-    taskbutler
+1. type: :code:`crontab -e`
+2. add the line: :code:`*/20 * * * * $HOME/.local/bin/taskbutler`
+3. make sure to leave the last line in crontab empty or add a line with just a `#` at the end!(crontab needs this to work.)
 
 
-1. save the script above on your computer
-2. adjust the PATH_VENV_TASKBUTLER
-3. remember the full path to the saved scriped
-4. type: :code:`crontab -e`
-5. add a line: :code:`*/20 * * * * ADD_THE_REMEMBERED_PATH_HERE`
-
+Taskbutler will log to: `/home/$YourUsername/.taskbutler/log/todoist.log`
 
 Computer(Win/Mac/Linux)
 """""""""""""""""""""""
@@ -348,8 +330,16 @@ To update:
 Logging
 -------
 
-If a logfile is specified, Taskbutler logs into this file. If not,
-Taskbutler logs to the console only.
+Taskbutler logs to `/home/$YourUsername/.taskbutler/logs`
+The filename can be changed in the config.ini. You can also set the logging level. Default is `INFO`, `DEBUG` outputs logs of details.
+
+.. code:: ini
+
+    [log]
+    loglevel= INFO
+    logfile = todoist.log
+
+
 
 Development
 ===========
