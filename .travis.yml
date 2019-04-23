@@ -20,17 +20,17 @@ jobs:
       distributions: sdist bdist_wheel
       user: 6uhrmittag
       password:
-        secure: "lio5PZmYRKpJdpXofkfoiEB/oOlMJ3W5oZ3m8ArxKwMqjr/cFrYEtQFmuGEGea75g1Lw8Jp4BnYkjAziaCIG+hglzXFhFoVkAXg+oRhVEFj28rV6yCjacVxQUe5UVIrlNbDEgmyhm/sJwHki29X31EmE7CCbIKKaSWHhtmYq+df0Vb5PP1UGdG6U/T9O8Xxrq5WsL4NRi8pC82V2IDSYzpWwWarjy4cHXS+fndHXFC3bS73cJYGdHeTdyTck/osi0pX/7dk65AxNMOMRx1hv0kv/ISZEOJnmwhuYnq0Dt1vTEK+bVgWHFPWNH/7Y59UPSRONY4S0R61dDXslZ+kyOmCsi+nFVvviQGsxX61paOR1bcIt3zv1sZIL/LtFFOFhx7cd60wlO5k7ALMu+BMIXcttQhesTpGgT0bukZGCKmIZ/ImOie2oHHj4BTpw0LT5ynhOn0mPAeLnHqc7+5YEzJoY+bcjMV0qGOO5JrnXvX8rAAUw2hJ1JBCsPA9hyHw80a4w6Y4/wiX550xKFsrtyxddEqW2/acLguMGdk833su8qhpK5ZV9hQZ8nNM5X+4fBY0IBYfIKas+nMTeloApfCGhal/zhgrxJ9LvYB3jp/nWFB2mq6kLXYVZHphokXT94UZ3vFoW/VhJQ3EpK23uH5Ac8rbCc/F0M7xBb8aLXj0="
+        secure: "cPc0b7K1UKHR5BhvEuhyu3MDNKOamTkgjf+WLdSQIfJ3aSJuAR360gtQab4pW4fbKoP+GV+cxFD7kd4Dq+OniztoKG+7gmLnIVBvvX81Bh5Un2wZ0WzodEOoXqjK6lb2K5B3qNe1pynsliYOyoCWhFL+3yAVbzIHds
+        Wil+Ev/w5PGG/c4aoTh1vJK5tiQyeSrpLKpo1LDIZGVyx0eZVzIu1vQnzDmzyFd+u2oB/8KeOS12U6lZl3TsWqabz4OVAiy/K8h0f7HQrz1JUfNijZh6Xye5tw4D6uFIYBvFooP45UM0NfaUCa0H78ENDHPiNe4KYo+Er1MuA8K7c
+        7sm0iDIXtftuPWSgna2BxjtRCo66O0Zl2vYtYN2GUP6gWvuNsGV8P1etkKfH5yXp76lP5Axwzeq0D9dZghmJPt2eMoGY0qg/UWO3yfIRc/+WUqNmPpvcOFMWH187N/y16pvf6lFUraOWkEoWM6xb12eBFrWIroJjIBhbVto+WNtqS
+        33t+jqshcWGgEIk8U+ZPrbPM1fV8Gsb4JE586s+xQ2iEsNxmgpkWJyWDA3SmdX8sCjjO857t0Nj8Tro85OdfMvUBBbNBI0mNxyUMu/sWXAtSH2R9tDWmWRQDfsUaNHr0IVVf1WlD+0g3Fh7+NC/mRqP1YoqPtpDPULaOSo+dz+xCK
+        hw="
       #  #server: https://test.pypi.org/legacy/
       on:
         branch: master
         tags: true
         repo: 6uhrmittag/taskbutler
         python: 3.6
-
-
-only:
-- master
 
 install: pip install -U tox-travis
 before_script:
