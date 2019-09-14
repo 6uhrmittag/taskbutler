@@ -1,10 +1,10 @@
-requests==2.20.1
-configparser==3.5.0
-certifi==2018.10.15
+requests==2.22.0
+configparser==4.0.2
+certifi==2019.9.11
 chardet==3.0.4
 future==0.17.1
 macholib==1.11
-pefile==2018.8.8
-pip==18.1
+pefile==2019.4.18
+pip==19.2.3
 todoist-python==8
-dropbox==9.1.0
+dropbox==9.4.0
