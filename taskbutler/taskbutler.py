@@ -466,7 +466,7 @@ def main():
                             if not subTask['content'].startswith("*"):
                                 # * -> Skip "text only Tasks"
 
-                                if not subTask['is_deleted'] and not subTask['in_history'] and not getattr(subTask, 'is_archived', 0) and subTask['parent_id'] == task['id']:
+                                if not subTask['is_deleted'] and subTask['parent_id'] == task['id']:
                                     logger.debug(
                                         "Found connected Subtask: {}".format(subTask['content'], subTask['id']))
                                     if subTask['checked']:
