@@ -276,4 +276,6 @@ venv/
 
 .tox
 taskbutler.egg-info
-*.vagrant*
+*.vagrant
+
+docs/_build
