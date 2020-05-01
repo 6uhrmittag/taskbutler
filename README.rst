@@ -280,12 +280,7 @@ Edit the config section in config.ini:
    only you, once logged into Dropbox, will be able to access it)
 
 Setup Grocery list/Cost calulator
-^^^^^^^^^^^^^^^^^^^
-
-
-Pre-tasks
-^^^^^^^^^
-
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  Edit your config.ini:
 
