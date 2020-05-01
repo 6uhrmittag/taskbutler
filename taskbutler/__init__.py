@@ -4,4 +4,4 @@
 
 __author__ = """Marvin Heimbrodt"""
 __email__ = 'marvin@6uhrmittag.de'
-__version__ = '2.2.2'
+__version__ = '2.2.3'
