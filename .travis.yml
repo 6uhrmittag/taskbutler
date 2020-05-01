@@ -7,9 +7,8 @@ jobs:
   include:
     - python: 3.5
     - python: 3.6
-    - python: 3.7-dev
-    - python: 3.8
     - python: nightly
+    - python: 3.7-dev
     - stage: test
     - stage: deploy
       if: tag IS present
@@ -19,16 +18,16 @@ jobs:
       deploy:
         provider: pypi
         distributions: sdist bdist_wheel
-      user: 6uhrmittag
-      password:
-        secure: "cPc0b7K1UKHR5BhvEuhyu3MDNKOamTkgjf+WLdSQIfJ3aSJuAR360gtQab4pW4fbKoP+GV+cxFD7kd4Dq+OniztoKG+7gmLnIVBvvX81Bh5Un2wZ0WzodEOoXqjK6lb2K5B3qNe1pynsliYOyoCWhFL+3yAVbzIHds
+        user: 6uhrmittag
+        password:
+          secure: "cPc0b7K1UKHR5BhvEuhyu3MDNKOamTkgjf+WLdSQIfJ3aSJuAR360gtQab4pW4fbKoP+GV+cxFD7kd4Dq+OniztoKG+7gmLnIVBvvX81Bh5Un2wZ0WzodEOoXqjK6lb2K5B3qNe1pynsliYOyoCWhFL+3yAVbzIHds
         Wil+Ev/w5PGG/c4aoTh1vJK5tiQyeSrpLKpo1LDIZGVyx0eZVzIu1vQnzDmzyFd+u2oB/8KeOS12U6lZl3TsWqabz4OVAiy/K8h0f7HQrz1JUfNijZh6Xye5tw4D6uFIYBvFooP45UM0NfaUCa0H78ENDHPiNe4KYo+Er1MuA8K7c
         7sm0iDIXtftuPWSgna2BxjtRCo66O0Zl2vYtYN2GUP6gWvuNsGV8P1etkKfH5yXp76lP5Axwzeq0D9dZghmJPt2eMoGY0qg/UWO3yfIRc/+WUqNmPpvcOFMWH187N/y16pvf6lFUraOWkEoWM6xb12eBFrWIroJjIBhbVto+WNtqS
         33t+jqshcWGgEIk8U+ZPrbPM1fV8Gsb4JE586s+xQ2iEsNxmgpkWJyWDA3SmdX8sCjjO857t0Nj8Tro85OdfMvUBBbNBI0mNxyUMu/sWXAtSH2R9tDWmWRQDfsUaNHr0IVVf1WlD+0g3Fh7+NC/mRqP1YoqPtpDPULaOSo+dz+xCK
         hw="
-      #  #server: https://test.pypi.org/legacy/
-      on:
-        branch: master
+        #  #server: https://test.pypi.org/legacy/
+        on:
+          branch: master
         tags: true
         repo: 6uhrmittag/taskbutler
         python: 3.6
