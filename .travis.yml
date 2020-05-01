@@ -27,7 +27,7 @@ jobs:
         hw="
         #  #server: https://test.pypi.org/legacy/
         on:
-          branch: master
+          all_branches: true
         tags: true
         repo: 6uhrmittag/taskbutler
         python: 3.6
