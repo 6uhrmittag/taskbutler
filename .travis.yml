@@ -1,24 +1,24 @@
 language: python
 cache: pip
 sudo: false
-python: 3.4
+python: 3.5
 
 jobs:
   include:
-  - python: 3.5
-  - python: 3.6
-  - python: nightly
-  - python: 3.7-dev
-  - stage: test
-  - stage: deploy
-    if: tag IS present
-    install: skip
-    script: skip
-    python: 3.6
-    python: 3.8
-    deploy:
-      provider: pypi
-      distributions: sdist bdist_wheel
+    - python: 3.5
+    - python: 3.6
+    - python: 3.7-dev
+    - python: 3.8
+    - python: nightly
+    - stage: test
+    - stage: deploy
+      if: tag IS present
+      install: skip
+      script: skip
+      python: 3.6
+      deploy:
+        provider: pypi
+        distributions: sdist bdist_wheel
       user: 6uhrmittag
       password:
         secure: "cPc0b7K1UKHR5BhvEuhyu3MDNKOamTkgjf+WLdSQIfJ3aSJuAR360gtQab4pW4fbKoP+GV+cxFD7kd4Dq+OniztoKG+7gmLnIVBvvX81Bh5Un2wZ0WzodEOoXqjK6lb2K5B3qNe1pynsliYOyoCWhFL+3yAVbzIHds
