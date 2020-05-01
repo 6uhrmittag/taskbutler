@@ -17,11 +17,133 @@ import os
 import shutil
 import re
 
+import datetime
+from dateutil import tz as tz
+
+import aftership
+
 from .config import staticConfig, getConfigPaths
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
+
+
+def getNoteContent(note_id, api: object):
+    """
+    Returns Content of NoteID
+    :param note_id: todoist note ID
+    :param api: todoist api
+    :return: Content/Text of Note
+    """
+    return api.notes.get(note_id)['note']['content']
+
+
+def getNoteIDs(task_id, api: object):
+    """"
+    Find all Notes of TaskID. Returns List of IDs
+    :param task_id: todoist task id
+    :param api: todoist api
+    :return: List of IDs or False in List[0] if not found
+    """
+    # Search Code in Notes
+    notes = api.notes.all()
+    note_ids = []
+    for note in notes:
+        if note['item_id'] == task_id:
+            logger.debug("Found note : {}".format(note['content']))
+            note_ids.append(note['id'])
+
+    if len(note_ids) == 0:
+        note_ids.append(False)
+
+    return note_ids
+
+
+def parcelDelete(apikey, trackingcode):
+    """
+    Deletes tracking at aftership
+    :param apikey:
+    :param trackingcode:
+    :return: true/false
+    """
+    aftership.api_key = apikey
+    tracking = {'tracking_number': trackingcode}
+    tid = False
+
+    logger.debug("Searching for tracking id: {}".format(trackingcode))
+    trackings = aftership.tracking.list_trackings()
+
+    # find parcel
+    for parcel in trackings['trackings']:
+        if trackingcode == parcel['tracking_number']:
+            logger.debug("found parcel info: {}".format(parcel))
+            tid = parcel['id']
+            break
+        else:
+            pass
+
+    if tid is False:
+        logger.error("Parcel tracking not found nor created: {}".format(tracking))
+        return False
+    # delete
+    try:
+        aftership.tracking.delete_tracking(tracking_id=tid)
+        logger.info("Parcel deleted: {}".format(tracking))
+        return True
+    except Exception as err:
+        logger.error("Error - can't delete. \nOriginal Error: {}".format(err))
+        return False
+
+
+def parcelGetInfo(apikey, trackingcode):
+    """
+    Returns full parcel info. Creates tracking if needed
+    :param apikey:
+    :param trackingcode:
+    :return: parcel object
+    """
+    aftership.api_key = apikey
+    tracking = {'tracking_number': trackingcode}
+    tid = False
+    result = False
+
+    # create
+    try:
+        result = aftership.tracking.create_tracking(tracking=tracking, timeout=10)
+        logger.debug("Parcel created at aftership: {}".format(result['tracking']['id']))
+        tid = result['tracking']['id']
+    except aftership.exception.BadRequest:
+        # tracking already exists
+        logger.debug("Parcel already exists at aftership.")
+        pass
+    except Exception as err:
+        logger.error("Error - can't create or find. \nOriginal Error: {}".format(err))
+
+    if not tid:
+        logger.debug("Searching for tracking id: {}".format(trackingcode))
+        trackings = aftership.tracking.list_trackings()
+
+        # find parcel
+        for parcel in trackings['trackings']:
+            if trackingcode == parcel['tracking_number']:
+                logger.debug("found parcel info: {}".format(parcel))
+                tid = parcel['id']
+                break
+            else:
+                pass
+
+    if tid is False:
+        logger.error("Parcel tracking not found nor created: {}".format(tracking))
+
+    # get Info
+    try:
+        result = aftership.tracking.get_tracking(tracking_id=tid)['tracking']
+        # result = aftership.tracking.get_tracking(tracking_id=trackingcode, fields=['title', 'checkpoints'])
+    except Exception as err:
+        logger.error("Error - can't get info. \nOriginal Error: {}".format(err))
+        result = False
+    return result
 
 
 def localizePrice(value, currency) -> str:
@@ -449,6 +571,11 @@ def main():
         github_sync_repo_name = config.get('github', 'GithubSyncRepoName')
         github_username = config.get('github', 'GithubUsername')
 
+        parcel_api_key = config.get('parcel', 'apikey')
+        parcel_label = config.get('parcel', 'labelname')
+        parcel_seperator = config.get('parcel', 'seperator')
+        parcel_citycode = config.get('parcel', 'citycode')
+
     except FileNotFoundError as error:
         logger.error("Config file not found! Create config.ini first. \nOriginal Error: {}".format(error))
         raise SystemExit(1)
@@ -493,6 +620,9 @@ def main():
     try:
         api = TodoistAPI(todoist_api_key)
         api.sync()
+        # get user timezonne
+        timezone = tz.gettz(api.state['user']['tz_info']['timezone'])
+        logger.debug("Users Timezone:: {}".format(timezone))
         if not api.state['items']:
             raise ValueError('Sync error. State empty.')
     except ValueError as error:
@@ -508,6 +638,86 @@ def main():
         # api.commit()
 
         # List projects
+
+    if parcel_label and parcel_api_key:
+        # TODO: update Readme
+        parcel_label = getlabelid(parcel_label, api)
+
+        for task in api.state['items']:
+            if not isinstance(task['id'], str) and task['labels']:
+                for label in task['labels']:
+                    if label == parcel_label:
+                        # delete parcels marked as "done"
+                        if task['in_history'] or task['is_deleted'] or getattr(task, 'is_archived', 0):
+                            # delete comment/trackingcode and tracking@aftership
+                            note_to_delete = getNoteIDs(task['id'], api).__getitem__(0)
+                            if note_to_delete is False:
+                                logger.debug("Parcel already deleted or no Code: {}".format(task['content']))
+                                break
+                            logger.info("Found Parcel to delete: {}".format(task['content']))
+                            api.notes.delete(note_to_delete)
+                            tracking_to_delete = getNoteContent(note_to_delete, api)
+                            if parcelDelete(parcel_api_key, tracking_to_delete):
+                                api.commit()
+                            break
+
+                        logger.debug("Found Parcel to track: {}".format(task['content']))
+
+                        task_note_tracking_code = getNoteIDs(task['id'], api).__getitem__(0)
+                        if task_note_tracking_code is False:
+                            logger.info("No Code found in Comment for: {}".format(task['content']))
+                            break
+                        task_tracking_code = getNoteContent(task_note_tracking_code, api)
+                        if task_note_tracking_code is False:
+                            logger.info("No Aftership parcel created for: {}".format(task['content']))
+                            break
+                        # Get info
+                        parcel_info = parcelGetInfo(parcel_api_key, task_tracking_code)
+
+                        # Get and set expected delivery date
+                        try:
+                            parcel_delivery_expected = parcel_info['expected_delivery']
+                        except:
+                            parcel_delivery_expected = False
+                        # format: 2020-05-06T00:00:00+02:00
+                        if parcel_delivery_expected:
+                            logger.debug("Convert delivery Date.")
+
+                            date_time_obj = datetime.datetime.strptime(parcel_delivery_expected, '%Y-%m-%dT%H:%M:%S%z').astimezone(tz=timezone)
+                            # add offset if time is 00
+                            if date_time_obj.hour == 0:
+                                offset = '12 hour'
+                                offset = datetime.datetime.strptime(offset, '%H hour')
+                                date_time_obj = datetime.datetime.strptime(parcel_delivery_expected, '%Y-%m-%dT%H:%M:%S%z').astimezone(tz=timezone) + datetime.timedelta(
+                                    hours=offset.hour)
+
+                            date_converted = date_time_obj.strftime('%Y-%m-%dT%H:%M:%S')
+                            due = {
+                                "date": date_converted,
+                            }
+                            logger.info("Update Due date according to delivery date.")
+                            task.update(due=due)
+                            api.commit()
+                        else:
+                            logger.debug("No expected delivery Date found yet.")
+
+                        # TODO: add parcel status to task title
+                        # TODO: change parcel emojo in sync with status (briefkasten emojos gibts in 3 zuständen)
+
+                        try:
+                            parcel_url = parcel_info['courier_tracking_link']
+                            new_title = addurltotask(task['content'], parcel_url, parcel_seperator)
+                        except:
+                            parcel_url = False
+
+                        if parcel_url and parcel_url not in task['content']:
+                            if not task['content'] == new_title:
+                                logger.info("Parcel title changed. Update: {}".format(new_title))
+                                task.update(content=new_title)
+                                api.commit()
+                        else:
+                            logger.debug("Skip update - no change.")
+    exit(1)
 
     if grocery_label:
         label_grocery_id = getlabelid(grocery_label, api)

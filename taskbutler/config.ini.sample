@@ -17,6 +17,10 @@ label_grocery = grocery
 grocery_seperator = 💰
 grocery_currency = €
 
+[parcel]
+apikey =
+label_parcel = parcel
+
 [dropbox]
 apikey =
 
