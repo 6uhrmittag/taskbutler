@@ -59,7 +59,7 @@ Features
       Add the label "grocery" to a list of task and taskbutler will calculate the total of all items in the list.
       It also works for a list of lists! Now you can e.g. plan how much money you'll need for each week of a month and the total of the month.
 
-    .. image:: /_static/feature-grocery.gif
+    .. image:: /_static/feature_grocery.gif
 
 Prerequisites and notes
 =======================
