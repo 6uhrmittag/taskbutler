@@ -12,7 +12,7 @@ from taskbutler import cli
 
 
 @pytest.mark.second
-class TestGroceryList:
+class TestCLI:
 
     def testCLIHelp(self):
         """Test the CLI."""

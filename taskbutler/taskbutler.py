@@ -15,12 +15,60 @@ from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicy
 from todoist.api import TodoistAPI
 import os
 import shutil
+import re
 
 from .config import staticConfig, getConfigPaths
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
+
+
+def localizePrice(value, currency) -> str:
+    """
+    Converts raw Value to localized price including currency symbol. uses ,|. accordingly
+    :param value:
+    :param currency: € or $ (everything other than € will trigger , -> .)
+    :return: str
+    """
+
+    price = str(value)
+    if currency == '€':
+        seperator = ','
+        price = re.sub("[.]", seperator, price)
+    else:
+        seperator = '.'
+        price = re.sub(',', seperator, price)
+
+    return price + currency
+
+
+def getRawPriceFromGrocery(title, grocery_currency, grocery_seperator, isTitle=True) -> float:
+    """
+    Returns raw decimal price from title - strips currency  and seperator from task title.
+    Also replaces comma with dot
+    :param title:
+    :param grocery_currency:
+    :param grocery_seperator:
+    :param isTitle:
+    :return: raw item value/price
+    """
+
+    value_raw = float(0)
+    value_full = ""
+
+    if isTitle:
+        value_full = title.split(grocery_seperator)
+    else:
+        value_full = title.split()
+
+    for x in value_full:
+        if grocery_currency in x:
+            value_raw = x.strip(grocery_currency)
+            value_raw = float(value_raw.replace(",", "."))
+            break
+    logger.debug("value_raw: {}".format(value_raw))
+    return value_raw
 
 
 def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -> str:
@@ -265,6 +313,17 @@ def gettasktitle(title, progress_seperator):
     return title_headline
 
 
+def addToTitle(title, valueToAdd, seperator):
+    """
+    Combindes values to new title
+    :type seperator: str seperator character
+    :param valueToAdd: str value
+    :param title: Task title without seperator
+    :return:
+    """
+
+    return str(title + ' ' + seperator + valueToAdd)
+
 def gettaskwithlabelid(labelid, api):
     """
     Returns a list of Task IDs found with given label-ID
@@ -379,6 +438,10 @@ def main():
         todoist_dropbox_prepart_files = config.get('dropboxoffice', 'dropbox_prepart_files')
         dropbox_todoist_folder = config.get('dropboxoffice', 'folder')
 
+        grocery_label = config.get('todoist', 'label_grocery')
+        grocery_currency = config.get('todoist', 'grocery_currency')
+        grocery_seperator = config.get('todoist', 'grocery_seperator')
+
         github_apikey = config.get('github', 'apikey')
         github_sync_project_name = config.get('github', 'TodoistProjectToSync')
         github_synclabel_name = config.get('github', 'TodoistSyncLabel')
@@ -445,6 +508,66 @@ def main():
         # api.commit()
 
         # List projects
+
+    if grocery_label:
+        label_grocery_id = getlabelid(grocery_label, api)
+        run = 2
+        # run 2x to get nestet lists right in one run
+        while run != 0:
+            run = run - 1
+
+            for task in api.state['items']:
+                if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not getattr(task, 'is_archived', 0):
+                    for label in task['labels']:
+                        if label == label_grocery_id:
+                            logger.debug("Found grocery list: {}".format(task['content']))
+
+                            grocery_value_total_old = float(0)
+                            grocery_value_total_new = float(0)
+
+                            grocery_value_total_old = getRawPriceFromGrocery(task['content'], grocery_currency, grocery_seperator)
+
+                            for groceryItem in api.state['items']:
+                                if not groceryItem['content'].startswith("*"):
+                                    # * -> Skip "text only Tasks"
+
+                                    if not groceryItem['is_deleted'] and not groceryItem['in_history'] and groceryItem['parent_id'] == task['id']:
+                                        grocery_value_single = float(0)
+                                        grocery_value_full = ""
+
+                                        logger.debug("Found item to add: {}".format(groceryItem['content'], groceryItem['id']))
+                                        grocery_value_single = getRawPriceFromGrocery(groceryItem['content'], grocery_currency, grocery_seperator, isTitle=False)
+                                        grocery_value_total_new = grocery_value_total_new + grocery_value_single
+
+                            logger.debug("Check if sum changed")
+                            if grocery_value_total_new != grocery_value_total_old:
+                                logger.info("sum changed! Update needed")
+                                logger.debug("Old sum: {}".format(grocery_value_total_old))
+                                logger.debug("New sum: {}".format(grocery_value_total_new))
+
+                                logger.debug("old title: {}".format(gettasktitle(task['content'], grocery_seperator)))
+
+                                newTitle = addToTitle(gettasktitle(task['content'], grocery_seperator), ' ' + localizePrice(grocery_value_total_new, grocery_currency),
+                                                      grocery_seperator, )
+                                logger.info("new title: {}".format(newTitle))
+                                task.update(content=newTitle)
+                                api.commit()
+
+                            else:
+                                logger.info("Sum not changed! Skipping list")
+                                break
+
+            # Sync
+            if not devmode:
+                # TODO api.commit + api.sync could be a dubplicate. api.sync is added to prevent issues after changing titles
+                logger.debug("Sync start")
+                api.commit()
+                api.sync()
+                logger.debug("Sync done")
+        else:
+            logger.debug("Grocery feature disabled. No labelname found.")
+
+    exit(1)
 
     if label_progress:
 

@@ -53,6 +53,14 @@ Features
 
     .. image:: /_static/feature-paper.gif
 
+-  **calculate total sums of grocery lists or financial planning**
+
+   -  Want to know how much a list with $/€ values will cost you ?
+      Add the label "grocery" to a list of task and taskbutler will calculate the total of all items in the list.
+      It also works for a list of lists! Now you can e.g. plan how much money you'll need for each week of a month and the total of the month.
+
+    .. image:: /_static/feature-grocery.gif
+
 Prerequisites and notes
 =======================
 **Taskbutler is not associated or connected with Todoist, Dropbox,
@@ -270,6 +278,30 @@ Edit the config section in config.ini:
 -  foldername: add the Dropbox Paper folder you created above
 -  sharing: don't change. Sets the created papers to "private only" (so
    only you, once logged into Dropbox, will be able to access it)
+
+Setup Grocery list/Cost calulator
+^^^^^^^^^^^^^^^^^^^
+
+
+Pre-tasks
+^^^^^^^^^
+
+
+-  Edit your config.ini:
+
+Edit the config section in config.ini:
+
+.. code:: ini
+
+   [todoist]
+   label_grocery = grocery
+   grocery_seperator = 💰
+   grocery_currency = €
+
+
+-  label_grocery: add the Todoist label you want to use for this feature
+-  grocery_seperator: the character that seperates the task name and calculated value
+-  grocery_currency: your currency. Tested with $ and € - but it should work with all symbols
 
 Start Taskbutler
 ^^^^^^^^^^^^^^^^

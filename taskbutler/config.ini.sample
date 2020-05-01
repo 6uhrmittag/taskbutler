@@ -13,6 +13,9 @@ progress_bar_40=⬛⬛⬜⬜⬜
 progress_bar_60=⬛⬛⬛⬜⬜
 progress_bar_80=⬛⬛⬛⬛⬜
 progress_bar_100=⬛⬛⬛⬛⬛
+label_grocery = grocery
+grocery_seperator = 💰
+grocery_currency = €
 
 [dropbox]
 apikey =
