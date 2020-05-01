@@ -361,8 +361,7 @@ To update:
 
 -  See releasenotes at `releases page <https://github.com/6uhrmittag/taskbutler/releases>`_ and check for compatibility.
 -  Backup your current configuration/setup-folder
--  Download release from 'releases page'_ and overwrite files or "git
-   pull origin" when you cloned this repository
+-  run :code:`pip install taskbutler --user --upgrade --upgrade-strategy eager` to update
 -  Check and set all configurations. Use a different label name for
    testing (set ''label_progress'' and create a task with the test
    label)
