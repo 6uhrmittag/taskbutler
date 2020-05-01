@@ -419,4 +419,4 @@ Please open a issue in the 'Github issue tracker `<https://github.com/6uhrmittag
 About Author
 ============
 
-**Marvin Heimbrodt** - `github.com/6uhrmittag <https://github.com/6uhrmittag/>`_
+**Marvin Heimbrodt** - `github.com/6uhrmittag <https://github.com/6uhrmittag/>`_ | `twitter.com/6uhrmittag <https://twitter.com/6uhrmittag>`_
