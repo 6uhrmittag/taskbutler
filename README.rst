@@ -70,6 +70,7 @@ Github or Microsoft.**
 2. The Dropbox Paper and Github features require a free account at
    Dropbox. The Microsoft Office365 feature requires a paid Office365
    subscription(or a free Microsoft Office 365 Education subscription).
+   *This is optional and not required to use the other features of taskbutler!*
 3. Taskbutler is tested on Ubuntu
 4. For optimal use, Taskbutler should run periodical on a
    server/computer to continuously update your tasks
