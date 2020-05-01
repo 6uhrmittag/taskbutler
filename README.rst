@@ -298,8 +298,6 @@ Edit the config section in config.ini:
 Setup Grocery list/Cost calulator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
--  Edit your config.ini:
-
 Edit the config section in config.ini:
 
 .. code:: ini
