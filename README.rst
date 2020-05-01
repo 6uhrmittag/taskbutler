@@ -117,6 +117,21 @@ starting Taskbutler again.**
 Taskbutler is not aware of your changes and will mix and mess up your
 tasks. Changes can easily be tested by using a different labelname.
 
+Setup Todoist access
+^^^^^^^^^^^^^^^^^^^^
+
+taskbutler needs access to your Todoist account. This is done via an API key, you'll need to create.
+This key is like a password - don't share it!
+
+1. Login to Todoist and got to settings -> Integrations (https://todoist.com/prefs/integrations)
+2. Scroll down to "API-Token" and copy the token
+3. paste the token into the config.ini and save:
+
+.. code:: ini
+
+   [todoist]
+   apikey = PUT_TOKEN_HERE
+
 Setup Progress bars
 ^^^^^^^^^^^^^^^^^^^
 
