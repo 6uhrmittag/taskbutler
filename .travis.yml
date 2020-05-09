@@ -43,7 +43,9 @@ before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
-script: tox
+script:
+  - grep -c --invert-match exit taskbutler/taskbutler.py
+  - tox
 after_script:
   - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build -t coverage.py --exit-code $TRAVIS_TEST_RESULT; fi
 
