@@ -567,7 +567,6 @@ def main():
         else:
             logger.debug("Grocery feature disabled. No labelname found.")
 
-    exit(1)
 
     if label_progress:
 
