@@ -2,7 +2,9 @@ language: python
 cache: pip
 sudo: false
 python: 3.5
-
+env:
+  global:
+    - CC_TEST_REPORTER_ID=89a28368656c0e9793f9ebde106b7786edb8ed0e9eb5b027789a0a4ed6b4c9be
 jobs:
   include:
     - python: 3.5
@@ -34,11 +36,16 @@ jobs:
 
 install: pip install -U tox-travis
 before_script:
-- git clone https://github.com/sstephenson/bats.git /tmp/bats
-- mkdir -p /tmp/local
-- bash /tmp/bats/install.sh /tmp/local
-- export PATH=$PATH:/tmp/local/bin
+  - git clone https://github.com/sstephenson/bats.git /tmp/bats
+  - mkdir -p /tmp/local
+  - bash /tmp/bats/install.sh /tmp/local
+  - export PATH=$PATH:/tmp/local/bin
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script: tox
+after_script:
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 
 
 
