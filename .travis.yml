@@ -45,7 +45,7 @@ before_script:
   - ./cc-test-reporter before-build
 script: tox
 after_script:
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build -t coverage.py --exit-code $TRAVIS_TEST_RESULT; fi
 
 
 
