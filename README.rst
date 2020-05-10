@@ -24,11 +24,6 @@ Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files 
     :target: https://taskbutler.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. image:: https://www.ko-fi.com/img/githubbutton_sm.svg
-    :target: https://ko-fi.com/K3K01P66S
-    :alt: Support my by donating to my coffee fund(:
-
-
 Features
 ========
 
