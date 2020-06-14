@@ -17,12 +17,94 @@ import os
 import shutil
 import re
 
+from crontab import CronTab
+from datetime import datetime
+from dateutil import tz as tz
+
 from .config import staticConfig, getConfigPaths
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
 
+
+def cleanupCronjobs(taskids, path):
+    logger.debug("Check IDs: {}".format(taskids))
+    with CronTab(user=True) as cron:
+        for job in cron:
+            logger.debug("Check cronjob: {}".format(job.comment))
+            if job.comment not in str(taskids):
+                cron.remove(job)
+                logger.info("Cronjob deleted: {}".format(job.comment))
+    # cleanup files
+    for root, dirs, files in os.walk(path):
+        for filename in files:
+            logger.debug("Check file: {}".format(filename))
+            if filename.strip(".sh") not in str(taskids):
+                logger.info("Cleanup file: {}".format(filename))
+                os.remove(os.path.join(path, filename))
+
+def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
+    # TODO: only update/overwrite script file on update (for recurring cronjobs)
+    ##      checksum file and overwrite only on diff?
+
+    # TODO: make text configurable
+    # TODO: make multiple texts possible (by label or by word in comment)
+
+    command = '#!/bin/sh\n' \
+              '\n' \
+              'source pre.sh \n' \
+              '\n' \
+              'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
+              '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
+                  'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
+                                                                                                       'http://' + relay_ip + ':' + port + '/assistant'
+    task_date = api.items.get_by_id(taskid)
+
+    if ':' not in task_date['due']['date']:
+        logger.error("cronjob - Task has no time defined. ID {}".format(taskid['content']))
+        # skip
+        return
+    else:
+        logger.debug("cronjob - Due Date found:{}".format(task_date['due']['date']))
+        task_date_due = task_date['due']['date']
+
+    if 'Z' not in task_date_due:
+        # format is YYYY-MM-DDTHH:MM:SS
+        date_time_obj = datetime.strptime(task_date_due, '%Y-%m-%dT%H:%M:%S')
+    else:
+        # format is YYYY-MM-DDTHH:MM:SSZ
+        date_time_obj = datetime.strptime(task_date_due, '%Y-%m-%dT%H:%M:%S%z')
+        date_time_obj_z = date_time_obj.astimezone(tz.gettz((task_date['due']['timezone'])))
+        date_time_obj = date_time_obj_z
+        # timezone in task_date["timezone"]
+
+    # logger.debug("year: {}".format(date_time_obj.year))
+    # logger.debug("month: {}".format(date_time_obj.month))
+    # logger.debug("day: {}".format(date_time_obj.day))
+    # logger.debug("hour: {}".format(date_time_obj.hour))
+    # logger.debug("minute: {}".format(date_time_obj.minute))
+
+    if cronjob_append:
+        cronjob_append = ' ' + cronjob_append
+
+    filename = str(taskid)
+    filename_full = filename + ".sh"
+    path_full = os.path.join(path, filename_full)
+    logger.debug("cronjob script filename: {}".format(filename_full))
+
+    with open(path_full, 'w') as f:
+        f.write(str(command))
+        os.chmod(path, 0o770)
+
+    cron = CronTab(user=True)
+    cron.remove_all(comment=filename)
+    job = cron.new(command='bash ' + path_full + cronjob_append)
+    job.set_comment(filename)
+    job.setall(
+        datetime(date_time_obj.year, date_time_obj.month, date_time_obj.day, date_time_obj.hour, date_time_obj.minute))
+    cron.write()
+    logger.info("Cronjob added ID: {}".format(filename))
 
 def localizePrice(value, currency) -> str:
     """
@@ -357,6 +439,10 @@ def main():
     if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().log()):
         os.mkdir(getConfigPaths().log(), mode=0o750)
 
+    # create cronjobs
+    if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().cronjobs()):
+        os.mkdir(getConfigPaths().cronjobs(), mode=0o750)
+
     # create initial config
     if not os.path.exists(getConfigPaths().file_config()):
         shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), staticConfig.filename_config_initial),
@@ -429,6 +515,13 @@ def main():
         label_progress = config.get('todoist', 'label_progress')
         todoist_seperator = config.get('todoist', 'progress_seperator')
 
+        assistentrelay_enable = config.get('assistentrelay', 'enable')
+        assistentrelay_label_name = config.get('assistentrelay', 'labelname')
+        assistentrelay_username = config.get('assistentrelay', 'username')
+        assistentrelay_relay_ip = config.get('assistentrelay', 'relay_ip')
+        assistentrelay_relay_port = config.get('assistentrelay', 'relay_port')
+        assistentrelay_cronjob_append = config.get('assistentrelay', 'cronjob_append')
+
         dropbox_api_key = config.get('dropbox', 'apikey')
 
         todoist_folder_id = str(config.get('dropboxpaper', 'todoistfolderid'))
@@ -455,6 +548,7 @@ def main():
     except FileNotFoundError as error:
         logger.error("Config file not found! Create config.ini first. \nOriginal Error: {}".format(error))
         raise SystemExit(1)
+
 
     # init dropbox session
     if dropbox_api_key and (label_todoist_dropboxpaper or label_todoist_dropboxoffice):
@@ -511,6 +605,29 @@ def main():
         # api.commit()
 
         # List projects
+
+    # Feature - AssistentRelay
+    if assistentrelay_label_name:
+        loggerdb.debug("AssistentRelay start")
+        labelid = getlabelid(assistentrelay_label_name, api)
+        taskids = gettaskwithlabelid(labelid, api)
+
+        # add cronjobs
+        loggerdb.debug("AssistentRelay - add cronjobs")
+        for task in taskids:
+            item = api.items.get_by_id(task)
+            try:
+                createCronjob(task, getConfigPaths().cronjobs(), assistentrelay_username, assistentrelay_relay_ip,
+                              assistentrelay_relay_port, assistentrelay_cronjob_append, api)
+            except:
+                # error is logged in function
+                # skip task
+                pass
+        # cleanup cronjobs that are not in the list
+        loggerdb.debug("AssistentRelay - cleanup outdated cronjobs")
+        cleanupCronjobs(taskids, getConfigPaths().cronjobs())
+    else:
+        logger.info("AssistentRelay feature disabled. No labelname found.")
 
     if grocery_label:
         label_grocery_id = getlabelid(grocery_label, api)

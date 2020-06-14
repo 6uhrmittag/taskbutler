@@ -17,6 +17,14 @@ label_grocery = grocery
 grocery_seperator = 💰
 grocery_currency = €
 
+[assistentrelay]
+enable = false
+labelname = butler
+username =
+relay_ip =
+relay_port = 3000
+cronjob_append = 2>&1 | /usr/bin/logger -t taskbutler
+
 [dropbox]
 apikey =
 

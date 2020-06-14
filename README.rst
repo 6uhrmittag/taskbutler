@@ -61,10 +61,21 @@ Features
 
     .. image:: /_static/feature_grocery.gif
 
+-  **let GoogleAssistant proactively remind you of due tasks**
+
+   - Taskbutler can trigger an GoogleAssistant broadcast at the time a task is due.
+
+     This is an advanced DIY feature! It requires a few addOns:
+      - basic knowledge in DIY SmartHome
+      - a GoogleHome device(nest mini, google home)
+      - an RaspberryPi with linux, running 24/7
+
 Prerequisites and notes
 =======================
 **Taskbutler is not associated or connected with Todoist, Dropbox,
 Github or Microsoft.**
+
+**Recommendation:** Taskbutler works best when running on a Linux Server 24/7. If you're not into Linux Servers, an RaspberryPi at home works great too.
 
 1. You'll need a `Todoist <https://todoist.com>`_ premium account
 2. The Dropbox Paper and Github features require a free account at
@@ -74,6 +85,7 @@ Github or Microsoft.**
 3. Taskbutler is tested on Ubuntu
 4. For optimal use, Taskbutler should run periodical on a
    server/computer to continuously update your tasks
+5. Taskbutler doesn't need to be reachable from the internet(no ports or WebHooks). It works by pulling data from Todoist via HTTPS - so only outbound HTTPS is required. Which usually means: no additional firewall configuration required.
 
 *Even though I never experienced any data loss, it's nice to know
 that* \ `Todoist provides a daily backup of your data. <https://support.todoist.com/hc/en-us/articles/115001799989>`_
@@ -312,6 +324,28 @@ Edit the config section in config.ini:
 -  grocery_seperator: the character that separates the task name and calculated value
 -  grocery_currency: your currency. Tested with $ and € - but it should work with all symbols
 
+Setup proactive GoogleAssistant reminders
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**This feature is BETA - it work's, but it's not well tested. Especially timezones - they are confusing for Taskbutler ; D**
+
+This feature utilizes the "broadcast feature" in GoogleHome devices. The tool assistant-relay(https://github.com/greghesp/assistant-relay) can trigger a broadcast programmatically.
+
+1. Setup and run assistant-relay on a raspberry pi (any linux computer works- raspberry is the most common) (just follow the assistant-relay docs, it's very easy).
+   Make sure assistant-relay runs in the background and ideally is in autostart -> just run :code:`pm2 startup` in the `assistant-relay` directory to let pm2 enable autostart by itself.
+2. Setup taskbutler on the same raspberry pi. If you run multiple taskbutler instances, empty all `labelnames` in the :code:`config.ini` except the :code:`label` for :code:`assistentrelay`
+   The :code:`config.ini` should be self explanatory. Don't forget to set :code:`enable` to :code:`true`
+3. customize the broadcast-text in :code:`taskbutler.py`. Function: :code:`createCronjob` (I told you this is beta ;D )
+4. Check the time on your raspberry. It needs to be your real, local time
+5. taskbutler will create cronjobs for every ask with a due time and a defined label
+6. these cronjobs will run on due time and trigger a broadcast
+
+notes
+
+- you can put a :code:`pre.sh` file in :code:`$HOME\\.taskbutler\\cronjobs` with commands what should run before any broadcast. Check out assistand-relay's docs for ideas. You can send any GoogleAssistant commands like `set volume to 20%`, to reduce the volume before any broadcast
+- taskbutler also cleans up cronjobs in the past, yeahi
+- the broadcast-intro ('broadcast by $name') can't be disabled. This is an GoogleAsssistant feature that is hardcoded. Hopefully this can be disabled in future
+
 Start Taskbutler
 ^^^^^^^^^^^^^^^^
 
@@ -326,6 +360,8 @@ Make sure you added the Python default path to your PATH via: `echo 'PATH="$PATH
 
 Continuous progress-update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Recommendation:** an RaspberryPi is easy to use and doesn't require you to have advanced linux server knowledge. Even an RaspberryPi1 should work. RaspberryPi 4B 2GB does work for sure(tested). I recommend the OS DietPi(`<https://dietpi.com/>`_). Python is installable via :code:`dietpi-software`
 
 To continuously update your tasks run Taskbutler periodical on a internet connected server
 or your computer

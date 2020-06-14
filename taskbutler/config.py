@@ -13,6 +13,7 @@ class staticConfig:
     dir_config = 'config'
     dir_templates = 'templates'
     dir_log = 'log'
+    dir_cronjobs = 'cronjobs'
 
     # file names
     filename_config = 'config.ini'
@@ -36,6 +37,9 @@ class getConfigPaths:
 
     def templates(self):
         return os.path.join(self.user(), staticConfig.dir_app, staticConfig.dir_templates)
+
+    def cronjobs(self):
+        return os.path.join(self.user(), staticConfig.dir_app, staticConfig.dir_cronjobs)
 
     def file_config(self):
         return os.path.join(self.user(), staticConfig.dir_app, staticConfig.dir_config, staticConfig.filename_config)
