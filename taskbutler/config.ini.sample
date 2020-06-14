@@ -17,6 +17,10 @@ label_grocery = grocery
 grocery_seperator = 💰
 grocery_currency = €
 
+[assistentrelay]
+enable = false
+labelname = butler
+
 [dropbox]
 apikey =
 

@@ -17,11 +17,68 @@ import os
 import shutil
 import re
 
+from crontab import CronTab
+
 from .config import staticConfig, getConfigPaths
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
+
+
+def createCronjob(taskid, path, api):
+    # use task id as script filename
+    # use task id for cronjob name/id/comment
+    # update/overwrite script file on update (for recurring cronjobs)
+    ## checksum file and overwrite only on diff?
+    # check if task is recurring... set cronjob to be recurring
+
+    # write command script
+    # mehrere "intros"
+    #   - "Du solltest jetzt $title", damit du im Zeitplan bleibst
+    #   - "
+    # Ziel: "
+
+    # add a "add always"
+    #     "command": "Lautstärke in der Küche auf 5%",
+    #     "command": "Lautstärke im Wohnzimmer auf 5%",
+    #
+    # File:
+    #    curl - -header
+    #    "Content-Type: application/json" \
+    #    - -request
+    #    POST \
+    #    - -data
+    #    '{"command":"Das ist der Text","broadcast":true,"user":"assistentrelay"}' \
+    #            http://localhost:3000/assistant
+
+    command_text = "test"
+
+    command = '#!/bin/sh\n' \
+              '\n' \
+              'source pre.sh \n' \
+              'curl --header "Content-Type: application/json" --request POST ' \
+              '--data \'{"command":"Du solltest jetzt ' + command_text + 'damit du im Zeitplan bleibst","broadcast":true,"user":"assistentrelay"}\' ' \
+                                                                         'http://localhost:3000/assistant'
+
+    filename = command_text
+    path = path
+
+    with open(os.path.normpath(os.path.join(path, filename)) + ".sh", 'w') as f:
+        f.write(str(command))
+        os.chmod(path, 0o770)
+
+    # with CronTab(user=True) as cron:
+    #    job = cron.new(command='bash ' + path)
+    #    job.setall(datetime(2000, 4, 2, 10, 2))
+    #    job.enable()
+
+    # cleanup cronjons
+    ## loop trough tasks and remove cronjobs with "archived = true" or "deleted = true"
+    ## check if there are cronjobs from the past
+    ## get cronjob name
+    ## remove cronjos
+    ## remove
 
 
 def localizePrice(value, currency) -> str:
@@ -356,9 +413,14 @@ def main():
     if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().log()):
         os.mkdir(getConfigPaths().log(), mode=0o750)
 
+    # create cronjobs
+    if os.path.exists(getConfigPaths().app()) and not os.path.exists(getConfigPaths().cronjobs()):
+        os.mkdir(getConfigPaths().cronjobs(), mode=0o750)
+
     # create initial config
     if not os.path.exists(getConfigPaths().file_config()):
-        shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), staticConfig.filename_config_initial), getConfigPaths().file_config())
+        shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), staticConfig.filename_config_initial),
+                    getConfigPaths().file_config())
 
     # Read config.ini
     # TODO refactor read/write config -> https://docs.python.org/3/library/configparser.html
@@ -426,6 +488,9 @@ def main():
         label_progress = config.get('todoist', 'label_progress')
         todoist_seperator = config.get('todoist', 'progress_seperator')
 
+        assistentrelay_enable = config.get('assistentrelay', 'enable')
+        assistentrelay_label = config.get('assistentrelay', 'labelname')
+
         dropbox_api_key = config.get('dropbox', 'apikey')
 
         todoist_folder_id = str(config.get('dropboxpaper', 'todoistfolderid'))
@@ -452,6 +517,9 @@ def main():
     except FileNotFoundError as error:
         logger.error("Config file not found! Create config.ini first. \nOriginal Error: {}".format(error))
         raise SystemExit(1)
+
+    createCronjob("ddd", getConfigPaths().cronjobs(), "d")
+    exit(1)
 
     # init dropbox session
     if dropbox_api_key and (label_todoist_dropboxpaper or label_todoist_dropboxoffice):
