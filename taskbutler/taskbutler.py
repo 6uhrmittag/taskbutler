@@ -25,6 +25,12 @@ logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
 
+def cleanupCronjobs(taskids):
+    with CronTab(user=True) as cron:
+        for job in cron:
+            if job.comment not in taskids:
+                cron.remove(job)
+                logger.info("Cronjob deleted: {}".format(job.comment))
 
 def createCronjob(taskid, path, api):
     # use task id as script filename
@@ -61,24 +67,18 @@ def createCronjob(taskid, path, api):
               '--data \'{"command":"Du solltest jetzt ' + command_text + 'damit du im Zeitplan bleibst","broadcast":true,"user":"assistentrelay"}\' ' \
                                                                          'http://localhost:3000/assistant'
 
-    filename = command_text
+    filename = taskid
     path = path
 
     with open(os.path.normpath(os.path.join(path, filename)) + ".sh", 'w') as f:
         f.write(str(command))
         os.chmod(path, 0o770)
 
-    # with CronTab(user=True) as cron:
-    #    job = cron.new(command='bash ' + path)
-    #    job.setall(datetime(2000, 4, 2, 10, 2))
-    #    job.enable()
-
-    # cleanup cronjons
-    ## loop trough tasks and remove cronjobs with "archived = true" or "deleted = true"
-    ## check if there are cronjobs from the past
-    ## get cronjob name
-    ## remove cronjos
-    ## remove
+    with CronTab(user=True) as cron:
+        job = cron.new(command='bash ' + path)
+        job.comment(taskid)
+        job.setall(datetime(2000, 4, 2, 10, 2))
+        job.enable()
 
 
 def localizePrice(value, currency) -> str:
@@ -489,7 +489,7 @@ def main():
         todoist_seperator = config.get('todoist', 'progress_seperator')
 
         assistentrelay_enable = config.get('assistentrelay', 'enable')
-        assistentrelay_label = config.get('assistentrelay', 'labelname')
+        assistentrelay_label_name = config.get('assistentrelay', 'labelname')
 
         dropbox_api_key = config.get('dropbox', 'apikey')
 
@@ -577,6 +577,26 @@ def main():
 
         # List projects
 
+    # Feature - AssistentRelay
+    if assistentrelay_label_name:
+        loggerdb.debug("AssistentRelay start")
+        labelid = getlabelid(assistentrelay_label_name, api)
+        taskids = gettaskwithlabelid(labelid, api)
+
+        # add cronjobs
+        loggerdb.debug("AssistentRelay - add cronjobs")
+        for task in taskids:
+            item = api.items.get_by_id(task)
+
+            # TODO create cronjob for task
+
+        # cleanup cronjobs that are not in the list
+        loggerdb.debug("AssistentRelay - cleanup outdated cronjobs")
+        cleanupCronjobs(taskids)
+
+    else:
+        logger.info("AssistentRelay feature disabled. No labelname found.")
+
     if grocery_label:
         label_grocery_id = getlabelid(grocery_label, api)
         run = 2
@@ -585,7 +605,8 @@ def main():
             run = run - 1
 
             for task in api.state['items']:
-                if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not getattr(task, 'is_archived', 0):
+                if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
+                    'in_history'] and not getattr(task, 'is_archived', 0):
                     for label in task['labels']:
                         if label == label_grocery_id:
                             logger.debug("Found grocery list: {}".format(task['content']))
