@@ -74,6 +74,20 @@ def createCronjob(taskid, path, api):
                   'content'] + 'damit du im Zeitplan bleibst","broadcast":true,"user":"assistentrelay"}\' ' \
                                'http://localhost:3000/assistant'
 
+
+    task_date = api.items.get_by_id(taskid)[due]
+
+    if ':' not in task_date['date']:
+        logger.error("cronjob - Task has no time defined. ID {}".format(taskid['content']))
+        # skip
+        return
+
+    if task_date[due] is Null:
+        # format is YYYY-MM-DDTHH:MM:SS
+    else:
+        # format is YYYY-MM-DDTHH:MM:SSZ
+        # timezone in task_date["timezone"]
+
     filename = str(taskid)
     filename_full = filename + ".sh"
     path_full = os.path.join(path, filename_full)
