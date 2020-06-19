@@ -20,6 +20,8 @@ grocery_currency = €
 [assistentrelay]
 enable = false
 labelname = butler
+username =
+relay_ip =
 
 [dropbox]
 apikey =
