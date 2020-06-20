@@ -90,7 +90,7 @@ def createCronjob(taskid, path, username, relay_ip, api):
         logger.debug("cronjob - Due Date found:{}".format(task_date['due']['date']))
         task_date_due = task_date['due']['date']
 
-    if task_date['due']:
+    if 'Z' not in task_date_due:
         # format is YYYY-MM-DDTHH:MM:SS
         date_time_obj = datetime.strptime(task_date_due, '%Y-%m-%dT%H:%M:%S')
     else:
