@@ -32,10 +32,16 @@ def cleanupCronjobs(taskids, path):
     with CronTab(user=True) as cron:
         for job in cron:
             logger.debug("Check cronjob: {}".format(job.comment))
-            logger.debug("Check taskids: {}".format(taskids))
-            if job.comment not in taskids:
-                # cron.remove(job)
+            if job.comment not in str(taskids):
+                cron.remove(job)
                 logger.info("Cronjob deleted: {}".format(job.comment))
+    # cleanup files
+    for root, dirs, files in os.walk(path):
+        for filename in files:
+            logger.debug("Check file: {}".format(filename))
+            if filename.strip(".sh") not in str(taskids):
+                logger.info("Cleanup file: {}".format(filename))
+                os.remove(os.path.join(path, filename))
 
 def createCronjob(taskid, path, username, relay_ip, api):
     # use task id as script filename
