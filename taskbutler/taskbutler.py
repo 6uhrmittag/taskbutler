@@ -28,8 +28,8 @@ loggerdg = logging.getLogger('github')
 
 
 def cleanupCronjobs(taskids, path):
-    # with CronTab(user=True) as cron:
-    with CronTab(tabfile=os.path.join(path, "cron")) as cron:
+    logger.debug("Check IDs: {}".format(taskids))
+    with CronTab(user=True) as cron:
         for job in cron:
             logger.debug("Check cronjob: {}".format(job.comment))
             logger.debug("Check taskids: {}".format(taskids))
@@ -74,19 +74,29 @@ def createCronjob(taskid, path, username, relay_ip, api):
                   'content'] + 'damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
                                                                                                       'http://' + relay_ip + ':3000/assistant'
 
+    task_date = api.items.get_by_id(taskid)
 
-    task_date = api.items.get_by_id(taskid)[due]
-
-    if ':' not in task_date['date']:
+    if ':' not in task_date['due']['date']:
         logger.error("cronjob - Task has no time defined. ID {}".format(taskid['content']))
         # skip
         return
+    else:
+        logger.debug("cronjob - Due Date found:{}".format(task_date['due']['date']))
+        task_date_due = task_date['due']['date']
 
-    if task_date[due] is Null:
+    if task_date['due']:
         # format is YYYY-MM-DDTHH:MM:SS
+        date_time_obj = datetime.strptime(task_date_due, '%Y-%m-%dT%H:%M:%S')
     else:
         # format is YYYY-MM-DDTHH:MM:SSZ
+        date_time_obj = datetime.strptime(task_date_due, '%Y-%m-%dT%H:%M:%S%z')
         # timezone in task_date["timezone"]
+
+    # logger.debug("year: {}".format(date_time_obj.year))
+    # logger.debug("month: {}".format(date_time_obj.month))
+    # logger.debug("day: {}".format(date_time_obj.day))
+    # logger.debug("hour: {}".format(date_time_obj.hour))
+    # logger.debug("minute: {}".format(date_time_obj.minute))
 
     filename = str(taskid)
     filename_full = filename + ".sh"
@@ -98,9 +108,11 @@ def createCronjob(taskid, path, username, relay_ip, api):
         os.chmod(path, 0o770)
 
     cron = CronTab(user=True)
+    cron.remove_all(comment=filename)
     job = cron.new(command='bash ' + path_full)
     job.set_comment(filename)
-    job.setall(datetime(2000, 4, 2, 10, 2))
+    job.setall(
+        datetime(date_time_obj.year, date_time_obj.month, date_time_obj.day, date_time_obj.hour, date_time_obj.minute))
     cron.write()
     logger.info("Cronjob added ID: {}".format(filename))
 
