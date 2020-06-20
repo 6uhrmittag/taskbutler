@@ -43,7 +43,7 @@ def cleanupCronjobs(taskids, path):
                 logger.info("Cleanup file: {}".format(filename))
                 os.remove(os.path.join(path, filename))
 
-def createCronjob(taskid, path, username, relay_ip, api):
+def createCronjob(taskid, path, username, relay_ip, port, api):
     # use task id as script filename
     # use task id for cronjob name/id/comment
     # update/overwrite script file on update (for recurring cronjobs)
@@ -78,7 +78,7 @@ def createCronjob(taskid, path, username, relay_ip, api):
               'curl --header "Content-Type: application/json" --request POST ' \
               '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
                   'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
-                                                                                                       'http://' + relay_ip + ':3000/assistant'
+                                                                                                       'http://' + relay_ip + ':' + port + '/assistant'
 
     task_date = api.items.get_by_id(taskid)
 
@@ -539,6 +539,7 @@ def main():
         assistentrelay_label_name = config.get('assistentrelay', 'labelname')
         assistentrelay_username = config.get('assistentrelay', 'username')
         assistentrelay_relay_ip = config.get('assistentrelay', 'relay_ip')
+        assistentrelay_relay_port = config.get('assistentrelay', 'relay_port')
 
         dropbox_api_key = config.get('dropbox', 'apikey')
 
@@ -634,17 +635,13 @@ def main():
         loggerdb.debug("AssistentRelay - add cronjobs")
         for task in taskids:
             item = api.items.get_by_id(task)
-
-            # TODO create cronjob for task
-            createCronjob(task, getConfigPaths().cronjobs(), assistentrelay_username, assistentrelay_relay_ip, api)
+            createCronjob(task, getConfigPaths().cronjobs(), assistentrelay_username, assistentrelay_relay_ip,
+                          assistentrelay_relay_port, api)
         # cleanup cronjobs that are not in the list
         loggerdb.debug("AssistentRelay - cleanup outdated cronjobs")
         cleanupCronjobs(taskids, getConfigPaths().cronjobs())
-
     else:
         logger.info("AssistentRelay feature disabled. No labelname found.")
-
-    exit(1)
 
     if grocery_label:
         label_grocery_id = getlabelid(grocery_label, api)
