@@ -63,11 +63,12 @@ Features
 
 -  **let GoogleAssistant proactively remind you of due tasks**
 
-    - Taskbutler can trigger an GoogleAssistant broadcast at the time a task is due.
-      This is a DIY and advanced feature! It requires a few addOns:
-      1. basic knowledge in DIY SmartHome
-      2. a GoogleHome devide(nest mini, google home)
-      3. a raspberry Pi with linux, running 24/7
+   - Taskbutler can trigger an GoogleAssistant broadcast at the time a task is due.
+
+     This is an advanced DIY feature! It requires a few addOns:
+      - basic knowledge in DIY SmartHome
+      - a GoogleHome device(nest mini, google home)
+      - an RaspberryPi with linux, running 24/7
 
 Prerequisites and notes
 =======================
@@ -329,16 +330,16 @@ This feature utilizes the "broadcast feature" in GoogleHome devices. The tool as
 
 1. Setup and run assistant-relay on a raspberry pi (any linux computer works- raspberry is the most common) (just follow the assistant-relay docs, it's very easy)
     - make sure assistant-relay runs in the background and ideally is in autostart
-2. Setup taskbutler on the same raspberry pi. If you run multiple taskbutler instances, empty all `labelnames` in the `config.ini` except the `label` for `assistentrelay`
-    - the `config.ini` should be self explanatory. Don't forget to set `enable` to `true`
-3. customize the broadcast-text in `taskbutler.py`. Function: `createCronjob` (I told you this is beta ;D )
+2. Setup taskbutler on the same raspberry pi. If you run multiple taskbutler instances, empty all `labelnames` in the :code:`config.ini` except the :code:`label` for :code:`assistentrelay`
+    - the :code:`config.ini` should be self explanatory. Don't forget to set :code:`enable` to :code:`true`
+3. customize the broadcast-text in :code:`taskbutler.py`. Function: :code:`createCronjob` (I told you this is beta ;D )
 4. Check the time on your raspberry. It needs to be your real, local time
 5. taskbutler will create cronjobs for every ask with a due time and a defined label
 6. these cronjobs will run on due time and trigger a broadcast
 
 notes
 
-- you can put a `pre.sh` file in `$HOME\.taskbutler\cronjobs` with commands what should run before any broadcast. Check out assistand-relay's docs for ideas. You can send any GoogleAssistant commands like `set volume to 20%', to reduce the volume before any broadcast
+- you can put a :code:`pre.sh` file in :code:`$HOME\\.taskbutler\\cronjobs` with commands what should run before any broadcast. Check out assistand-relay's docs for ideas. You can send any GoogleAssistant commands like `set volume to 20%`, to reduce the volume before any broadcast
 - taskbutler also cleans up cronjobs in the past, yeahi
 - the broadcast-intro ('broadcast by $name') can't be disabled. This is an GoogleAsssistant feature that is hardcoded. Hopefully this can be disabled in future
 
