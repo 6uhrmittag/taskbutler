@@ -328,10 +328,10 @@ Setup proactive GoogleAssistant reminders
 
 This feature utilizes the "broadcast feature" in GoogleHome devices. The tool assistant-relay(https://github.com/greghesp/assistant-relay) can trigger a broadcast programmatically.
 
-1. Setup and run assistant-relay on a raspberry pi (any linux computer works- raspberry is the most common) (just follow the assistant-relay docs, it's very easy)
-    - make sure assistant-relay runs in the background and ideally is in autostart
+1. Setup and run assistant-relay on a raspberry pi (any linux computer works- raspberry is the most common) (just follow the assistant-relay docs, it's very easy).
+   Make sure assistant-relay runs in the background and ideally is in autostart
 2. Setup taskbutler on the same raspberry pi. If you run multiple taskbutler instances, empty all `labelnames` in the :code:`config.ini` except the :code:`label` for :code:`assistentrelay`
-    - the :code:`config.ini` should be self explanatory. Don't forget to set :code:`enable` to :code:`true`
+   The :code:`config.ini` should be self explanatory. Don't forget to set :code:`enable` to :code:`true`
 3. customize the broadcast-text in :code:`taskbutler.py`. Function: :code:`createCronjob` (I told you this is beta ;D )
 4. Check the time on your raspberry. It needs to be your real, local time
 5. taskbutler will create cronjobs for every ask with a due time and a defined label
