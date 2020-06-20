@@ -77,8 +77,8 @@ def createCronjob(taskid, path, username, relay_ip, api):
               '\n' \
               'curl --header "Content-Type: application/json" --request POST ' \
               '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
-                  'content'] + 'damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
-                                                                                                      'http://' + relay_ip + ':3000/assistant'
+                  'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
+                                                                                                       'http://' + relay_ip + ':3000/assistant'
 
     task_date = api.items.get_by_id(taskid)
 
