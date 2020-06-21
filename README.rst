@@ -75,6 +75,8 @@ Prerequisites and notes
 **Taskbutler is not associated or connected with Todoist, Dropbox,
 Github or Microsoft.**
 
+**Recommendation:** Taskbutler works best when running on a Linux Server 24/7. If you're not into Linux Servers, an RaspberryPi at home works great too.
+
 1. You'll need a `Todoist <https://todoist.com>`_ premium account
 2. The Dropbox Paper and Github features require a free account at
    Dropbox. The Microsoft Office365 feature requires a paid Office365
@@ -83,6 +85,7 @@ Github or Microsoft.**
 3. Taskbutler is tested on Ubuntu
 4. For optimal use, Taskbutler should run periodical on a
    server/computer to continuously update your tasks
+5. Taskbutler doesn't need to be reachable from the internet(no ports or WebHooks). It works by pulling data from Todoist via HTTPS - so only outbound HTTPS is required. Which usually means: no additional firewall configuration required.
 
 *Even though I never experienced any data loss, it's nice to know
 that* \ `Todoist provides a daily backup of your data. <https://support.todoist.com/hc/en-us/articles/115001799989>`_
@@ -357,6 +360,8 @@ Make sure you added the Python default path to your PATH via: `echo 'PATH="$PATH
 
 Continuous progress-update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Recommendation:** an RaspberryPi is easy to use and doesn't require you to have advanced linux server knowledge. Even an RaspberryPi1 should work. RaspberryPi 4B 2GB does work for sure(tested). I recommend the OS DietPi(`<https://dietpi.com/>`_). Python is installable via :code:`dietpi-software`
 
 To continuously update your tasks run Taskbutler periodical on a internet connected server
 or your computer
