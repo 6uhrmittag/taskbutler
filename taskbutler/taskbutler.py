@@ -541,7 +541,7 @@ def main():
             def setdue(self, due):
                 # convert todoist time to github time
                 if due is not None and re.search(r'[a-zA-Z]', str(due)):
-                    due = datetime.strptime(task["due_date_utc"], '%a %m %b %Y %H:%M:%S %z')
+                    due = datetime.strptime(task["due"]['date'], '%a %m %b %Y %H:%M:%S %z')
                     self.due = due.isoformat()
                 if due is None:
                     due = GithubObject.NotSet
@@ -590,8 +590,11 @@ def main():
 
                         if not task['parent_id'] and github_synclabel_id in task["labels"]:
                             # task is milestone
-                            tmilestones.append(milestone(task["content"], "", task["id"], "", comment, task["due_date_utc"], bool(task["checked"]), synced))
-                            loggerdg.debug("Milestone found: {} {} {} {}".format(task["content"], task["parent_id"], task["project_id"], task["checked"]))
+                            tmilestones.append(
+                                milestone(task["content"], "", task["id"], "", comment, task["due"]["date"],
+                                          bool(task["checked"]), synced))
+                            loggerdg.debug("Milestone found: {} {} {} {}".format(task["content"], task["parent_id"],
+                                                                                 task["project_id"], task["checked"]))
 
                 # Collect Issues
                 for task in api.state['items']:
