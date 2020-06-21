@@ -23,6 +23,7 @@ labelname = butler
 username =
 relay_ip =
 relay_port = 3000
+cronjob_append = 2>&1 | /usr/bin/logger -t taskbutler
 
 [dropbox]
 apikey =

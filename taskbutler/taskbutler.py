@@ -44,7 +44,7 @@ def cleanupCronjobs(taskids, path):
                 logger.info("Cleanup file: {}".format(filename))
                 os.remove(os.path.join(path, filename))
 
-def createCronjob(taskid, path, username, relay_ip, port, api):
+def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
     # use task id as script filename
     # use task id for cronjob name/id/comment
     # update/overwrite script file on update (for recurring cronjobs)
@@ -76,7 +76,7 @@ def createCronjob(taskid, path, username, relay_ip, port, api):
               '\n' \
               'source pre.sh \n' \
               '\n' \
-              'curl --header "Content-Type: application/json" --request POST ' \
+              'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
               '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
                   'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
                                                                                                        'http://' + relay_ip + ':' + port + '/assistant'
@@ -118,7 +118,7 @@ def createCronjob(taskid, path, username, relay_ip, port, api):
 
     cron = CronTab(user=True)
     cron.remove_all(comment=filename)
-    job = cron.new(command='bash ' + path_full)
+    job = cron.new(command='bash ' + path_full + cronjob_append)
     job.set_comment(filename)
     job.setall(
         datetime(date_time_obj.year, date_time_obj.month, date_time_obj.day, date_time_obj.hour, date_time_obj.minute))
@@ -543,6 +543,7 @@ def main():
         assistentrelay_username = config.get('assistentrelay', 'username')
         assistentrelay_relay_ip = config.get('assistentrelay', 'relay_ip')
         assistentrelay_relay_port = config.get('assistentrelay', 'relay_port')
+        assistentrelay_cronjob_append = config.get('assistentrelay', 'cronjob_append')
 
         dropbox_api_key = config.get('dropbox', 'apikey')
 
@@ -639,7 +640,7 @@ def main():
         for task in taskids:
             item = api.items.get_by_id(task)
             createCronjob(task, getConfigPaths().cronjobs(), assistentrelay_username, assistentrelay_relay_ip,
-                          assistentrelay_relay_port, api)
+                          assistentrelay_relay_port, assistentrelay_cronjob_append, api)
         # cleanup cronjobs that are not in the list
         loggerdb.debug("AssistentRelay - cleanup outdated cronjobs")
         cleanupCronjobs(taskids, getConfigPaths().cronjobs())
