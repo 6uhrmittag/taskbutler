@@ -107,6 +107,9 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
     # logger.debug("hour: {}".format(date_time_obj.hour))
     # logger.debug("minute: {}".format(date_time_obj.minute))
 
+    if cronjob_append:
+        cronjob_append = ' ' + cronjob_append
+
     filename = str(taskid)
     filename_full = filename + ".sh"
     path_full = os.path.join(path, filename_full)
