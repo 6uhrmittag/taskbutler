@@ -19,6 +19,7 @@ import re
 
 from crontab import CronTab
 from datetime import datetime
+from dateutil import tz as tz
 
 from .config import staticConfig, getConfigPaths
 
@@ -96,6 +97,8 @@ def createCronjob(taskid, path, username, relay_ip, port, api):
     else:
         # format is YYYY-MM-DDTHH:MM:SSZ
         date_time_obj = datetime.strptime(task_date_due, '%Y-%m-%dT%H:%M:%S%z')
+        date_time_obj_z = date_time_obj.astimezone(tz.gettz((task_date['due']['timezone'])))
+        date_time_obj = date_time_obj_z
         # timezone in task_date["timezone"]
 
     # logger.debug("year: {}".format(date_time_obj.year))
