@@ -327,7 +327,7 @@ Edit the config section in config.ini:
 Setup proactive GoogleAssistant reminders
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**This feature is BETA - it work's, but it's not well tested. Especially due times&timezones are not well tested yet**
+**This feature is BETA - it work's, but it's not well tested. Especially timezones - they are confusing for Taskbutler ; D**
 
 This feature utilizes the "broadcast feature" in GoogleHome devices. The tool assistant-relay(https://github.com/greghesp/assistant-relay) can trigger a broadcast programmatically.
 
