@@ -17,7 +17,6 @@ setup_requirements = ['pytest-runner', ]
 
 test_requirements = ['pytest', 'pytest-testdox', ]
 
-# TODO: mark python3 as required
 setup(
     author="Marvin Heimbrodt",
     author_email='marvin@6uhrmittag.de',

@@ -45,32 +45,11 @@ def cleanupCronjobs(taskids, path):
                 os.remove(os.path.join(path, filename))
 
 def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
-    # use task id as script filename
-    # use task id for cronjob name/id/comment
-    # update/overwrite script file on update (for recurring cronjobs)
-    ## checksum file and overwrite only on diff?
-    # check if task is recurring... set cronjob to be recurring
+    # TODO: only update/overwrite script file on update (for recurring cronjobs)
+    ##      checksum file and overwrite only on diff?
 
-    # write command script
-    # mehrere "intros"
-    #   - "Du solltest jetzt $title", damit du im Zeitplan bleibst
-    #   - "
-    # Ziel: "
-
-    # add a "add always"
-    #     "command": "Lautstärke in der Küche auf 5%",
-    #     "command": "Lautstärke im Wohnzimmer auf 5%",
-    #
-    # File:
-    #    curl - -header
-    #    "Content-Type: application/json" \
-    #    - -request
-    #    POST \
-    #    - -data
-    #    '{"command":"Das ist der Text","broadcast":true,"user":"assistentrelay"}' \
-    #            http://localhost:3000/assistant
-
-    command_text = str(taskid)
+    # TODO: make text configurable
+    # TODO: make multiple texts possible (by label or by word in comment)
 
     command = '#!/bin/sh\n' \
               '\n' \
@@ -80,7 +59,6 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
               '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
                   'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
                                                                                                        'http://' + relay_ip + ':' + port + '/assistant'
-
     task_date = api.items.get_by_id(taskid)
 
     if ':' not in task_date['due']['date']:
@@ -127,12 +105,6 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
         datetime(date_time_obj.year, date_time_obj.month, date_time_obj.day, date_time_obj.hour, date_time_obj.minute))
     cron.write()
     logger.info("Cronjob added ID: {}".format(filename))
-
-    # with CronTab(user=True) as cron:
-    #    job = cron.new(command='bash ' + path + ".sh")
-    #    job.comment(taskid)
-    #    job.setall(datetime(2000, 4, 2, 10, 2))
-    #    job.enable()
 
 def localizePrice(value, currency) -> str:
     """
