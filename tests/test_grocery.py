@@ -1,49 +1,56 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pytest
-
-from click.testing import CliRunner
-
-from taskbutler import taskbutler
-from taskbutler import cli
-
 """Tests for `taskbutler` package."""
 
+import pytest
+import sys
 
-@pytest.mark.second
-class TestCLI:
-
-    def testCLIHelp(self):
-        """Test the CLI."""
-        runner = CliRunner()
-        help_result = runner.invoke(cli.main, ['--help'])
-        assert help_result.exit_code == 0
-        assert '--help  Show this message and exit.' in help_result.output
-
-    @pytest.mark.xfail
-    def test_cli_main_basic(self):
-        runner = CliRunner()
-        result = runner.invoke(cli.main)
-        assert 'Taskbutler - INFO - Read config from:' in result.output
-        assert result.exit_code == 0
+from todoist.api import TodoistAPI
+from taskbutler import taskbutler
 
 
-class TestModifyTitle:
+class TestClassGetRawPriceFromGrocery:
 
-    @pytest.mark.parametrize(
-        ('title', 'seperator', 'additional'), [
-            ('dings', '*', 'dings'),
-            ('dings', '‣', 'random'),
-            ('dings', '\'', 'random'),
-            ('dings', '%', 'ÄÄ*Ä:;;?=)(/_:'),
-            ('dings', 'ÜÄ*', 'ÄÄ*Ä:;;?=)(/_:'),
-            ('random', '', ''),
-        ]
-    )
-    def test_get_task_title(self, title, seperator, additional):
-        assert taskbutler.gettasktitle(title + seperator + additional, seperator) == title
+    Titles = [
+            ('banane - 3.0€', '3.0'),
+            ('banane - 7.0€', '7.0'),
+            ('banane - 8.66€', '8.66'),
+            ('banane - 12.0€', '12.0'),
+            ('banane - 9.1€', '9.1'),
+             ]
 
-    def test_add_url_to_task(self):
-        assert taskbutler.addurltotask("google", "https://google1.com", "-") == 'https://google1.com (google) '
-        assert taskbutler.addurltotask("google - X", "https://google3.com", "-") == 'https://google3.com (google) - X'
+    Task = [
+            ('banane 3€', '3'),
+            ('banane 6.7€', '6.7'),
+            ('banane 5.0€', '5.0'),
+            ('banane 1.11€', '1.11'),
+             ]
+
+    currency = [
+            ('banane - 3€', '€', '3'),
+            ('banane - 3$', '$', '3'),
+             ]
+
+    seperator = [
+            ('banane - 3.0€', '-', '3.0'),
+            ('banane % 7.0€', '%', '7.0'),
+            ('banane 👻 8.66€', '👻', '8.66'),
+            ('banane # 12.0€', '#', '12.0'),
+            ('banane : 9.1€', ':', '9.1'),
+             ]
+
+    @pytest.mark.parametrize("titel, price", Titles)
+    def test_Returns_getRawPriceFromGroceryTitle(self, titel, price):
+        dings = taskbutler.getRawPriceFromGrocery(titel, '€', '-', isTitle=True)
+        assert dings == float(price)
+
+    @pytest.mark.parametrize("titel, price", Task)
+    def test_Returns_getRawPriceFromGroceryTask(self, titel, price):
+        dings = taskbutler.getRawPriceFromGrocery(titel, '€', '-', isTitle=False)
+        assert dings == float(price)
+
+    @pytest.mark.parametrize("titel, seperator, price", seperator)
+    def test_Returns_getRawPriceFromGrocerySeperator(self, titel, seperator, price):
+        dings = taskbutler.getRawPriceFromGrocery(titel, '€', seperator, isTitle=True)
+        assert dings == float(price)
