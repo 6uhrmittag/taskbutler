@@ -614,8 +614,13 @@ def main():
         loggerdb.debug("AssistentRelay - add cronjobs")
         for task in taskids:
             item = api.items.get_by_id(task)
-            createCronjob(task, getConfigPaths().cronjobs(), assistentrelay_username, assistentrelay_relay_ip,
-                          assistentrelay_relay_port, assistentrelay_cronjob_append, api)
+            try:
+                createCronjob(task, getConfigPaths().cronjobs(), assistentrelay_username, assistentrelay_relay_ip,
+                              assistentrelay_relay_port, assistentrelay_cronjob_append, api)
+            except:
+                # error is logged in function
+                # skip task
+                pass
         # cleanup cronjobs that are not in the list
         loggerdb.debug("AssistentRelay - cleanup outdated cronjobs")
         cleanupCronjobs(taskids, getConfigPaths().cronjobs())
