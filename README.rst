@@ -456,3 +456,7 @@ About Author
 ============
 
 **Marvin Heimbrodt** - `github.com/6uhrmittag <https://github.com/6uhrmittag/>`_ | `twitter.com/6uhrmittag <https://twitter.com/6uhrmittag>`_
+
+.. image:: https://www.ko-fi.com/img/githubbutton_sm.svg
+    :target: https://ko-fi.com/K3K01P66S
+    :alt: Donate Coffein via Ko-fi
