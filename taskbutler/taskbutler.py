@@ -40,8 +40,8 @@ def get_latest_yt_video_rss(feed_url, path):
     :param feed_url: feed URL to check
     :return: URL for latest video
     """""
-    date = datetime.today() - timedelta(days=1)
-    date_yesterday = date.strftime('%d.%m.%Y')
+    # date = datetime.today() - timedelta(days=1)
+    # date_yesterday = date.strftime('%d.%m.%Y')
 
     # url_md5 = hashlib.md5(feed_url.encode('utf-8')).hexdigest()
     # path_full = os.path.join(path, url_md5, '.etag')
@@ -67,12 +67,14 @@ def get_latest_yt_video_rss(feed_url, path):
     #         logger.debug("RSS: write current etag: {}".format(d.etag))
     #         tmp_file.write(d.etag)
 
-    for entry in d.entries:
-        if date_yesterday in entry.title:
-            return entry.link
 
-    logger.error("Latest video not found")
-    return "ERROR - URL NOT FOUND"
+
+    # for entry in d.entries:
+    #    if date_yesterday in entry.title:
+    return d.entries[0].link or "ERROR - URL NOT FOUND"
+
+    # logger.error("Latest video not found")
+    # return "ERROR - URL NOT FOUND"
 
 
 def cleanupCronjobs(taskids, path):
