@@ -68,7 +68,7 @@ def cleanupCronjobs(taskids, path):
 
 def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
     # TODO: only update/overwrite script file on update (for recurring cronjobs)
-    ##      checksum file and overwrite only on diff?
+    # checksum file and overwrite only on diff?
     # TODO: make text configurable
     # TODO: make multiple texts possible (by label or by word in comment)
 
