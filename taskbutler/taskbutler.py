@@ -44,9 +44,9 @@ def get_latest_yt_video_rss(feed_url, path):
     date_yesterday = date.strftime('%d.%m.%Y')
 
     url_md5 = hashlib.md5(feed_url.encode('utf-8')).hexdigest()
-    path_full = os.path.join(path, url_md5)
+    path_full = os.path.join(path, url_md5, '.etag')
 
-    logger.debug("RSS: Write etag to: {}".format(path_full))
+    logger.debug("RSS: Will write etag to: {}".format(path_full))
 
     if os.path.exists(path_full):
         with open(path_full, 'r') as tmp_file:
@@ -58,6 +58,7 @@ def get_latest_yt_video_rss(feed_url, path):
         d = feedparser.parse(feed_url)
 
     logger.debug("RSS: Feed status: {}".format(d.status))
+    logger.debug("RSS: Feed etag: {}".format(d.etag))
 
     if d.status == '304':
         logger.debug("RSS: etag found and feed not updated since. Reed returned etag: {}".format(d.etag))
@@ -65,7 +66,7 @@ def get_latest_yt_video_rss(feed_url, path):
     else:
         with open(path_full, 'w') as tmp_file:
             logger.debug("RSS: write current etag: {}".format(d.etag))
-            tmp_file.writelines(str(d.etag))
+            tmp_file.write(d.etag)
 
     for entry in d.entries:
         if date_yesterday in entry.title:
@@ -87,7 +88,7 @@ def cleanupCronjobs(taskids, path):
     for root, dirs, files in os.walk(path):
         for filename in files:
             logger.debug("Check file: {}".format(filename))
-            if filename.strip(".sh") not in str(taskids):
+            if filename.strip(".sh") not in str(taskids) and '.etag' not in filename:
                 logger.info("Cleanup file: {}".format(filename))
                 os.remove(os.path.join(path, filename))
 
