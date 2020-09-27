@@ -80,7 +80,7 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
                         'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
                         '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
                             'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
-                                                                                                                 'http://' + relay_ip + ':' + port + '/assistant'
+                        'http://' + relay_ip + ':' + port + '/assistant'
 
     task_date = api.items.get_by_id(taskid)
 
