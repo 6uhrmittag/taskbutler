@@ -18,14 +18,36 @@ import shutil
 import re
 
 from crontab import CronTab
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil import tz as tz
+
+import feedparser
 
 from .config import staticConfig, getConfigPaths
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
+
+
+def get_latest_yt_video_rss(feed_url):
+    """
+    Returns latest URL from YT RSS feed
+    Must be a YoutTube RSS feed(generate with: https://jeffkeeling.github.io/youtube_rss_extractor/)
+    :param feed_url: feed URL to check
+    :return: URL for latest video
+    """""
+    date = datetime.today() - timedelta(days=1)
+    date_yesterday = date.strftime('%d.%m.%Y')
+
+    d = feedparser.parse(feed_url)
+
+    for entry in d.entries:
+        if date_yesterday in entry.title:
+            return entry.url
+
+    logger.error("Latest video not found")
+    return "ERROR - URL NOT FOUND"
 
 
 def cleanupCronjobs(taskids, path):
@@ -51,14 +73,15 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
     # TODO: make text configurable
     # TODO: make multiple texts possible (by label or by word in comment)
 
-    command = '#!/bin/sh\n' \
-              '\n' \
-              'source pre.sh \n' \
-              '\n' \
-              'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
-              '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
-                  'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
-                                                                                                       'http://' + relay_ip + ':' + port + '/assistant'
+    command_broadcast = '#!/bin/sh\n' \
+                        '\n' \
+                        'source pre.sh \n' \
+                        '\n' \
+                        'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
+                        '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
+                            'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
+                                                                                                                 'http://' + relay_ip + ':' + port + '/assistant'
+
     task_date = api.items.get_by_id(taskid)
 
     if ':' not in task_date['due']['date']:
@@ -84,6 +107,21 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
     # logger.debug("day: {}".format(date_time_obj.day))
     # logger.debug("hour: {}".format(date_time_obj.hour))
     # logger.debug("minute: {}".format(date_time_obj.minute))
+
+    command = command_broadcast
+    for note in api.state["notes"]:
+        if note["item_id"] == taskid:
+            if 'https://' in note["content"] and '.xml' in note["content"]:
+                url_yesterday = get_latest_yt_video_rss(note["content"])
+                command_chromecast = '#!/bin/sh\n' \
+                                     '\n' \
+                                     'source pre.sh \n' \
+                                     '\n' \
+                                     'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
+                                     '--data \'{"device":"Beamer", "type":"remote", "source": "' + url_yesterday + '"}\' ' \
+                                                                                                                   'http://' + relay_ip + ':' + port + '/cast'
+                command = command_chromecast
+                logger.debug("RSS feed fount: {}".format(note['content']))
 
     if cronjob_append:
         cronjob_append = ' ' + cronjob_append
