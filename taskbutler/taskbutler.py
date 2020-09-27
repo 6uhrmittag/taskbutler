@@ -123,7 +123,7 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
                                     'http://' + relay_ip + ':' + port + '/assistant' \
                                     '\n' \
                                     'echo "wake up done" \n' \
-                                    'sleep 35 \n' \
+                                    'sleep 70 \n' \
                                     'echo "cast now" \n' \
                                     'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
                                     '--data \'{"device":"Beamer", "type":"remote", "source": "' + url_yesterday + '"}\' ' \
