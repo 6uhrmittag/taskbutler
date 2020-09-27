@@ -117,9 +117,11 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
                                      '\n' \
                                      'source pre.sh \n' \
                                      '\n' \
+                                     'echo "start command" \n' \
                                      'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
                                      '--data \'{"command":"Schalte Beamerstrom an", "converse":"false", "user": "' + username + '"}\' ' \
                                     'http://' + relay_ip + ':' + port + '/assistant' \
+                                    '\n' \
                                     'echo "wake up done" \n' \
                                     'sleep 35 \n' \
                                     'echo "cast now" \n' \
