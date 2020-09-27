@@ -22,8 +22,8 @@ from datetime import datetime, timedelta
 from dateutil import tz as tz
 
 import feedparser
-import tempfile
-import hashlib
+# import tempfile
+# import hashlib
 
 from .config import staticConfig, getConfigPaths
 
