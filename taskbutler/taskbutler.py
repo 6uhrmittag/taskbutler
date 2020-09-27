@@ -18,14 +18,63 @@ import shutil
 import re
 
 from crontab import CronTab
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil import tz as tz
+
+import feedparser
+# import tempfile
+# import hashlib
 
 from .config import staticConfig, getConfigPaths
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
+
+
+def get_latest_yt_video_rss(feed_url, path):
+    """
+    Returns latest URL from YT RSS feed
+    Must be a YoutTube RSS feed(generate with: https://jeffkeeling.github.io/youtube_rss_extractor/)
+    :param path: path to store tmp etags
+    :param feed_url: feed URL to check
+    :return: URL for latest video
+    """""
+    # date = datetime.today() - timedelta(days=1)
+    # date_yesterday = date.strftime('%d.%m.%Y')
+
+    # url_md5 = hashlib.md5(feed_url.encode('utf-8')).hexdigest()
+    # path_full = os.path.join(path, url_md5, '.etag')
+    # logger.debug("RSS: Will write etag to: {}".format(path_full))
+
+    d = feedparser.parse(feed_url)
+    # if os.path.exists(path_full):
+    #     with open(path_full, 'r') as tmp_file:
+    #         etag_last = str(tmp_file.readline(1))
+    #         logger.debug("RSS: etag found locally: {}".format(etag_last))
+    #         d = feedparser.parse(feed_url, etag=etag_last)
+    # else:
+    #     logger.debug("RSS: no etag found locally")
+    #     d = feedparser.parse(feed_url)
+
+    logger.debug("RSS: Feed status: {}".format(d.status))
+    # logger.debug("RSS: Feed etag: {}".format(d.etag))
+    # if d.status == '304':
+    #     logger.debug("RSS: etag found and feed not updated since. Reed returned etag: {}".format(d.etag))
+    #     return False
+    # else:
+    #     with open(path_full, 'w') as tmp_file:
+    #         logger.debug("RSS: write current etag: {}".format(d.etag))
+    #         tmp_file.write(d.etag)
+
+
+
+    # for entry in d.entries:
+    #    if date_yesterday in entry.title:
+    return d.entries[0].link or "ERROR - URL NOT FOUND"
+
+    # logger.error("Latest video not found")
+    # return "ERROR - URL NOT FOUND"
 
 
 def cleanupCronjobs(taskids, path):
@@ -40,25 +89,25 @@ def cleanupCronjobs(taskids, path):
     for root, dirs, files in os.walk(path):
         for filename in files:
             logger.debug("Check file: {}".format(filename))
-            if filename.strip(".sh") not in str(taskids):
+            if filename.strip(".sh") not in str(taskids) and '.etag' not in filename:
                 logger.info("Cleanup file: {}".format(filename))
                 os.remove(os.path.join(path, filename))
 
 def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
     # TODO: only update/overwrite script file on update (for recurring cronjobs)
-    ##      checksum file and overwrite only on diff?
-
+    # checksum file and overwrite only on diff?
     # TODO: make text configurable
     # TODO: make multiple texts possible (by label or by word in comment)
 
-    command = '#!/bin/sh\n' \
-              '\n' \
-              'source pre.sh \n' \
-              '\n' \
-              'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
-              '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
-                  'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
-                                                                                                       'http://' + relay_ip + ':' + port + '/assistant'
+    command_broadcast = '#!/bin/sh\n' \
+                        '\n' \
+                        'source pre.sh \n' \
+                        '\n' \
+                        'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
+                        '--data \'{"command":"Du solltest jetzt ' + api.items.get_by_id(taskid)[
+                            'content'] + ' damit du im Zeitplan bleibst","broadcast":true,"user":"' + username + '"}\' ' \
+                        'http://' + relay_ip + ':' + port + '/assistant'
+
     task_date = api.items.get_by_id(taskid)
 
     if ':' not in task_date['due']['date']:
@@ -84,6 +133,33 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
     # logger.debug("day: {}".format(date_time_obj.day))
     # logger.debug("hour: {}".format(date_time_obj.hour))
     # logger.debug("minute: {}".format(date_time_obj.minute))
+
+    command = command_broadcast
+    for note in api.state["notes"]:
+        if note["item_id"] == taskid:
+            if 'https://' in note["content"] and '.xml' in note["content"]:
+                url_yesterday = get_latest_yt_video_rss(note["content"], path)
+                # if not url_yesterday:
+                #     logger.debug("RSS: Skipping this Update")
+                #     return
+                command_chromecast = '#!/bin/sh\n' \
+                                     '\n' \
+                                     'source pre.sh \n' \
+                                     '\n' \
+                                     'echo "start command" \n' \
+                                     'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
+                                     '--data \'{"command":"Schalte Beamerstrom an", "converse":"false", "user": "' + username + '"}\' ' \
+                                    'http://' + relay_ip + ':' + port + '/assistant' \
+                                    '\n' \
+                                    'echo "wake up done" \n' \
+                                    'sleep 70 \n' \
+                                    'echo "cast now" \n' \
+                                    'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
+                                    '--data \'{"device":"Beamer", "type":"remote", "source": "' + url_yesterday + '"}\' ' \
+                                    'http://' + relay_ip + ':' + port + '/cast' \
+                                    '\n'
+                command = command_chromecast
+                logger.debug("RSS feed found: {}".format(note['content']))
 
     if cronjob_append:
         cronjob_append = ' ' + cronjob_append
