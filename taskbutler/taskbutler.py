@@ -22,6 +22,8 @@ from datetime import datetime, timedelta
 from dateutil import tz as tz
 
 import feedparser
+import tempfile
+import hashlib
 
 from .config import staticConfig, getConfigPaths
 
@@ -30,17 +32,40 @@ loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
 
 
-def get_latest_yt_video_rss(feed_url):
+def get_latest_yt_video_rss(feed_url, path):
     """
     Returns latest URL from YT RSS feed
     Must be a YoutTube RSS feed(generate with: https://jeffkeeling.github.io/youtube_rss_extractor/)
+    :param path: path to store tmp etags
     :param feed_url: feed URL to check
     :return: URL for latest video
     """""
     date = datetime.today() - timedelta(days=1)
     date_yesterday = date.strftime('%d.%m.%Y')
 
-    d = feedparser.parse(feed_url)
+    url_md5 = hashlib.md5(feed_url.encode('utf-8')).hexdigest()
+    path_full = os.path.join(path, url_md5)
+
+    logger.debug("RSS: Write etag to: {}".format(path_full))
+
+    if os.path.exists(path_full):
+        with open(path_full, 'r') as tmp_file:
+            etag_last = str(tmp_file.readline(1))
+            logger.debug("RSS: etag found locally: {}".format(etag_last))
+            d = feedparser.parse(feed_url, etag=etag_last)
+    else:
+        logger.debug("RSS: no etag found locally")
+        d = feedparser.parse(feed_url)
+
+    logger.debug("RSS: Feed status: {}".format(d.status))
+
+    if d.status == '304':
+        logger.debug("RSS: etag found and feed not updated since. Reed returned etag: {}".format(d.etag))
+        return False
+    else:
+        with open(path_full, 'w') as tmp_file:
+            logger.debug("RSS: write current etag: {}".format(d.etag))
+            tmp_file.writelines(str(d.etag))
 
     for entry in d.entries:
         if date_yesterday in entry.title:
@@ -111,7 +136,10 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
     for note in api.state["notes"]:
         if note["item_id"] == taskid:
             if 'https://' in note["content"] and '.xml' in note["content"]:
-                url_yesterday = get_latest_yt_video_rss(note["content"])
+                url_yesterday = get_latest_yt_video_rss(note["content"], path)
+                if not url_yesterday:
+                    logger.debug("RSS: Skipping this Update")
+                    return
                 command_chromecast = '#!/bin/sh\n' \
                                      '\n' \
                                      'source pre.sh \n' \
