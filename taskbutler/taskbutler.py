@@ -44,7 +44,7 @@ def get_latest_yt_video_rss(feed_url):
 
     for entry in d.entries:
         if date_yesterday in entry.title:
-            return entry.url
+            return entry.link
 
     logger.error("Latest video not found")
     return "ERROR - URL NOT FOUND"
@@ -118,8 +118,15 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
                                      'source pre.sh \n' \
                                      '\n' \
                                      'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
-                                     '--data \'{"device":"Beamer", "type":"remote", "source": "' + url_yesterday + '"}\' ' \
-                                                                                                                   'http://' + relay_ip + ':' + port + '/cast'
+                                     '--data \'{"command":"Schalte Beamerstrom an", "converse":"false", "user": "' + username + '"}\' ' \
+                                                                                                                                'http://' + relay_ip + ':' + port + '/assistant' \
+                                                                                                                                                                    '\n' \
+                                                                                                                                                                    'sleep 15' \
+                                                                                                                                                                    '\n' \
+                                                                                                                                                                    'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
+                                                                                                                                                                    '--data \'{"device":"Beamer", "type":"remote", "source": "' + url_yesterday + '"}\' ' \
+                                                                                                                                                                                                                                                  'http://' + relay_ip + ':' + port + '/cast' \
+                                                                                                                                                                                                                                                                                      '\n'
                 command = command_chromecast
                 logger.debug("RSS feed fount: {}".format(note['content']))
 
