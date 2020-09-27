@@ -119,14 +119,14 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
                                      '\n' \
                                      'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
                                      '--data \'{"command":"Schalte Beamerstrom an", "converse":"false", "user": "' + username + '"}\' ' \
-                                                                                                                                'http://' + relay_ip + ':' + port + '/assistant' \
-                                                                                                                                                                    'echo "wake up done" \n' \
-                                                                                                                                                                    'sleep 35 \n' \
-                                                                                                                                                                    'echo "cast now" \n' \
-                                                                                                                                                                    'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
-                                                                                                                                                                    '--data \'{"device":"Beamer", "type":"remote", "source": "' + url_yesterday + '"}\' ' \
-                                                                                                                                                                                                                                                  'http://' + relay_ip + ':' + port + '/cast' \
-                                                                                                                                                                                                                                                                                      '\n'
+                                    'http://' + relay_ip + ':' + port + '/assistant' \
+                                    'echo "wake up done" \n' \
+                                    'sleep 35 \n' \
+                                    'echo "cast now" \n' \
+                                    'curl --show-error --silent --header "Content-Type: application/json" --request POST ' \
+                                    '--data \'{"device":"Beamer", "type":"remote", "source": "' + url_yesterday + '"}\' ' \
+                                    'http://' + relay_ip + ':' + port + '/cast' \
+                                    '\n'
                 command = command_chromecast
                 logger.debug("RSS feed fount: {}".format(note['content']))
 
