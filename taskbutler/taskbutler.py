@@ -157,7 +157,7 @@ def createCronjob(taskid, path, username, relay_ip, port, cronjob_append, api):
                                     'http://' + relay_ip + ':' + port + '/cast' \
                                     '\n'
                 command = command_chromecast
-                logger.debug("RSS feed fount: {}".format(note['content']))
+                logger.debug("RSS feed found: {}".format(note['content']))
 
     if cronjob_append:
         cronjob_append = ' ' + cronjob_append
