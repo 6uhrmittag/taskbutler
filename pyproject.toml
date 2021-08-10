@@ -1,0 +1,68 @@
+[tool]
+[tool.poetry]
+name = "taskbutler"
+version = "2.1.1"
+homepage = "https://github.com/6uhrmittag/taskbutler"
+description = "Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks."
+authors = ["Marvin Heimbrodt <marvin@6uhrmittag.de>"]
+readme = "README.md"
+license =  "MIT"
+classifiers=[
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Natural Language :: English',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+]
+packages = [
+    { include = "taskbutler" },
+    { include = "tests", format = "sdist" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.6.1,<4.0"
+certifi = "^2021.5.30"
+click = "^8.0.1"
+dropbox = "^11.15.0"
+todoist-python = "^8.1.3"
+
+[tool.poetry.extras]
+test = [
+    "pytest",
+    "black",
+    "isort",
+    "flake8",
+    "flake8-docstrings",
+    "pytest-cov"
+    ]
+
+dev = ["tox", "virtualenv", "pip", "twine", "toml"]
+
+[tool.poetry.scripts]
+python_boilerplate = 'taskbutler.cli:main'
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
