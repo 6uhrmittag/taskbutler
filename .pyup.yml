@@ -1,6 +1,7 @@
 # set the default branch
 # default: empty, the default branch on GitHub
-branch: master
+branch: pyup_updates
+schedule: "every two weeks"
 requirements:
   - requirements.txt:
       # don't update dependencies, use global 'pin' default
