@@ -86,7 +86,7 @@ requirements
 ------------
 
 - Ubuntu 16 and up
-- tested with Python 3.5 and up
+- tested with Python 3.6 and up
 
 install
 -------
