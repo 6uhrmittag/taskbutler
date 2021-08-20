@@ -51,10 +51,10 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
-	flake8 taskbutler tests
+	flake8 --exit-zero taskbutler tests
 
 test: ## run tests quickly with the default Python
-	py.test
+	tox -e test
 
 test-all: ## run tests on every Python version with tox
 	tox
@@ -80,8 +80,7 @@ release: dist ## package and upload a release
 	twine upload dist/*
 
 dist: clean ## builds source and wheel package
-	python setup.py sdist
-	python setup.py bdist_wheel
+	python -m build  --sdist --wheel
 	ls -l dist
 
 install: clean ## install the package to the active Python's site-packages
