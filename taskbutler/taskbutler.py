@@ -76,7 +76,7 @@ def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -
     Creates new dropbox file with given name. Returns a office online URL
     Requires a authorized dropbox -> office365 connection
 
-    :param folder: folder in dropbox. Relativ from /
+    :param folder: folder in dropbox. Relative from /
     :type dropbox_prepart_files: object URL pre-part to create dropbox/office365 url
     :param title: (str) Title of the newly created file (special characters will get stripped)
     :param templatefile: (str) Path to template file
@@ -109,7 +109,7 @@ def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -
             "Probably folder is not existent. Create folder:{} manually. Original: {}".format(folder, err.error))
         raise SystemExit(1)
 
-    # Seperate filename - filetype
+    # Separate filename - filetype
     filetype = templatefile.rsplit(".", 1)[1]
     loggerdb.debug("Filetype: {}".format(filetype))
 
@@ -135,7 +135,7 @@ def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -
     """
     Creates new dropbox paper document in given folder with given title and returns full URL.
 
-    :type sharing: (str or bool) Wether to make paper public or not
+    :type sharing: (str or bool) Make paper public or not
     :param title: (str) Title of the newly created document (markdown)
     :param dbx: dropbox api object
     :param todoistfolderid: (str) Folder ID of folder to save paper to
@@ -300,7 +300,7 @@ def addurltotask(title_old, url, progress_seperator):
 def gettasktitle(title, progress_seperator):
     # TODO: returns tailing space!  REMOVE!
     """
-    Get task title withouth meta
+    Get task title without meta
     :type progress_seperator: str progress seperator
     :param title: Task title with seperator
     :return:
@@ -315,7 +315,7 @@ def gettasktitle(title, progress_seperator):
 
 def addToTitle(title, valueToAdd, seperator):
     """
-    Combindes values to new title
+    Combines values to new title
     :type seperator: str seperator character
     :param valueToAdd: str value
     :param title: Task title without seperator
@@ -368,7 +368,7 @@ def main():
         # Set logging format
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-        # Make sure to output everthing as long no loglevel is set
+        # Make sure to output everything as long no loglevel is set
         loggerinit = logging.getLogger("Taskbutler")
         loggerinit.setLevel(logging.DEBUG)
         handler = logging.StreamHandler()
@@ -647,7 +647,7 @@ def main():
         checkforupdate(config["config"]["version"], config["config"]["update_url"])
 
     # Dropbox paper feature
-    # Drpopbox paper is disabled in devmode -> will create files every time since url is not written in task title.
+    # Dropbox paper is disabled in devmode -> will create files every time since url is not written in task title.
     # Dropbox paper is annoying to cleanup
     if not devmode:
         if label_todoist_dropboxpaper:
