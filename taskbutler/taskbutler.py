@@ -666,7 +666,7 @@ def main():
                                                  todoist_paper_sharing)
                     item.update(content=addurltotask(item['content'], newurl, todoist_seperator))
                     loggerdb.info("Added paper to task: {}".format(item['content']))
-            if not devmode:
+            if not devmode and len(api.queue):
                 api.commit()
                 loggerdb.debug("Sync done")
         else:
@@ -688,7 +688,7 @@ def main():
                                            todoist_dropbox_prepart_files, dropbox_todoist_folder)
                 item.update(content=addurltotask(item['content'], newurl, todoist_seperator))
                 loggerdb.info("Added File to Task: {}".format(item['content']))
-        if not devmode:
+        if not devmode and len(api.queue):
             api.commit()
             loggerdb.debug("Sync done")
     else:
