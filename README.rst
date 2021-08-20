@@ -4,9 +4,9 @@ Taskbutler
 
 Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.
 
-.. image:: https://travis-ci.org/6uhrmittag/taskbutler.svg?branch=master
-    :target: https://travis-ci.org/6uhrmittag/taskbutler
-    :alt: Travis
+.. image:: https://github.com/6uhrmittag/taskbutler/actions/workflows/release.yml/badge.svg
+    :target: https://github.com/6uhrmittag/taskbutler/actions/workflows/release.yml
+    :alt: GithubActions
 
 .. image:: https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/badge/master
     :target: https://www.codefactor.io/repository/github/6uhrmittag/taskbutler/overview/master
