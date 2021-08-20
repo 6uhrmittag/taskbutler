@@ -28,7 +28,7 @@ Features
 ========
 
 -  **add progress bars to task-lists in Todoist (unicode,
-   cross-plattform)**
+   cross-platform)**
 
    -  Create a new task list and add the label "progressbar". Now you always know the progress without scrolling to your entire list.
 
@@ -106,7 +106,7 @@ configuration
 The configuration is stored in your home directory: `/home/$YourUsername/.taskbutler/config/config.ini`
 
 Each feature can be disabled by leaving the corresponding labelname in
-the config.ini emtpy. Each feature is configured in the config.ini.
+the config.ini empty. Each feature is configured in the config.ini.
 Open, edit and save the file to configure Taskbutler.
 
 If you used Taskbutler before and want to change a setting: **Remember
@@ -309,7 +309,7 @@ Edit the config section in config.ini:
 
 
 -  label_grocery: add the Todoist label you want to use for this feature
--  grocery_seperator: the character that seperates the task name and calculated value
+-  grocery_seperator: the character that separates the task name and calculated value
 -  grocery_currency: your currency. Tested with $ and € - but it should work with all symbols
 
 Start Taskbutler
