@@ -13,10 +13,6 @@ with open('HISTORY.rst') as history_file:
 
 requirements = ['Click>=6.0', 'todoist-python', 'PyGithub', 'requests', 'dropbox']
 
-setup_requirements = ['pytest-runner', ]
-
-test_requirements = ['pytest', 'pytest-testdox', ]
-
 # TODO: mark python3 as required
 setup(
     author="Marvin Heimbrodt",
@@ -44,9 +40,7 @@ setup(
     keywords='taskbutler',
     name='taskbutler',
     packages=find_packages(include=['taskbutler']),
-    setup_requires=setup_requirements,
     test_suite='tests',
-    tests_require=test_requirements,
     url='https://github.com/6uhrmittag/taskbutler',
     version='2.2.5',
     zip_safe=False,
