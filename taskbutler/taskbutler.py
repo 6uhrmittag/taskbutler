@@ -324,6 +324,7 @@ def addToTitle(title, valueToAdd, seperator):
 
     return str(title + ' ' + seperator + valueToAdd)
 
+
 def gettaskwithlabelid(labelid, api):
     """
     Returns a list of Task IDs found with given label-ID
@@ -358,7 +359,8 @@ def main():
 
     # create initial config
     if not os.path.exists(getConfigPaths().file_config()):
-        shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), staticConfig.filename_config_initial), getConfigPaths().file_config())
+        shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), staticConfig.filename_config_initial),
+                    getConfigPaths().file_config())
 
     # Read config.ini
     # TODO refactor read/write config -> https://docs.python.org/3/library/configparser.html
@@ -383,8 +385,9 @@ def main():
 
         # If no logfile given, log to console
         if "log" in config.sections() and "logfile" in config["log"]:
-            handler = logging.handlers.TimedRotatingFileHandler(os.path.join(getConfigPaths().log(), config["log"]["logfile"]), when="d", interval=7,
-                                                                backupCount=2, encoding='utf-8')
+            handler = logging.handlers.TimedRotatingFileHandler(
+                os.path.join(getConfigPaths().log(), config["log"]["logfile"]), when="d", interval=7,
+                backupCount=2, encoding='utf-8')
             loggerinit.info("Set logging file: {}".format(handler.baseFilename))
             logger.propagate = False
             loggerdb.propagate = False
@@ -517,7 +520,8 @@ def main():
             run = run - 1
 
             for task in api.state['items']:
-                if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not getattr(task, 'is_archived', 0):
+                if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
+                    'in_history'] and not getattr(task, 'is_archived', 0):
                     for label in task['labels']:
                         if label == label_grocery_id:
                             logger.debug("Found grocery list: {}".format(task['content']))
@@ -525,18 +529,23 @@ def main():
                             grocery_value_total_old = float(0)
                             grocery_value_total_new = float(0)
 
-                            grocery_value_total_old = getRawPriceFromGrocery(task['content'], grocery_currency, grocery_seperator)
+                            grocery_value_total_old = getRawPriceFromGrocery(task['content'], grocery_currency,
+                                                                             grocery_seperator)
 
                             for groceryItem in api.state['items']:
                                 if not groceryItem['content'].startswith("*"):
                                     # * -> Skip "text only Tasks"
 
-                                    if not groceryItem['is_deleted'] and not groceryItem['in_history'] and groceryItem['parent_id'] == task['id']:
+                                    if not groceryItem['is_deleted'] and not groceryItem['in_history'] and groceryItem[
+                                        'parent_id'] == task['id']:
                                         grocery_value_single = float(0)
                                         grocery_value_full = ""
 
-                                        logger.debug("Found item to add: {}".format(groceryItem['content'], groceryItem['id']))
-                                        grocery_value_single = getRawPriceFromGrocery(groceryItem['content'], grocery_currency, grocery_seperator, isTitle=False)
+                                        logger.debug(
+                                            "Found item to add: {}".format(groceryItem['content'], groceryItem['id']))
+                                        grocery_value_single = getRawPriceFromGrocery(groceryItem['content'],
+                                                                                      grocery_currency,
+                                                                                      grocery_seperator, isTitle=False)
                                         grocery_value_total_new = grocery_value_total_new + grocery_value_single
 
                             logger.debug("Check if sum changed")
@@ -547,7 +556,8 @@ def main():
 
                                 logger.debug("old title: {}".format(gettasktitle(task['content'], grocery_seperator)))
 
-                                newTitle = addToTitle(gettasktitle(task['content'], grocery_seperator), ' ' + localizePrice(grocery_value_total_new, grocery_currency),
+                                newTitle = addToTitle(gettasktitle(task['content'], grocery_seperator),
+                                                      ' ' + localizePrice(grocery_value_total_new, grocery_currency),
                                                       grocery_seperator, )
                                 logger.info("new title: {}".format(newTitle))
                                 task.update(content=newTitle)
@@ -566,7 +576,6 @@ def main():
                 logger.debug("Sync done")
         else:
             logger.debug("Grocery feature disabled. No labelname found.")
-
 
     if label_progress:
 
