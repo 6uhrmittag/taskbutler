@@ -11,3 +11,5 @@ macholib==1.11
 pefile==2019.4.18
 pip==19.2.3
 dropbox==9.4.0
+python-crontab==2.5.1
+feedparser>=6.0.1
