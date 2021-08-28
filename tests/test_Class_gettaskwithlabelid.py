@@ -36,14 +36,17 @@ class TestClassGetTaskWithLabelID:
         return existingLabels
 
     def test_Returns_wist_with_existing_label(self, labelID, API_BEFORE, existingLabels):
-        dings = taskbutler.gettaskwithlabelid(labelID, API_BEFORE)
+        taskbutler.api = API_BEFORE
+        dings = taskbutler.gettaskwithlabelid(labelID)
         assert dings == existingLabels
 
     def test_Returns_empty_list_when_no_label_is_found(self, API_BEFORE, existingLabels):
-        dings = taskbutler.gettaskwithlabelid(11, API_BEFORE)
+        taskbutler.api = API_BEFORE
+        dings = taskbutler.gettaskwithlabelid(11)
         assert dings == []
 
     @pytest.mark.skip(reason="TODO: Not implemented yet")
     def test_Raises_an_error_if_label_empty(self, API_BEFORE, existingLabels):
+        taskbutler.api = API_BEFORE
         with pytest.raises(ValueError, match="not found"):
-            taskbutler.gettaskwithlabelid("", API_BEFORE)
+            taskbutler.gettaskwithlabelid("")

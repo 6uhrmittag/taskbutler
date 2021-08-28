@@ -43,13 +43,13 @@ def localizePrice(value, currency) -> str:
     return price + currency
 
 
-def getRawPriceFromGrocery(title, grocery_currency, grocery_seperator, isTitle=True) -> float:
+def getRawPriceFromGrocery(title, _grocery_currency, _grocery_seperator, isTitle=True) -> float:
     """
     Returns raw decimal price from title - strips currency  and seperator from task title.
     Also replaces comma with dot
     :param title:
-    :param grocery_currency:
-    :param grocery_seperator:
+    :param _grocery_currency:
+    :param _grocery_seperator:
     :param isTitle:
     :return: raw item value/price
     """
@@ -58,20 +58,20 @@ def getRawPriceFromGrocery(title, grocery_currency, grocery_seperator, isTitle=T
     value_full = ""
 
     if isTitle:
-        value_full = title.split(grocery_seperator)
+        value_full = title.split(_grocery_seperator)
     else:
         value_full = title.split()
 
     for x in value_full:
-        if grocery_currency in x:
-            value_raw = x.strip(grocery_currency)
+        if _grocery_currency in x:
+            value_raw = x.strip(_grocery_currency)
             value_raw = float(value_raw.replace(",", "."))
             break
     logger.debug("value_raw: {}".format(value_raw))
     return value_raw
 
 
-def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -> str:
+def createdropboxfile(title, templatefile, dropbox_prepart_files, folder) -> str:
     """
     Creates new dropbox file with given name. Returns a office online URL
     Requires a authorized dropbox -> office365 connection
@@ -80,7 +80,6 @@ def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -
     :type dropbox_prepart_files: object URL pre-part to create dropbox/office365 url
     :param title: (str) Title of the newly created file (special characters will get stripped)
     :param templatefile: (str) Path to template file
-    :param dbx: dropbox api object
     :return: office online URL
     """
     # https://github.com/dropbox/dropbox-sdk-python/blob/master/example/back-up-and-restore/backup-and-restore-example.py
@@ -104,9 +103,9 @@ def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -
         else:
             filename = filename + "1"
             loggerdb.debug("Duplicate filename found. Renaming {} to {}".format(title, filename))
-    except ApiError as err:
+    except ApiError as _err:
         loggerdb.error(
-            "Probably folder is not existent. Create folder:{} manually. Original: {}".format(folder, err.error))
+            "Probably folder is not existent. Create folder:{} manually. Original: {}".format(folder, _err.error))
         raise SystemExit(1)
 
     # Separate filename - filetype
@@ -126,18 +125,17 @@ def createdropboxfile(title, dbx, templatefile, dropbox_prepart_files, folder) -
             loggerdb.debug("URL for new Dropbox file: {}".format(todoist_dropboxfile_url))
             return todoist_dropboxfile_url
 
-        except Exception as err:
-            loggerdb.error("Something went wrong: {}".format(err))
+        except Exception as _err:
+            loggerdb.error("Something went wrong: {}".format(_err))
             raise SystemExit(1)
 
 
-def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -> str:
+def createpaperdocument(title, todoistfolderid, todoistpaperurl, sharing) -> str:
     """
     Creates new dropbox paper document in given folder with given title and returns full URL.
 
     :type sharing: (str or bool) Make paper public or not
     :param title: (str) Title of the newly created document (markdown)
-    :param dbx: dropbox api object
     :param todoistfolderid: (str) Folder ID of folder to save paper to
     :param todoistpaperurl: (str) Dropbox paper URL pre-part to build full Link from. "this-part.com\"paperid
     :return: Full URL to created paper
@@ -167,21 +165,20 @@ def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -
     return todoist_paper_url
 
 
-def gettodoistfolderid(foldername: str, dbx):
+def gettodoistfolderid(foldername: str):
     """
 
     Dropbox - Get Folder ID of folder "todoist" from user account
     Note : only finds folder once a paper is created in. create test paper first.
 
     :param foldername: foldername to look for
-    :param dbx: dropbox object
     :return: folder ID for given name
     """
 
     loggerdb.debug("Lookup ID for paper folder: {}".format(foldername))
 
     paper = dbx.paper_docs_list()
-    todoist_folder_id = ""
+    _todoist_folder_id = ""
     while paper.has_more:
         paper += dbx.paper_docs_list_continue(paper)
     for entry in paper.doc_ids:
@@ -192,37 +189,37 @@ def gettodoistfolderid(foldername: str, dbx):
             # print("in Folder: " + folder_meta.folders[0].name + " id: " + folder_meta.folders[0].id)
             if folder_meta.folders[0].name == foldername:
                 # print("id: " + folder_meta.folders[0].id)
-                todoist_folder_id = folder_meta.folders[0].id
-                loggerdb.debug("Paper folder set as todoist folder: {}".format(todoist_folder_id))
+                _todoist_folder_id = folder_meta.folders[0].id
+                loggerdb.debug("Paper folder set as todoist folder: {}".format(_todoist_folder_id))
                 break
             # print(folder_meta.folders[0].id)
         # print(document_response)
 
-    return todoist_folder_id
+    return _todoist_folder_id
 
 
-def getprogresssymbols(progress_done, secrets):
+def getprogresssymbols(_progress_done, secrets):
     """
     Returns unicode bar based on given percentage.
 
     :param secrets:
-    :param progress_done: (int, float) percentage of progress
+    :param _progress_done: (int, float) percentage of progress
     :return: (str) unicode bar
     """
 
     # TODO change to switch-case
     item_progressbar = ""
-    if progress_done == 0:
+    if _progress_done == 0:
         item_progressbar = secrets["todoist"]["progress_bar_0"]
-    if progress_done > 0 and progress_done <= 20:
+    if _progress_done > 0 and _progress_done <= 20:
         item_progressbar = secrets["todoist"]["progress_bar_20"]
-    if progress_done > 20 and progress_done <= 40:
+    if _progress_done > 20 and _progress_done <= 40:
         item_progressbar = secrets["todoist"]["progress_bar_40"]
-    if progress_done > 40 and progress_done <= 60:
+    if _progress_done > 40 and _progress_done <= 60:
         item_progressbar = secrets["todoist"]["progress_bar_60"]
-    if progress_done > 60 and progress_done <= 80:
+    if _progress_done > 60 and _progress_done <= 80:
         item_progressbar = secrets["todoist"]["progress_bar_80"]
-    if progress_done > 80 and progress_done <= 100:
+    if _progress_done > 80 and _progress_done <= 100:
         item_progressbar = secrets["todoist"]["progress_bar_100"]
     return str(item_progressbar)
 
@@ -259,15 +256,11 @@ def checkforupdate(currentversion, updateurl):
         return 1
 
 
-def getlabelid(labelname: str, api: object) -> str:
+def getlabelid(labelname: str) -> str:
     """
     Todoist - Returns ID of given labelname
 
-    :param labelname: str
-    Name of label to search for
-
-    :param api: Todoist api object
-
+    :param labelname: (str) Name of label to search for
     :return: ID of labelname
     """
     logger.debug("Searching for ID of label: {}".format(labelname))
@@ -279,9 +272,9 @@ def getlabelid(labelname: str, api: object) -> str:
                 logger.debug("ID for label: {} found! ID: {}".format(labelname, label_progress_id))
                 return label_progress_id
         raise ValueError('Label not found in Todoist. Skipped!')
-    except ValueError as error:
-        logger.error("{}".format(error))
-        raise ValueError(error)
+    except ValueError as _error:
+        logger.error("{}".format(_error))
+        raise ValueError(_error)
 
 
 def addurltotask(title_old, url, progress_seperator):
@@ -325,25 +318,24 @@ def addToTitle(title, valueToAdd, seperator):
     return str(title + ' ' + seperator + valueToAdd)
 
 
-def gettaskwithlabelid(labelid, api):
+def gettaskwithlabelid(labelid):
     """
     Returns a list of Task IDs found with given label-ID
 
     :param labelid: (str) label ID of label to search for
-    :param api: (obj) todoist api
     :return: (list) found Task IDs
     """
     found = []
-    for task in api.state['items']:
-        if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
-            'in_history'] and not getattr(task, 'is_archived', 0):
-            for label in task['labels']:
-                if label == labelid:
-                    found.append(task['id'])
+    for _task in api.state['items']:
+        if not isinstance(_task['id'], str) and _task['labels'] and not _task['is_deleted'] and not _task[
+            'in_history'] and not _task['checked']:
+            for _label in _task['labels']:
+                if _label == labelid:
+                    found.append(_task['id'])
     return found
 
 
-def main():
+if __name__ == '__main__':
     # create config
     if not os.path.exists(getConfigPaths().config()):
         os.mkdir(getConfigPaths().app(), mode=0o750)
@@ -386,8 +378,7 @@ def main():
         # If no logfile given, log to console
         if "log" in config.sections() and "logfile" in config["log"]:
             handler = logging.handlers.TimedRotatingFileHandler(
-                os.path.join(getConfigPaths().log(), config["log"]["logfile"]), when="d", interval=7,
-                backupCount=2, encoding='utf-8')
+                os.path.join(getConfigPaths().log(), config["log"]["logfile"]), when="d", interval=7, backupCount=2, encoding='utf-8')
             loggerinit.info("Set logging file: {}".format(handler.baseFilename))
             logger.propagate = False
             loggerdb.propagate = False
@@ -485,7 +476,7 @@ def main():
                 #     loggerdb.debug("Dropbox paper - folder-ID is outdated. Resetting.")
                 #     todoist_folder_id = None
             else:
-                todoist_folder_id = gettodoistfolderid(todoist_folder_name, dbx)
+                todoist_folder_id = gettodoistfolderid(todoist_folder_name)
                 config.set('dropboxpaper', 'todoistfolderid', todoist_folder_id)
                 with open(getConfigPaths().file_config(), 'w') as configfile:
                     config.write(codecs.open(getConfigPaths().file_config(), 'wb+', 'utf-8'))
@@ -513,7 +504,7 @@ def main():
         # List projects
 
     if grocery_label:
-        label_grocery_id = getlabelid(grocery_label, api)
+        label_grocery_id = getlabelid(grocery_label)
         run = 2
         # run 2x to get nestet lists right in one run
         while run != 0:
@@ -521,7 +512,7 @@ def main():
 
             for task in api.state['items']:
                 if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
-                    'in_history'] and not getattr(task, 'is_archived', 0):
+                    'in_history'] and not task['checked']:
                     for label in task['labels']:
                         if label == label_grocery_id:
                             logger.debug("Found grocery list: {}".format(task['content']))
@@ -579,17 +570,16 @@ def main():
 
     if label_progress:
 
-        label_progress_id = getlabelid(label_progress, api)
+        label_progress_id = getlabelid(label_progress)
         counter_progress = 0
         counter_changed_items = 0
 
         for task in api.state['items']:
-            if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task[
-                'in_history'] and not getattr(task, 'is_archived', 0):
+            if not isinstance(task['id'], str) and task['labels'] and not task['is_deleted'] and not task['in_history'] and not task['checked']:
                 for label in task['labels']:
                     if label == label_progress_id:
                         logger.debug("Found task to track: {}".format(task['content']))
-
+                        logger.debug("task: {}".format(task))
                         counter_progress = counter_progress + 1
                         subtasks_total = 0
                         subtasks_done = 0
@@ -628,16 +618,15 @@ def main():
                         item_content = item_content_new + "" + config["todoist"][
                             "progress_seperator"] + " " + getprogresssymbols(progress_done, config) + " " + str(
                             progress_done) + ' %'
-
                         if not item_task_old == item_content:
                             logger.debug(
                                 "Task progress updated!\nOld title :{}\nNew title :{}".format(item_task_old,
                                                                                               item_content))
-
                             item = api.items.get_by_id(task['id'])
                             item.update(content=item_content)
 
                             counter_changed_items = counter_changed_items + 1
+                            logger.debug("task: {}".format(task))
         # Sync
         if not devmode:
             # TODO api.commit + api.sync could be a dubplicate. api.sync is added to prevent issues after changing titles
@@ -662,14 +651,14 @@ def main():
         if label_todoist_dropboxpaper:
             # Dropbox Paper
             loggerdb.debug("Dropbox paper start")
-            labelidid = getlabelid(label_todoist_dropboxpaper, api)
-            taskid = gettaskwithlabelid(labelidid, api)
+            labelidid = getlabelid(label_todoist_dropboxpaper)
+            taskid = gettaskwithlabelid(labelidid)
 
             for task in taskid:
                 item = api.items.get_by_id(task)
                 if "https://" not in item['content'] and not item['is_deleted'] and not item[
-                    'in_history'] and not getattr(item, 'is_archived', 0):
-                    newurl = createpaperdocument(gettasktitle(item['content'], todoist_seperator), dbx,
+                    'in_history'] and not task['checked']:
+                    newurl = createpaperdocument(gettasktitle(item['content'], todoist_seperator),
                                                  config.get('dropboxpaper', 'todoistfolderid'),
                                                  config.get('dropboxpaper', 'url'),
                                                  todoist_paper_sharing)
@@ -686,14 +675,14 @@ def main():
     # Dropbox -> Microsoft office feature
     if label_todoist_dropboxoffice:
         loggerdb.debug("Dropbox file start")
-        labelidid = getlabelid(label_todoist_dropboxoffice, api)
-        taskid = gettaskwithlabelid(labelidid, api)
+        labelidid = getlabelid(label_todoist_dropboxoffice)
+        taskid = gettaskwithlabelid(labelidid)
 
         for task in taskid:
             item = api.items.get_by_id(task)
             if "https://" not in item['content'] and not item['is_deleted'] and not item[
-                'in_history'] and not getattr(item, 'is_archived', 0):
-                newurl = createdropboxfile(item["content"], dbx, todoist_dropbox_templatefile,
+                'in_history'] and not task['checked']:
+                newurl = createdropboxfile(item["content"], todoist_dropbox_templatefile,
                                            todoist_dropbox_prepart_files, dropbox_todoist_folder)
                 item.update(content=addurltotask(item['content'], newurl, todoist_seperator))
                 loggerdb.info("Added File to Task: {}".format(item['content']))
@@ -704,9 +693,5 @@ def main():
         logger.info("Dropbox to Office feature disabled. No labelname found.")
 
     logger.info("Taskbutler end")
-
-
-if __name__ == '__main__':
-    main()
 
 # Note: https://pytodoist.readthedocs.io/en/latest/modules.html
