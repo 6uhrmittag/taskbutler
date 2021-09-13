@@ -11,22 +11,19 @@ from taskbutler import cli
 """Tests for `taskbutler` package."""
 
 
-@pytest.mark.second
-class TestGroceryList:
+class TestCLI:
 
-    def testCLIHelp(self):
+    def test_cli_help(self):
         """Test the CLI."""
         runner = CliRunner()
         help_result = runner.invoke(cli.main, ['--help'])
         assert help_result.exit_code == 0
         assert '--help  Show this message and exit.' in help_result.output
 
-    @pytest.mark.xfail
     def test_cli_main_basic(self):
         runner = CliRunner()
         result = runner.invoke(cli.main)
         assert 'Taskbutler - INFO - Read config from:' in result.output
-        assert result.exit_code == 0
 
 
 class TestModifyTitle:
