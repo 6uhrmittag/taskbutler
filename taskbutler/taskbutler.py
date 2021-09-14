@@ -22,6 +22,10 @@ from .config import staticConfig, getConfigPaths
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
+loggerjira = logging.getLogger('jira')
+
+
+JIRA_SITE_MANDATORY_KEYS = ['url', 'username', 'password']
 
 
 def localizePrice(value, currency) -> str:
@@ -165,6 +169,116 @@ def createpaperdocument(title, dbx, todoistfolderid, todoistpaperurl, sharing) -
         loggerdb.error("API ERROR\nOriginal Error: {}".format(e))
         raise SystemExit(1)
     return todoist_paper_url
+
+
+def expandjiralinks(*, devmode, api, config):
+    """Go through all Todoist tasks and expand Jira links.
+
+    This will then replace the task title to be the Jira ticket description,
+    and create a link to the ticket.
+    """
+    jira_config = getjiraconfig(config)
+
+    sites = tuple(jira_config['sites'].keys())
+    loggerjira.debug('Jira sites: %r', sites)
+    prefix_pattern = r'^((' + '|'.join(jira_config['prefixes'].keys()) + r')-(\d+))'
+    loggerjira.debug('Jira prefix pattern: %r', prefix_pattern)
+    has_prefix = re.compile(prefix_pattern).match
+
+    tasks_count = 0
+    tasks_processed = 0
+    all_tasks = api.items.all()
+    for task in all_tasks:
+        title = task['content'].strip()
+        resolved = None
+        if title.startswith(sites):
+            loggerjira.debug(f"Site URL found in {title}")
+            resolved = resolvejiralink(title, jira_config=jira_config)
+        elif has_prefix(title):
+            loggerjira.debug(f"Site prefix found in {title}")
+            resolved = resolvejiraticketnumber(title, jira_config=jira_config)
+
+        if resolved:
+            newtitle, newurl = resolved
+            new_content = f'[{newtitle}]({newurl})'
+            loggerjira.debug(f"Updating task content to {new_content!r}")
+            tasks_processed += 1
+            if not devmode:
+                task.update(content=new_content)
+
+        tasks_count += 1
+
+    loggerjira.debug("Looked at %d tasks, updated %d", tasks_count, tasks_processed)
+
+    if not devmode and len(api.queue):
+        api.commit()
+        loggerjira.debug("Sync done")
+
+
+def resolvejiralink(url, *, jira_config):
+    for site_url, site_config in jira_config['sites'].items():
+        if url.startswith(site_url):
+            pattern = re.escape(site_url) + '/browse/([A-Z]+-[0-9]+).*'
+            match = re.match(pattern, url)
+            if match:
+                ticket = match.group(1)
+                return resolvejiraticketnumber(ticket, jira_config=jira_config, site_config=site_config)
+
+
+def resolvejiraticketnumber(ticket, *, jira_config, site_config=None):
+    if not site_config:
+        prefix = ticket.split('-')[0]
+        site_url = jira_config['prefixes'].get(prefix)
+        site_config = jira_config['sites'][site_url]
+
+    if site_config:
+        instance_url = site_config['url'].rstrip('/')
+        auth = (site_config['username'], site_config['password'])
+        details = requests.get(f"{instance_url}/rest/api/3/issue/{ticket}", auth=auth)
+        details_data = details.json()
+        if details_data.get("key"):
+            key = details_data["key"]
+            title = f"{key} - {details_data['fields']['summary']}"
+            url = f"{instance_url}/browse/{key}"
+            return title, url
+
+
+def getjiraconfig(config):
+    """Parse the configuration for the Jira functionality.
+    """
+    ret = {
+        'sites': {},
+        'prefixes': {},
+    }
+
+    for section in config.sections():
+        if section.startswith('jira.'):
+            site = {}
+            for key in JIRA_SITE_MANDATORY_KEYS:
+                value = config.get(section, key, fallback=None)
+                if not value:
+                    loggerjira.error(f"Missing config key {key} in section {section}.")
+                    raise SystemExit(1)
+                site[key] = value
+
+            url = site['url'].lower().strip('/')
+            if url in ret['sites']:
+                loggerjira.error(f"Duplicate Jira URL {url}. Can only be used by one site.")
+                raise SystemExit(1)
+            ret['sites'][url] = site
+
+            # Register the prefix to point to this site
+            prefix_str = config.get(section, 'prefix', fallback=None)
+            if prefix_str:
+                prefixes = filter(None, map(str.strip, prefix_str.split(',')))
+                site['prefixes'] = prefixes
+                for prefix in prefixes:
+                    if prefix in ret['prefixes']:
+                        loggerjira.error(f"Duplicate Jira prefix {prefix}. Can only be used by one site.")
+                        raise SystemExit(1)
+                    ret['prefixes'][prefix] = url
+
+    return ret
 
 
 def gettodoistfolderid(foldername: str, dbx):
@@ -392,27 +506,32 @@ def main():
             logger.propagate = False
             loggerdb.propagate = False
             loggerdg.propagate = False
+            loggerjira.propagate = False
         else:
             handler = logging.StreamHandler()
             loggerinit.info("Set log output to console")
             logger.propagate = False
             loggerdb.propagate = False
             loggerdg.propagate = False
+            loggerjira.propagate = False
 
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         loggerdb.addHandler(handler)
         loggerdg.addHandler(handler)
+        loggerjira.addHandler(handler)
 
         # Set loglevel. Default is DEBUG
         if "log" in config.sections() and "loglevel" in config["log"]:
             logger.setLevel(logging.getLevelName(config["log"]["loglevel"]))
             loggerdb.setLevel(logging.getLevelName(config["log"]["loglevel"]))
             loggerdg.setLevel(logging.getLevelName(config["log"]["loglevel"]))
+            loggerjira.setLevel(logging.getLevelName(config["log"]["loglevel"]))
         else:
             logger.setLevel(logging.DEBUG)
             loggerdb.setLevel(logging.DEBUG)
             loggerdg.setLevel(logging.DEBUG)
+            loggerjira.setLevel(logging.DEBUG)
 
         logger.info("Set logging level: {}".format(logging.getLevelName(logger.level)))
 
@@ -444,6 +563,8 @@ def main():
         grocery_label = config.get('todoist', 'label_grocery')
         grocery_currency = config.get('todoist', 'grocery_currency')
         grocery_seperator = config.get('todoist', 'grocery_seperator')
+
+        jira_link_expansion_enabled = config.getboolean('jira', 'link_expansion_enabled', fallback=False)
 
         github_apikey = config.get('github', 'apikey')
         github_sync_project_name = config.get('github', 'TodoistProjectToSync')
@@ -702,6 +823,11 @@ def main():
             loggerdb.debug("Sync done")
     else:
         logger.info("Dropbox to Office feature disabled. No labelname found.")
+
+    # Jira feature
+    if jira_link_expansion_enabled:
+        expandjiralinks(devmode=devmode, api=api, config=config)
+        loggerjira.debug("Jira link expansion start")
 
     logger.info("Taskbutler end")
 
