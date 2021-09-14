@@ -44,3 +44,15 @@ TodoistSyncLabel=gsync
 GithubSyncRepoName=
 GithubUsername=
 GithubURLIdentifier=https://github.com/
+
+
+[jira]
+# Change this value to true to enable Jira sync.
+# Also modify the section below then to point to your Jira instance.
+link_expansion_enabled = false
+
+[jira.mysite]
+url = https://mysite.atlassian.net
+username = foo@example.com
+password = JIRA_API_TOKEN_HERE
+prefix = BG,TES
