@@ -326,6 +326,14 @@ Edit the `jira` section in the config.ini file:
 
    [jira]
    link_expansion_enabled = true
+   todoist_project_include = Project 1, Project 2/Subproject B
+   todoist_project_exclude = Project 1/Subproject A, Project 4
+
+Of these, `todoist_project_include` and `todoist_project_exclude` are optional.
+If both are absent, all tasks in all projects are processed.
+If include is present, only the tasks from the listed projects are used.
+With exclude present, all tasks from the given projects are excluded.
+Both lists are comma-separated project names with the slash used to specify sub-projects.
 
 Additionally, for each Jira site for which you want to use this feature, you need to create a separate section with the required configuration:
 
