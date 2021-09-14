@@ -5,6 +5,7 @@ import codecs
 import logging
 import logging.handlers
 from configparser import ConfigParser
+from typing import Optional
 
 import dropbox
 import requests
@@ -177,7 +178,7 @@ def expandjiralinks(*, devmode, api, config):
     This will then replace the task title to be the Jira ticket description,
     and create a link to the ticket.
     """
-    jira_config = getjiraconfig(config)
+    jira_config = getjiraconfig(config, api)
 
     sites = tuple(jira_config['sites'].keys())
     loggerjira.debug('Jira sites: %r', sites)
@@ -185,10 +186,23 @@ def expandjiralinks(*, devmode, api, config):
     loggerjira.debug('Jira prefix pattern: %r', prefix_pattern)
     has_prefix = re.compile(prefix_pattern).match
 
+    project_exclude = jira_config['todoist_project_exclude']
+    project_include = jira_config['todoist_project_include']
+
     tasks_count = 0
     tasks_processed = 0
     all_tasks = api.items.all()
     for task in all_tasks:
+        if task['checked']:
+            # Do not process completed tasks
+            continue
+        elif project_exclude and task['project_id'] in project_exclude:
+            # Ignore tasks in this project
+            continue
+        elif project_include and task['project_id'] not in project_include:
+            # Only process tasks in projects that are specifically included
+            continue
+
         title = task['content'].strip()
         resolved = None
         if title.startswith(sites):
@@ -243,12 +257,16 @@ def resolvejiraticketnumber(ticket, *, jira_config, site_config=None):
             return title, url
 
 
-def getjiraconfig(config):
+def getjiraconfig(config, api):
     """Parse the configuration for the Jira functionality.
     """
     ret = {
         'sites': {},
         'prefixes': {},
+        'todoist_project_include': getprojectids(
+            config.get('jira', 'todoist_project_include', fallback=None), api),
+        'todoist_project_exclude': getprojectids(
+            config.get('jira', 'todoist_project_exclude', fallback=None), api),
     }
 
     for section in config.sections():
@@ -396,6 +414,45 @@ def getlabelid(labelname: str, api: object) -> str:
     except ValueError as error:
         logger.error("{}".format(error))
         raise ValueError(error)
+
+
+def getprojectids(project_list_str: Optional[str], api: object) -> list[int]:
+    """Resolves a string configuration of project names to their IDs.
+    """
+    if not project_list_str:
+        return []
+
+    # Compile a lookup table of all the projects with full hierarchical names.
+    # For this we first get a list of projects by ID, and then use that to
+    # resolve the hierarchy.
+    projects_by_id = {p['id']: p for p in api.projects.all()}
+    projects_by_hierarchy = {}
+    for project in api.projects.all():
+        project_components = [project['name']]
+        parent_project_id = project['parent_id']
+        while parent_project_id:
+            parent_project = projects_by_id[parent_project_id]
+            project_components.insert(0, parent_project['name'])
+            parent_project_id = parent_project['parent_id']
+
+        # Now register this project ID for all the parts of the hierarchy
+        while project_components:
+            project_hierarchy = '/'.join(project_components)
+            projects_by_hierarchy.setdefault(project_hierarchy, []).append(project['id'])
+            project_components.pop()
+
+    ret = []
+    for list_part in project_list_str.split(','):
+        project_hierarchy_normalised = '/'.join(map(str.strip, list_part.strip().split('/')))
+        project_ids = projects_by_hierarchy.get(project_hierarchy_normalised)
+        if project_ids:
+            ret.extend(project_ids)
+        else:
+            logger.error(f"Project name not found: {list_part}")
+            raise SystemExit(1)
+
+    logger.debug('Resolved project list %r to project IDs %r', project_list_str, ret)
+    return ret
 
 
 def addurltotask(title_old, url, progress_seperator):
