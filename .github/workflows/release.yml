@@ -39,8 +39,16 @@ jobs:
         python -m pip install --upgrade build
     - name: bumpversion
       run: |
-        pip install --upgrade bump2version
-        bump2version --no-commit --no-tag --new-version ${RANDOM:0:1}.${RANDOM:1:1}.${RANDOM:2:1} patch
+        export GIT_HASH="$(git rev-parse --short HEAD)"
+        export GIT_BRANCH="$(git branch --show-current)"
+        cp docs/dev_template.rst README.rst
+        GOREPLACE_VERSION=1.1.2 \
+        && wget -O go-replace https://github.com/webdevops/go-replace/releases/download/$GOREPLACE_VERSION/gr-64-linux \
+        && chmod +x go-replace
+        ./go-replace --regex --regex-backrefs  -s '(\d?\d\.\d?\d?\.\d\d?)' -r '${1}dev_GITHASH_' setup.py  taskbutler/config.ini.sample taskbutler/__init__.py README.rst
+        ./go-replace -s _GITHASH_ -r ${GIT_HASH//[!0-9]/} setup.py taskbutler/config.ini.sample taskbutler/__init__.py README.rst
+        ./go-replace --mode=template README.rst
+
     - name: Build a binary wheel and a source tarball
       run: |
         make dist
