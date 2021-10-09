@@ -1,12 +1,12 @@
 """Provides some helpers for accessing data in Todoist.
 """
 import logging
-from typing import Optional
+from typing import Optional, List
 
 logger = logging.getLogger("todoist")
 
 
-def get_project_ids(project_list_str: Optional[str], api: object) -> list[int]:
+def get_project_ids(project_list_str: Optional[str], api: object) -> List[int]:
     """Resolves a string configuration of project names to their IDs."""
     if not project_list_str:
         return []
