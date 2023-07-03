@@ -4,7 +4,7 @@ pygithub>=1.55
 todoist-python>=8.1.1
 requests==2.31.0
 configparser==4.0.2
-certifi==2019.9.11
+certifi==2023.5.7
 chardet==3.0.4
 future==0.17.1
 macholib==1.11
