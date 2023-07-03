@@ -2,7 +2,7 @@ click>=8.0.1
 dropbox>=9.4.0
 pygithub>=1.55
 todoist-python>=8.1.1
-requests==2.22.0
+requests==2.31.0
 configparser==4.0.2
 certifi==2019.9.11
 chardet==3.0.4
