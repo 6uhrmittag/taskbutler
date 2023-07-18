@@ -22,7 +22,7 @@ setup(
     author="Marvin Heimbrodt",
     author_email='marvin@6uhrmittag.de',
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 7 - Inactive',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
@@ -31,7 +31,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    description="Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks.",
+    description="Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks. IMPORTANT NOTICE: The project is currently on hold due to changes in the third-party APIs. I'll try to bring Taskbutler up to date in late 2023.",
     entry_points={
         'console_scripts': [
             'taskbutler=taskbutler.cli:main',

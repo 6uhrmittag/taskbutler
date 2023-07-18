@@ -1,3 +1,8 @@
+.. note::
+   IMPORTANT NOTICE: The project is currently on hold due to changes in third-party APIs.
+
+   I'll try to bring Taskbutler up to date in late 2023.
+
 ==========
 Taskbutler
 ==========
