@@ -1,3 +1,7 @@
+# pyup is temporarily disabled while taskbutler is not under active development!
+# to re-activate rename the file to: .pyup.yml
+
+# For config see https://pyup.io/account/repos/github/6uhrmittag/taskbutler/
 # set the default branch
 # default: empty, the default branch on GitHub
 branch: pyup_updates
