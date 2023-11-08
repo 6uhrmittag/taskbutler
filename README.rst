@@ -66,19 +66,23 @@ Features
 
     .. image:: /_static/feature_grocery.gif
 
+-  **automatically expand links to Jira tasks**
+
+   -  Add links to Atlassian Jira tasks, and have them automatically converted to include the ticket number and description in the task.
+
+
 Prerequisites and notes
 =======================
 **Taskbutler is not associated or connected with Todoist, Dropbox,
-Github or Microsoft.**
+Github, Microsoft, or Atlassian.**
 
 1. You'll need a `Todoist <https://todoist.com>`_ premium account
-2. The Dropbox Paper and Github features require a free account at
-   Dropbox. The Microsoft Office365 feature requires a paid Office365
-   subscription(or a free Microsoft Office 365 Education subscription).
-   *This is optional and not required to use the other features of taskbutler!*
-3. Taskbutler is tested on Ubuntu
-4. For optimal use, Taskbutler should run periodical on a
-   server/computer to continuously update your tasks
+2. The various third-party connections (Dropbox Paper, Github, Office365, Jira) require corresponding accounts and API connections.
+   For Dropbox Paper and Github those accounts are free.
+   The Microsoft Office365 and Atlassian Jira features require paid subscriptions of the respective solution.
+   *All of these are optional and not required to use the other features of taskbutler!*
+3. Taskbutler is tested on Ubuntu and Mac OS
+4. For optimal use, Taskbutler should run periodically on a server/computer to continuously update your tasks
 
 *Even though I never experienced any data loss, it's nice to know
 that* \ `Todoist provides a daily backup of your data. <https://support.todoist.com/hc/en-us/articles/115001799989>`_
@@ -90,13 +94,13 @@ Setup
 requirements
 ------------
 
-- Ubuntu 16 and up
-- tested with Python 3.6 and up
+- Ubuntu 16 and up or Mac OS
+- Tested with Python 3.6 and up
 
 install
 -------
 
-To install the latest taskbutler in your home directory, run this commands in your terminal:
+To install the latest Taskbutler in your home directory, run these commands in your terminal:
 
 .. code-block:: console
 
@@ -105,10 +109,10 @@ To install the latest taskbutler in your home directory, run this commands in yo
     echo 'PATH="$PATH:$HOME/.local/bin/"' >> ~/.bash_profile
 
 
-configuration
+Configuration
 -------------
 
-The configuration is stored in your home directory: `/home/$YourUsername/.taskbutler/config/config.ini`
+The configuration is stored in your home directory: `/home/$YourUsername/.taskbutler/config/config.ini`.
 
 Each feature can be disabled by leaving the corresponding labelname in
 the config.ini empty. Each feature is configured in the config.ini.
@@ -125,7 +129,7 @@ tasks. Changes can easily be tested by using a different labelname.
 Setup Todoist access
 ^^^^^^^^^^^^^^^^^^^^
 
-taskbutler needs access to your Todoist account. This is done via an API key, you'll need to create.
+Taskbutler needs access to your Todoist account. This is done via an API key, you'll need to create.
 This key is like a password - don't share it!
 
 1. Login to Todoist and got to settings -> Integrations (https://todoist.com/prefs/integrations)
@@ -316,6 +320,40 @@ Edit the config section in config.ini:
 -  label_grocery: add the Todoist label you want to use for this feature
 -  grocery_seperator: the character that separates the task name and calculated value
 -  grocery_currency: your currency. Tested with $ and € - but it should work with all symbols
+
+
+Setup Atlassian Jira sync
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Edit the `jira` section in the config.ini file:
+
+.. code:: ini
+
+   [jira]
+   link_expansion_enabled = true
+   todoist_project_include = Project 1, Project 2/Subproject B
+   todoist_project_exclude = Project 1/Subproject A, Project 4
+
+Of these, `todoist_project_include` and `todoist_project_exclude` are optional.
+If both are absent, all tasks in all projects are processed.
+If include is present, only the tasks from the listed projects are used.
+With exclude present, all tasks from the given projects are excluded.
+Both lists are comma-separated project names with the slash used to specify sub-projects.
+
+Additionally, for each Jira site for which you want to use this feature, you need to create a separate section with the required configuration:
+
+.. code:: ini
+
+   [jira.mysite]
+   url = https://mysite.atlassian.net
+   username = foo@example.com
+   password = JIRA_API_TOKEN_HERE
+   prefix = BG,TES
+
+The password must be an API token, not your actual account password (see `Manage API tokens for your Atlassian account <https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/>`_).
+
+The `prefix` key is an optional list of ticket prefixes that should be auto-expanded. In the example above, if you create a Todoist task simply called "BG-123", it will be assumed to refer to a Jira ticket in the `mysite` project and expanded.
+
 
 Start Taskbutler
 ^^^^^^^^^^^^^^^^

@@ -9,7 +9,6 @@ from configparser import ConfigParser
 import dropbox
 import requests
 from dropbox.exceptions import ApiError, AuthError
-from dropbox.files import WriteMode
 from dropbox.paper import ImportFormat, PaperDocCreateError, SharingPublicPolicyType, SharingPolicy
 
 from todoist.api import TodoistAPI
@@ -18,10 +17,12 @@ import shutil
 import re
 
 from .config import staticConfig, getConfigPaths
+from taskbutler.helpers import jira
 
 logger = logging.getLogger('todoist')
 loggerdb = logging.getLogger('dropbox')
 loggerdg = logging.getLogger('github')
+loggerjira = logging.getLogger('jira')
 
 
 def localizePrice(value, currency) -> str:
@@ -389,30 +390,32 @@ def main():
                 os.path.join(getConfigPaths().log(), config["log"]["logfile"]), when="d", interval=7,
                 backupCount=2, encoding='utf-8')
             loggerinit.info("Set logging file: {}".format(handler.baseFilename))
-            logger.propagate = False
-            loggerdb.propagate = False
-            loggerdg.propagate = False
         else:
             handler = logging.StreamHandler()
             loggerinit.info("Set log output to console")
-            logger.propagate = False
-            loggerdb.propagate = False
-            loggerdg.propagate = False
+
+        logger.propagate = False
+        loggerdb.propagate = False
+        loggerdg.propagate = False
+        loggerjira.propagate = False
 
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         loggerdb.addHandler(handler)
         loggerdg.addHandler(handler)
+        loggerjira.addHandler(handler)
 
         # Set loglevel. Default is DEBUG
         if "log" in config.sections() and "loglevel" in config["log"]:
             logger.setLevel(logging.getLevelName(config["log"]["loglevel"]))
             loggerdb.setLevel(logging.getLevelName(config["log"]["loglevel"]))
             loggerdg.setLevel(logging.getLevelName(config["log"]["loglevel"]))
+            loggerjira.setLevel(logging.getLevelName(config["log"]["loglevel"]))
         else:
             logger.setLevel(logging.DEBUG)
             loggerdb.setLevel(logging.DEBUG)
             loggerdg.setLevel(logging.DEBUG)
+            loggerjira.setLevel(logging.DEBUG)
 
         logger.info("Set logging level: {}".format(logging.getLevelName(logger.level)))
 
@@ -702,6 +705,10 @@ def main():
             loggerdb.debug("Sync done")
     else:
         logger.info("Dropbox to Office feature disabled. No labelname found.")
+
+    # Jira feature
+    if jira.is_enabled(config):
+        jira.expand_links(devmode=devmode, api=api, config=config)
 
     logger.info("Taskbutler end")
 
