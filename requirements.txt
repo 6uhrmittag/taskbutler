@@ -1,6 +1,6 @@
 requests==2.22.0
 configparser==4.0.2
-certifi==2019.9.11
+certifi==2023.11.17
 chardet==3.0.4
 future==0.17.1
 macholib==1.11
