@@ -1,4 +1,4 @@
-requests==2.22.0
+requests==2.32.1
 configparser==4.0.2
 certifi==2019.9.11
 chardet==3.0.4
