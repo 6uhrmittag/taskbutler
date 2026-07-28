@@ -31,7 +31,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    description="Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files and Dropbox Paper papers directly to your tasks. IMPORTANT NOTICE: The project is currently on hold due to changes in the third-party APIs. I'll try to bring Taskbutler up to date in late 2023.",
+    description="Taskbutler enriches your Todoist tasks by adding progress bars, Office365 Files, Google Sheets and Dropbox Paper papers directly to your tasks. IMPORTANT NOTICE: The project is currently on hold due to changes in the third-party APIs. I'll try to bring Taskbutler up to date in late 2023.",
     entry_points={
         'console_scripts': [
             'taskbutler=taskbutler.cli:main',
